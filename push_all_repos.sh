@@ -10,7 +10,7 @@ echo "=============================================="
 
 # Define repositories
 REPOS=(
-    "."
+    ".:statex-main"
     "statex-ai"
     "statex-infrastructure" 
     "statex-monitoring"
@@ -21,8 +21,14 @@ REPOS=(
 
 # Function to push repository
 push_repo() {
-    local repo_path=$1
-    local repo_name=$(basename "$repo_path")
+    local repo_info=$1
+    local repo_path=$(echo "$repo_info" | cut -d: -f1)
+    local repo_name=$(echo "$repo_info" | cut -d: -f2)
+    
+    # If no custom name provided, use directory name
+    if [ "$repo_name" = "$repo_path" ]; then
+        repo_name=$(basename "$repo_path")
+    fi
     
     echo ""
     echo "📦 Processing repository: $repo_name"
@@ -91,11 +97,12 @@ echo "Starting repository push process..."
 echo "Timestamp: $(date)"
 
 # Process each repository
-for repo in "${REPOS[@]}"; do
-    if [ -d "$repo" ]; then
-        push_repo "$repo"
+for repo_info in "${REPOS[@]}"; do
+    repo_path=$(echo "$repo_info" | cut -d: -f1)
+    if [ -d "$repo_path" ] || [ "$repo_path" = "." ]; then
+        push_repo "$repo_info"
     else
-        echo "⚠️  Directory $repo not found, skipping..."
+        echo "⚠️  Directory $repo_path not found, skipping..."
     fi
 done
 
