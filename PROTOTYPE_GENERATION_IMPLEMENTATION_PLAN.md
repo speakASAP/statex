@@ -1,11 +1,13 @@
 # StateX Prototype Generation System - Implementation Plan
 
 ## **Project Overview**
+
 Implement a fast, AI-powered prototype generation system that creates HTML/CSS/JS websites based solely on customer form submissions, with queue-based processing and 1-month persistence.
 
 ## **Technical Specifications**
 
 ### **Core Requirements**
+
 - **Speed Priority**: Generate prototypes in under 2 minutes
 - **No User Control**: Fully automated based on form submission
 - **Technology Stack**: Basic HTML/CSS/JS only
@@ -16,12 +18,14 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
 ### **System Architecture**
 
 #### **1. Queue Management System**
+
 - **Technology**: Redis-based job queue
 - **Processing**: Sequential (1 at a time)
 - **Status Tracking**: Pending → Processing → Completed → Failed
 - **Retry Logic**: 3 attempts with exponential backoff
 
 #### **2. AI Generation Pipeline**
+
 - **Stage 1**: Requirements Analysis (NLP Service)
 - **Stage 2**: HTML Structure Generation (Free AI Service + CodeLlama)
 - **Stage 3**: CSS Styling Generation (Free AI Service)
@@ -29,9 +33,11 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
 - **Stage 5**: Content Integration (NLP Service)
 
 #### **3. File Storage System**
+
 - **Location**: `/public/prototypes/{projectId}/`
-- **Structure**: 
-  ```
+- **Structure**:
+
+  ```text
   /public/prototypes/{projectId}/
   ├── index.html
   ├── styles.css
@@ -43,6 +49,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
   ```
 
 #### **4. Subdomain Routing**
+
 - **Pattern**: `{projectId}.localhost:3000`
 - **Implementation**: Nginx wildcard subdomain
 - **Fallback**: `localhost:3000/prototypes/{projectId}`
@@ -52,6 +59,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
 ### **Phase 1: Queue System Implementation (Day 1-2)** ✅ **COMPLETED**
 
 #### **1.1 Redis Queue Setup** ✅ **COMPLETED**
+
 - **File**: `statex-ai/services/prototype-generator/job_queue/queue_manager.py`
 - **Features**:
   - ✅ Job enqueueing with Redis integration
@@ -61,6 +69,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
   - ✅ JSON serialization/deserialization for complex data
 
 #### **1.2 Queue API Endpoints** ✅ **COMPLETED**
+
 - **File**: `statex-ai/services/prototype-generator/api/queue.py`
 - **Endpoints**:
   - ✅ `POST /api/queue/submit` - Submit generation job
@@ -69,6 +78,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
   - ✅ `DELETE /api/queue/{job_id}` - Cancel job
 
 #### **1.3 Queue Worker** ✅ **COMPLETED**
+
 - **File**: `statex-ai/services/prototype-generator/job_queue/worker.py`
 - **Features**:
   - ✅ Process one job at a time (sequential processing)
@@ -80,15 +90,17 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
 ### **Phase 2: AI Generation Pipeline (Day 3-5)** ⚠️ **PARTIALLY COMPLETED**
 
 #### **2.1 HTML Structure Generator** ⚠️ **NEEDS REAL AI INTEGRATION**
+
 - **File**: `statex-ai/services/prototype-generator/generators/html_generator.py`
 - **Current Status**: Mock generation working, AI integration failing
-- **Issues**: 
+- **Issues**:
   - ❌ AI service returns 404 errors
   - ❌ Falls back to mock HTML templates
   - ❌ No real AI model integration
 - **Required Fix**: Integrate with Free AI Service (port 8016)
 
 #### **2.2 CSS Styling Generator** ⚠️ **NEEDS REAL AI INTEGRATION**
+
 - **File**: `statex-ai/services/prototype-generator/generators/css_generator.py`
 - **Current Status**: Mock generation working, AI integration failing
 - **Issues**:
@@ -98,6 +110,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
 - **Required Fix**: Integrate with Free AI Service (port 8016)
 
 #### **2.3 JavaScript Functionality Generator** ⚠️ **NEEDS REAL AI INTEGRATION**
+
 - **File**: `statex-ai/services/prototype-generator/generators/js_generator.py`
 - **Current Status**: Mock generation working, AI integration failing
 - **Issues**:
@@ -107,6 +120,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
 - **Required Fix**: Integrate with Free AI Service (port 8016)
 
 #### **2.4 Content Integration** ⚠️ **NEEDS REAL AI INTEGRATION**
+
 - **File**: `statex-ai/services/prototype-generator/generators/content_generator.py`
 - **Current Status**: Mock generation working, AI integration failing
 - **Issues**:
@@ -118,6 +132,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
 ### **Phase 3: File Management System (Day 6-7)** ✅ **COMPLETED**
 
 #### **3.1 File Storage Manager** ✅ **COMPLETED**
+
 - **File**: `statex-ai/services/prototype-generator/storage/file_manager.py`
 - **Features**:
   - ✅ Create project directories (`./prototypes/{projectId}/`)
@@ -127,6 +142,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
   - ✅ File size tracking and storage statistics
 
 #### **3.2 Metadata Management** ✅ **COMPLETED**
+
 - **File**: `statex-ai/services/prototype-generator/storage/metadata.py`
 - **Features**:
   - ✅ Store generation metadata in JSON format
@@ -135,6 +151,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
   - ✅ Generation statistics and AI-generated flags
 
 #### **3.3 Asset Management** ✅ **COMPLETED**
+
 - **File**: `statex-ai/services/prototype-generator/storage/asset_manager.py`
 - **Features**:
   - ✅ Generate placeholder images (future enhancement)
@@ -145,8 +162,10 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
 ### **Phase 4: Subdomain Routing (Day 8-9)**
 
 #### **4.1 Nginx Configuration**
+
 - **File**: `statex-infrastructure/nginx/conf.d/prototypes.conf`
 - **Configuration**:
+
   ```nginx
   server {
       listen 80;
@@ -161,6 +180,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
   ```
 
 #### **4.2 Next.js Dynamic Routing**
+
 - **File**: `statex-website/frontend/src/app/[...slug]/page.tsx`
 - **Features**:
   - Handle subdomain requests
@@ -168,6 +188,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
   - Fallback to main site
 
 #### **4.3 Prototype Viewer**
+
 - **File**: `statex-website/frontend/src/app/prototypes/[projectId]/page.tsx`
 - **Features**:
   - Display generated prototype
@@ -177,6 +198,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
 ### **Phase 5: Integration & Testing (Day 10-12)**
 
 #### **5.1 AI Orchestrator Integration**
+
 - **File**: `statex-ai/services/ai-orchestrator/workflows/prototype_workflow.py`
 - **Features**:
   - Coordinate all AI services
@@ -185,6 +207,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
   - Send notifications
 
 #### **5.2 Frontend Integration**
+
 - **File**: `statex-website/frontend/src/app/contact/page.tsx`
 - **Features**:
   - Submit to prototype queue
@@ -193,6 +216,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
   - Provide prototype links
 
 #### **5.3 Notification System**
+
 - **File**: `statex-notification-service/notifications/prototype_notifications.py`
 - **Features**:
   - Generation started notification
@@ -203,6 +227,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
 ### **Phase 6: Monitoring & Optimization (Day 13-14)**
 
 #### **6.1 Performance Monitoring**
+
 - **File**: `statex-monitoring/monitoring/prototype_monitoring.py`
 - **Metrics**:
   - Generation time
@@ -211,6 +236,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
   - Storage usage
 
 #### **6.2 Error Handling**
+
 - **File**: `statex-ai/services/prototype-generator/error_handler.py`
 - **Features**:
   - Comprehensive error logging
@@ -219,6 +245,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
   - System health monitoring
 
 #### **6.3 Cleanup System**
+
 - **File**: `statex-ai/services/prototype-generator/cleanup/cleanup_manager.py`
 - **Features**:
   - Daily cleanup of expired prototypes
@@ -228,7 +255,7 @@ Implement a fast, AI-powered prototype generation system that creates HTML/CSS/J
 
 ## **File Structure**
 
-```
+```text
 statex-ai/services/prototype-generator/
 ├── api/
 │   ├── __init__.py
@@ -291,12 +318,14 @@ CREATE TABLE prototype_metadata (
 ## **API Endpoints**
 
 ### **Queue Management**
+
 - `POST /api/prototype/queue/submit` - Submit generation job
 - `GET /api/prototype/queue/status/{job_id}` - Get job status
 - `GET /api/prototype/queue/list` - List all jobs
 - `DELETE /api/prototype/queue/{job_id}` - Cancel job
 
 ### **Prototype Management**
+
 - `GET /api/prototype/{project_id}` - Get prototype info
 - `GET /api/prototype/{project_id}/files` - List prototype files
 - `GET /api/prototype/{project_id}/download` - Download prototype
@@ -305,6 +334,7 @@ CREATE TABLE prototype_metadata (
 ## **Configuration**
 
 ### **Environment Variables**
+
 ```bash
 # Prototype Generator
 PROTOTYPE_STORAGE_PATH=/app/public/prototypes
@@ -319,6 +349,7 @@ GENERATION_TIMEOUT=120
 ```
 
 ### **Redis Queue Configuration**
+
 ```python
 QUEUE_CONFIG = {
     'name': 'prototype_generation',
@@ -332,6 +363,7 @@ QUEUE_CONFIG = {
 ## **Testing Strategy**
 
 ### **Unit Tests**
+
 - HTML generator output validation
 - CSS generator responsive design
 - JavaScript functionality testing
@@ -339,12 +371,14 @@ QUEUE_CONFIG = {
 - Queue management
 
 ### **Integration Tests**
+
 - End-to-end generation pipeline
 - Subdomain routing
 - AI service integration
 - Notification delivery
 
 ### **Performance Tests**
+
 - Generation time benchmarks
 - Queue processing speed
 - File I/O performance
@@ -353,18 +387,21 @@ QUEUE_CONFIG = {
 ## **Deployment Checklist**
 
 ### **Infrastructure Updates**
+
 - [ ] Update Nginx configuration for subdomain routing
 - [ ] Configure Redis for queue management
 - [ ] Set up file storage permissions
 - [ ] Update Docker Compose for new services
 
 ### **Service Updates**
+
 - [ ] Deploy prototype generator service
 - [ ] Update AI orchestrator workflow
 - [ ] Integrate with frontend
 - [ ] Configure notifications
 
 ### **Monitoring Setup**
+
 - [ ] Add prototype generation metrics
 - [ ] Set up error alerting
 - [ ] Configure log aggregation
@@ -373,12 +410,14 @@ QUEUE_CONFIG = {
 ## **Success Metrics**
 
 ### **Performance Targets**
+
 - **Generation Time**: < 2 minutes average
 - **Success Rate**: > 95%
 - **Queue Processing**: 1 job at a time
 - **Storage Efficiency**: < 10MB per prototype
 
 ### **Quality Targets**
+
 - **HTML Validity**: 100% valid HTML5
 - **CSS Responsiveness**: Mobile-first design
 - **JavaScript Functionality**: Basic interactivity
@@ -387,12 +426,14 @@ QUEUE_CONFIG = {
 ## **Risk Mitigation**
 
 ### **Technical Risks**
+
 - **AI Generation Quality**: Fallback to templates
 - **Queue Processing**: Error handling and retry logic
 - **File Storage**: Backup and recovery procedures
 - **Performance**: Monitoring and optimization
 
 ### **Operational Risks**
+
 - **Storage Overflow**: Automatic cleanup system
 - **Queue Backlog**: Monitoring and alerting
 - **Service Downtime**: Health checks and auto-restart
@@ -409,11 +450,13 @@ This plan provides a comprehensive roadmap for implementing the prototype genera
 **Problem**: All AI generators are falling back to mock data due to 404 errors from Free AI Service (port 8016)
 
 **Root Cause Analysis**:
+
 - ✅ Free AI Service was running but using wrong API endpoint
 - ✅ Incorrect API endpoint configuration (using `/api/generate` instead of `/analyze`)
 - ✅ Service discovery issues resolved
 
 **Fix Plan**:
+
 1. **Verify Free AI Service Status** ✅ **COMPLETED**
    - ✅ Checked service is running on port 8016
    - ✅ Tested API endpoints manually
@@ -436,6 +479,7 @@ This plan provides a comprehensive roadmap for implementing the prototype genera
 **Root Cause**: JSON parsing error in Redis data retrieval
 
 **Fix Plan**:
+
 1. **Fix JSON Parsing in Queue Manager** ⚠️ **NEEDS ATTENTION**
    - ⚠️ Redis data serialization/deserialization working but job retrieval has issues
    - ✅ Fixed `generated_files` field parsing with JSON handling
@@ -453,6 +497,7 @@ This plan provides a comprehensive roadmap for implementing the prototype genera
 **Problem**: Insufficient error reporting and logging throughout the system
 
 **Fix Plan**:
+
 1. **Implement Comprehensive Logging** ✅ **COMPLETED**
    - ✅ Added structured logging to all components with emoji indicators
    - ✅ Log all AI service calls and responses with detailed error messages
@@ -473,6 +518,7 @@ This plan provides a comprehensive roadmap for implementing the prototype genera
 **Problem**: Subdomain routing, integration, and monitoring not implemented
 
 **Fix Plan**:
+
 1. **Phase 4: Subdomain Routing**
    - Implement Nginx wildcard subdomain configuration
    - Create Next.js dynamic routing
@@ -495,6 +541,7 @@ This plan provides a comprehensive roadmap for implementing the prototype genera
 ### **Step 1: Fix AI Service Integration (Day 1)**
 
 1. **Diagnose Free AI Service**
+
    ```bash
    # Check if service is running
    curl -X GET http://localhost:8016/health
@@ -567,18 +614,21 @@ This plan provides a comprehensive roadmap for implementing the prototype genera
 ## **SUCCESS CRITERIA**
 
 ### **Immediate Fixes (Day 1-2)**
+
 - ✅ All AI generators use real AI services (no mock data)
 - ⚠️ Job status retrieval works correctly (minor issue with API retrieval)
 - ✅ Comprehensive error logging implemented
 - ✅ Error alerting system active
 
 ### **Complete Implementation (Day 3-5)**
+
 - ❌ Subdomain routing functional (Phase 4 - Not implemented)
 - ❌ Frontend integration complete (Phase 5 - Not implemented)
 - ❌ Monitoring and cleanup systems active (Phase 6 - Not implemented)
 - ⚠️ All phases implemented per original plan (Phases 1-3 completed, 4-6 pending)
 
 ### **Quality Assurance**
+
 - ✅ No mock data anywhere in the system
 - ✅ All errors properly logged and alerted
 - ✅ System handles failures gracefully
@@ -593,6 +643,7 @@ This plan provides a comprehensive roadmap for implementing the prototype genera
 #### **Fix 1: AI Service Integration** 🚨 **CRITICAL**
 
 **IMPLEMENTATION CHECKLIST**:
+
 1. [ ] Check Free AI Service status on port 8016
 2. [ ] Test AI generation endpoint manually
 3. [ ] Update `html_generator.py` to use real AI service
@@ -609,6 +660,7 @@ This plan provides a comprehensive roadmap for implementing the prototype genera
 #### **Fix 2: Job Status Retrieval** 🚨 **CRITICAL**
 
 **IMPLEMENTATION CHECKLIST**:
+
 1. [ ] Debug Redis data serialization in `queue_manager.py`
 2. [ ] Fix JSON parsing for `generated_files` field
 3. [ ] Add data validation before storing in Redis
@@ -623,6 +675,7 @@ This plan provides a comprehensive roadmap for implementing the prototype genera
 #### **Fix 3: Error Handling and Logging** 🚨 **HIGH PRIORITY**
 
 **IMPLEMENTATION CHECKLIST**:
+
 1. [ ] Implement structured logging framework
 2. [ ] Add logging to all service components
 3. [ ] Add performance metrics logging
@@ -637,6 +690,7 @@ This plan provides a comprehensive roadmap for implementing the prototype genera
 #### **Fix 4: Remove All Mock Data** 🚨 **HIGH PRIORITY**
 
 **IMPLEMENTATION CHECKLIST**:
+
 1. [ ] Remove mock HTML generation
 2. [ ] Remove mock CSS generation
 3. [ ] Remove mock JavaScript generation
@@ -653,6 +707,7 @@ This plan provides a comprehensive roadmap for implementing the prototype genera
 #### **Phase 4: Subdomain Routing** ⚠️ **MEDIUM PRIORITY**
 
 **IMPLEMENTATION CHECKLIST**:
+
 1. [ ] Create Nginx wildcard subdomain configuration
 2. [ ] Update `statex-infrastructure/nginx/conf.d/prototypes.conf`
 3. [ ] Implement Next.js dynamic routing for prototypes
@@ -667,6 +722,7 @@ This plan provides a comprehensive roadmap for implementing the prototype genera
 #### **Phase 5: Integration & Testing** ⚠️ **MEDIUM PRIORITY**
 
 **IMPLEMENTATION CHECKLIST**:
+
 1. [ ] Integrate with AI Orchestrator workflow
 2. [ ] Update `prototype_workflow.py` in AI Orchestrator
 3. [ ] Add frontend integration for prototype submission
@@ -681,6 +737,7 @@ This plan provides a comprehensive roadmap for implementing the prototype genera
 #### **Phase 6: Monitoring & Optimization** ⚠️ **LOW PRIORITY**
 
 **IMPLEMENTATION CHECKLIST**:
+
 1. [ ] Add performance monitoring
 2. [ ] Implement cleanup system for expired prototypes
 3. [ ] Create error handling framework
@@ -695,6 +752,7 @@ This plan provides a comprehensive roadmap for implementing the prototype genera
 ### **VALIDATION CHECKLIST**
 
 **Before Marking Complete**:
+
 1. [ ] All AI generators use real AI services (no mock data)
 2. [ ] Job status retrieval works correctly
 3. [ ] All errors are properly logged and alerted
@@ -707,6 +765,7 @@ This plan provides a comprehensive roadmap for implementing the prototype genera
 10. [ ] System is production-ready
 
 **CRITICAL SUCCESS METRICS**:
+
 - ✅ 100% real AI integration (no mock data)
 - ✅ 100% error logging and alerting
 - ✅ < 2 minutes average generation time
