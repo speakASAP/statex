@@ -18,6 +18,7 @@ This runbook provides step-by-step procedures for diagnosing and resolving commo
 ## Quick Diagnostic Commands
 
 ### System Status Overview
+
 ```bash
 # Check all service status
 docker-compose ps
@@ -36,6 +37,7 @@ netstat -tlnp | grep -E ':(3000|8002|8010|8011|8012|8013|8016|8005|5432|6379|567
 ```
 
 ### Service Health Check Script
+
 ```bash
 #!/bin/bash
 # quick-health-check.sh
@@ -76,6 +78,7 @@ docker exec statex_rabbitmq rabbitmqctl status > /dev/null 2>&1 && echo "✅ Rab
 ### Individual Service Diagnostics
 
 #### Website Frontend (Port 3000)
+
 ```bash
 # Check service status
 curl -I http://localhost:3000
@@ -96,6 +99,7 @@ curl -X POST http://localhost:3000/api/contact \
 ```
 
 #### AI Orchestrator (Port 8010)
+
 ```bash
 # Check health
 curl http://localhost:8010/health
@@ -114,6 +118,7 @@ docker exec statex_ai_orchestrator psql -h postgres -U statex_user -d statex_db 
 ```
 
 #### NLP Service (Port 8011)
+
 ```bash
 # Check health
 curl http://localhost:8011/health
@@ -131,6 +136,7 @@ docker logs statex_nlp_service --tail=50
 ```
 
 #### Free AI Service (Port 8016)
+
 ```bash
 # Check health
 curl http://localhost:8016/health
@@ -149,6 +155,7 @@ docker logs statex_free_ai_service --tail=100 | grep -i "model"
 ```
 
 #### Database (PostgreSQL)
+
 ```bash
 # Check connection
 docker exec statex_postgres pg_isready -U statex_user
@@ -171,11 +178,13 @@ SELECT query, mean_time, calls FROM pg_stat_statements ORDER BY mean_time DESC L
 ### Issue 1: Service Won't Start
 
 #### Symptoms
+
 - Docker container exits immediately
 - Service not responding on expected port
 - Health check fails
 
-#### Diagnosis
+#### Diagnosis Steps
+
 ```bash
 # Check container status
 docker ps -a | grep statex
@@ -190,7 +199,8 @@ docker stats --no-stream
 netstat -tlnp | grep <port>
 ```
 
-#### Resolution
+#### Resolution Steps
+
 ```bash
 # Restart specific service
 docker-compose restart <service_name>
@@ -211,11 +221,13 @@ docker-compose up -d
 ### Issue 2: High Response Times
 
 #### Symptoms
+
 - API requests taking > 30 seconds
 - Timeout errors in logs
 - Poor user experience
 
-#### Diagnosis
+#### Diagnosis Steps
+
 ```bash
 # Check system resources
 htop
@@ -233,7 +245,8 @@ time curl http://localhost:8011/health
 time curl http://localhost:8016/health
 ```
 
-#### Resolution
+#### Resolution Steps
+
 ```bash
 # Optimize database
 docker exec statex_postgres psql -U statex_user -d statex_db -c "VACUUM ANALYZE;"
@@ -251,11 +264,13 @@ python tests/performance_optimization.py
 ### Issue 3: Memory Issues
 
 #### Symptoms
+
 - Out of memory errors
 - Services being killed
 - System becoming unresponsive
 
-#### Diagnosis
+#### Diagnosis Steps
+
 ```bash
 # Check memory usage
 free -h
@@ -268,7 +283,8 @@ swapon -s
 docker exec <container> ps aux --sort=-%mem | head -10
 ```
 
-#### Resolution
+#### Resolution Steps
+
 ```bash
 # Restart memory-intensive services
 docker-compose restart ai-orchestrator nlp-service free-ai-service
@@ -292,7 +308,9 @@ services:
 ### Slow Workflow Processing
 
 #### Diagnosis Steps
+
 1. **Check AI Service Response Times**
+
 ```bash
 # Test individual services
 time curl -X POST http://localhost:8011/api/analyze-text \
@@ -305,6 +323,7 @@ time curl -X POST http://localhost:8016/analyze \
 ```
 
 2. **Check Database Performance**
+
 ```bash
 # Check slow queries
 docker exec statex_postgres psql -U statex_user -d statex_db -c "
@@ -328,6 +347,7 @@ WHERE NOT blocked_locks.granted;"
 ```
 
 3. **Check System Resources**
+
 ```bash
 # CPU usage by service
 docker stats --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}"
@@ -337,7 +357,9 @@ iotop -o -d 1
 ```
 
 #### Resolution Steps
+
 1. **Optimize Database**
+
 ```bash
 # Update statistics
 docker exec statex_postgres psql -U statex_user -d statex_db -c "ANALYZE;"
@@ -347,6 +369,7 @@ docker exec statex_postgres psql -U statex_user -d statex_db -c "REINDEX DATABAS
 ```
 
 2. **Optimize AI Services**
+
 ```bash
 # Restart AI services to clear memory
 docker-compose restart free-ai-service nlp-service asr-service
@@ -357,6 +380,7 @@ ollama list
 ```
 
 3. **Scale Services**
+
 ```bash
 # Scale AI workers
 docker-compose up -d --scale ai-workers=3
@@ -367,11 +391,13 @@ docker-compose up -d --scale ai-workers=3
 ### Connection Pool Exhaustion
 
 #### Symptoms
+
 - "too many connections" errors
 - New requests hanging
 - Connection timeout errors
 
 #### Diagnosis
+
 ```bash
 # Check active connections
 docker exec statex_postgres psql -U statex_user -d statex_db -c "
@@ -385,6 +411,7 @@ docker exec statex_postgres psql -U statex_user -d statex_db -c "SHOW max_connec
 ```
 
 #### Resolution
+
 ```bash
 # Kill idle connections
 docker exec statex_postgres psql -U statex_user -d statex_db -c "
@@ -404,11 +431,13 @@ max_connections = 200
 ### Database Corruption
 
 #### Symptoms
+
 - Data inconsistency errors
 - Index corruption messages
 - Query failures
 
 #### Diagnosis
+
 ```bash
 # Check database integrity
 docker exec statex_postgres psql -U statex_user -d statex_db -c "
@@ -421,6 +450,7 @@ docker exec statex_postgres pg_dump -U statex_user -d statex_db --schema-only > 
 ```
 
 #### Resolution
+
 ```bash
 # Backup current data
 docker exec statex_postgres pg_dump -U statex_user -d statex_db > /tmp/backup_$(date +%Y%m%d_%H%M%S).sql
@@ -437,11 +467,13 @@ docker exec statex_postgres psql -U statex_user -d statex_db -c "REINDEX DATABAS
 ### Ollama Model Loading Issues
 
 #### Symptoms
+
 - "Model not found" errors
 - Slow AI responses
 - Free AI Service health check fails
 
 #### Diagnosis
+
 ```bash
 # Check Ollama status
 ollama list
@@ -455,6 +487,7 @@ docker logs statex_free_ai_service --tail=100 | grep -i "model\|error"
 ```
 
 #### Resolution
+
 ```bash
 # Pull missing models
 ollama pull llama2:7b
@@ -476,11 +509,13 @@ curl -X POST http://localhost:8016/analyze \
 ### AI Service Timeout Issues
 
 #### Symptoms
+
 - Request timeout errors
 - Partial workflow completion
 - Agent coordination failures
 
 #### Diagnosis
+
 ```bash
 # Check service response times
 time curl http://localhost:8011/health
@@ -494,6 +529,7 @@ curl http://localhost:8010/api/workflows/active
 ```
 
 #### Resolution
+
 ```bash
 # Increase timeout values in configuration
 # Edit AI Orchestrator config:
@@ -512,11 +548,13 @@ docker-compose restart ai-orchestrator
 ### Service Discovery Issues
 
 #### Symptoms
+
 - Services cannot reach each other
 - DNS resolution failures
 - Connection refused errors
 
 #### Diagnosis
+
 ```bash
 # Check Docker network
 docker network ls
@@ -533,6 +571,7 @@ docker exec statex_ai_orchestrator nc -zv redis 6379
 ```
 
 #### Resolution
+
 ```bash
 # Recreate Docker network
 docker-compose down
@@ -548,11 +587,13 @@ sudo ufw status
 ### External API Connectivity
 
 #### Symptoms
+
 - HuggingFace API failures
 - External service timeouts
 - SSL certificate errors
 
 #### Diagnosis
+
 ```bash
 # Test external connectivity
 curl -I https://api.huggingface.co
@@ -567,6 +608,7 @@ docker exec statex_nlp_service curl -I https://api.huggingface.co
 ```
 
 #### Resolution
+
 ```bash
 # Check proxy settings if behind corporate firewall
 export https_proxy=http://proxy.company.com:8080
@@ -583,11 +625,13 @@ sudo systemctl restart docker
 ### Prometheus Not Collecting Metrics
 
 #### Symptoms
+
 - Empty Grafana dashboards
 - No metrics in Prometheus
 - Scrape failures
 
 #### Diagnosis
+
 ```bash
 # Check Prometheus status
 curl http://localhost:9090/-/healthy
@@ -601,6 +645,7 @@ curl http://localhost:8011/metrics
 ```
 
 #### Resolution
+
 ```bash
 # Restart Prometheus
 docker-compose restart prometheus
@@ -615,11 +660,13 @@ docker exec statex_prometheus wget -qO- http://ai-orchestrator:8010/metrics
 ### Grafana Dashboard Issues
 
 #### Symptoms
+
 - Dashboards not loading
 - No data in panels
 - Connection errors
 
 #### Diagnosis
+
 ```bash
 # Check Grafana health
 curl http://localhost:3002/api/health
@@ -632,6 +679,7 @@ docker logs statex_grafana --tail=50
 ```
 
 #### Resolution
+
 ```bash
 # Restart Grafana
 docker-compose restart grafana
@@ -648,7 +696,9 @@ docker exec statex_grafana grafana-cli admin reset-admin-password newpassword
 ### Complete System Failure
 
 #### Immediate Actions
+
 1. **Assess the situation**
+
 ```bash
 # Check system status
 systemctl status docker
@@ -658,6 +708,7 @@ free -h
 ```
 
 2. **Stop all services safely**
+
 ```bash
 # Graceful shutdown
 docker-compose down
@@ -667,6 +718,7 @@ docker stop $(docker ps -aq)
 ```
 
 3. **Check system resources**
+
 ```bash
 # Check disk space
 df -h
@@ -679,13 +731,16 @@ journalctl -xe --since "1 hour ago"
 ```
 
 #### Recovery Steps
-1. **Start infrastructure services first**
+
+4. **Start infrastructure services first**
+
 ```bash
 cd statex-infrastructure
 docker-compose up -d postgres redis rabbitmq minio
 ```
 
-2. **Wait for infrastructure to be ready**
+5. **Wait for infrastructure to be ready**
+
 ```bash
 # Wait for PostgreSQL
 until docker exec statex_postgres pg_isready -U statex_user; do sleep 2; done
@@ -694,7 +749,8 @@ until docker exec statex_postgres pg_isready -U statex_user; do sleep 2; done
 until docker exec statex_redis redis-cli ping; do sleep 2; done
 ```
 
-3. **Start application services**
+6. **Start application services**
+
 ```bash
 cd ../statex-ai
 docker-compose up -d
@@ -706,7 +762,8 @@ cd ../statex-notification-service
 docker-compose up -d
 ```
 
-4. **Verify system health**
+7. **Verify system health**
+
 ```bash
 ./scripts/health-check.sh
 ```
@@ -714,6 +771,7 @@ docker-compose up -d
 ### Data Recovery
 
 #### Database Recovery
+
 ```bash
 # Stop all services
 docker-compose down
@@ -729,6 +787,7 @@ docker exec statex_postgres psql -U statex_user -d statex_db -c "SELECT count(*)
 ```
 
 #### File Recovery
+
 ```bash
 # Restore files from backup
 docker exec statex_minio mc mirror /backups/latest/files/ local/submissions/
@@ -740,6 +799,7 @@ docker exec statex_minio mc ls local/submissions/
 ## Log Analysis
 
 ### Centralized Log Collection
+
 ```bash
 # View all service logs
 docker-compose logs -f
@@ -755,6 +815,7 @@ docker-compose logs --since="1h" > /tmp/system_logs_$(date +%Y%m%d_%H%M%S).txt
 ```
 
 ### Log Analysis Scripts
+
 ```bash
 #!/bin/bash
 # analyze-logs.sh
@@ -779,6 +840,7 @@ docker-compose logs --since="1h" | grep -i "timeout\|timed out"
 ```
 
 ### Performance Log Analysis
+
 ```bash
 #!/bin/bash
 # performance-analysis.sh

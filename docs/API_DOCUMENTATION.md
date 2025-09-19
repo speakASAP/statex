@@ -21,6 +21,7 @@ This document provides comprehensive API documentation for all services in the m
 ## API Overview
 
 ### Base URLs
+
 - **Website Frontend**: `http://localhost:3000`
 - **Submission Service**: `http://localhost:8002`
 - **AI Orchestrator**: `http://localhost:8010`
@@ -31,6 +32,7 @@ This document provides comprehensive API documentation for all services in the m
 - **Notification Service**: `http://localhost:8005`
 
 ### Common Headers
+
 ```http
 Content-Type: application/json
 Accept: application/json
@@ -38,7 +40,9 @@ User-Agent: StateX-Client/1.0
 ```
 
 ### Response Format
+
 All APIs return responses in the following format:
+
 ```json
 {
   "success": true,
@@ -52,13 +56,17 @@ All APIs return responses in the following format:
 ## Authentication
 
 ### API Key Authentication
+
 Some endpoints require API key authentication:
+
 ```http
 Authorization: Bearer your-api-key
 ```
 
 ### JWT Authentication
+
 For user-specific operations:
+
 ```http
 Authorization: Bearer jwt-token
 ```

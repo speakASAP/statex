@@ -18,6 +18,7 @@ This document outlines comprehensive monitoring and maintenance procedures for t
 ## Monitoring Overview
 
 ### Monitoring Stack
+
 - **Prometheus**: Metrics collection and storage
 - **Grafana**: Visualization and dashboards
 - **Loki**: Log aggregation and analysis
@@ -26,6 +27,7 @@ This document outlines comprehensive monitoring and maintenance procedures for t
 - **Custom Exporters**: Application-specific metrics
 
 ### Key Metrics Categories
+
 1. **System Metrics**: CPU, memory, disk, network
 2. **Application Metrics**: Response times, error rates, throughput
 3. **Business Metrics**: Workflow completion rates, user satisfaction
@@ -36,6 +38,7 @@ This document outlines comprehensive monitoring and maintenance procedures for t
 ### Health Check Endpoints
 
 #### Automated Health Check Script
+
 ```bash
 #!/bin/bash
 # system-health-check.sh

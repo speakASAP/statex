@@ -21,6 +21,7 @@ This comprehensive deployment guide covers the complete setup and configuration 
 The multi-agent contact form workflow system consists of the following components:
 
 ### Core Services
+
 - **Website Frontend** (Port 3000): Next.js application with contact form
 - **Submission Service** (Port 8002): Handles form submissions and file uploads
 - **AI Orchestrator** (Port 8010): Coordinates multi-agent workflows
@@ -32,12 +33,14 @@ The multi-agent contact form workflow system consists of the following component
 - **Notification Service** (Port 8005): Telegram and multi-channel notifications
 
 ### Infrastructure Services
+
 - **PostgreSQL** (Port 5432): Primary database
 - **Redis** (Port 6379): Caching and session storage
 - **RabbitMQ** (Port 5672): Message queuing
 - **MinIO** (Port 9000): Object storage for files
 
 ### Monitoring Services
+
 - **Prometheus** (Port 9090): Metrics collection
 - **Grafana** (Port 3002): Monitoring dashboards
 - **Loki** (Port 3100): Log aggregation
@@ -47,12 +50,14 @@ The multi-agent contact form workflow system consists of the following component
 ### System Requirements
 
 #### Minimum Requirements
+
 - **CPU**: 4 cores
 - **RAM**: 8GB
 - **Storage**: 50GB SSD
 - **Network**: 100 Mbps
 
 #### Recommended Requirements
+
 - **CPU**: 8 cores
 - **RAM**: 16GB
 - **Storage**: 100GB SSD
@@ -61,6 +66,7 @@ The multi-agent contact form workflow system consists of the following component
 ### Software Dependencies
 
 #### Required Software
+
 - Docker 24.0+
 - Docker Compose 2.20+
 - Git 2.30+
@@ -68,10 +74,12 @@ The multi-agent contact form workflow system consists of the following component
 - Python 3.9+ (for AI services)
 
 #### Optional Software
+
 - Ollama (for local AI models)
 - NVIDIA Docker (for GPU acceleration)
 
 ### Network Requirements
+
 - Outbound HTTPS (443) for AI service APIs
 - Inbound HTTP/HTTPS (80/443) for web access
 - Internal service communication (various ports)

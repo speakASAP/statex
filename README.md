@@ -8,7 +8,7 @@ StateX is a comprehensive **AI-powered business automation platform** that provi
 
 StateX follows a **distributed microservices architecture** with clear separation of concerns, enabling scalability, maintainability, and independent deployment of services.
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                        StateX Ecosystem                         │
 ├─────────────────────────────────────────────────────────────────┤
@@ -49,21 +49,25 @@ StateX follows a **distributed microservices architecture** with clear separatio
 ## 📁 **Microservices Architecture**
 
 ### **1. StateX Platform** (`statex-platform`)
+
 **Purpose**: Central orchestration and management hub
 **Repository**: `git@github.com:speakASAP/statex-platform.git`
 **Ports**: 8000 (Platform Management), 8001 (API Gateway)
 
 **Responsibilities**:
+
 - Central orchestration and coordination of all microservices
 - API Gateway for unified service access
 - Integration with external services
 - Management of AI services and notification service
 
 **Key Services**:
+
 - **Platform Management** (8000): Central orchestration and coordination
 - **API Gateway** (8001): Unified API access point for all services
 
 **Technology Stack**:
+
 - FastAPI (Python)
 - PostgreSQL (Database)
 - Redis (Cache)
@@ -73,12 +77,14 @@ StateX follows a **distributed microservices architecture** with clear separatio
 ---
 
 ### **2. StateX AI** (`statex-ai`)
+
 **Purpose**: AI processing and intelligent analysis
 **Repository**: `git@github.com:speakASAP/statex-ai.git`
 **Ports**: 8010-8017
 **Management**: Orchestrated by statex-platform
 
 **Responsibilities**:
+
 - AI workflow orchestration
 - Natural language processing
 - Speech-to-text conversion
@@ -88,6 +94,7 @@ StateX follows a **distributed microservices architecture** with clear separatio
 - AI worker management
 
 **AI Services**:
+
 - **AI Orchestrator** (8010): Central coordination
 - **NLP Service** (8011): Text analysis and generation
 - **ASR Service** (8012): Speech-to-text conversion
@@ -98,6 +105,7 @@ StateX follows a **distributed microservices architecture** with clear separatio
 - **AI Workers** (8017): AI processing agents
 
 **Technology Stack**:
+
 - FastAPI (Python)
 - OpenAI GPT-4, Anthropic Claude
 - Ollama (Local LLM)
@@ -108,12 +116,14 @@ StateX follows a **distributed microservices architecture** with clear separatio
 ---
 
 ### **3. StateX Notification Service** (`statex-notification-service`)
+
 **Purpose**: Multi-channel communication hub
 **Repository**: `git@github.com:speakASAP/statex-notification-service.git`
 **Port**: 8005
 **Management**: Orchestrated by statex-platform
 
 **Responsibilities**:
+
 - Email notifications (SMTP)
 - WhatsApp Business API integration
 - Telegram Bot API integration
@@ -121,11 +131,13 @@ StateX follows a **distributed microservices architecture** with clear separatio
 - Delivery tracking and analytics
 
 **Supported Channels**:
-- 📧 **Email**: StateX mailserver (contact@statex.cz)
+
+- 📧 **Email**: StateX mailserver (<contact@statex.cz>)
 - 📱 **WhatsApp**: WhatsApp Business API
 - ✈️ **Telegram**: Telegram Bot API
 
 **Technology Stack**:
+
 - FastAPI (Python)
 - SMTP (Email)
 - WhatsApp Business API
@@ -135,12 +147,14 @@ StateX follows a **distributed microservices architecture** with clear separatio
 ---
 
 ### **4. StateX Website** (`statex-website`)
+
 **Purpose**: Frontend website and core business services
 **Repository**: `git@github.com:speakASAP/statex-website.git`
 **Ports**: 3000 (Frontend), 8002 (Submission Service), 8006 (User Portal), 8009 (Content Service)
 **Management**: Self-managed with orchestration support from statex-platform
 
 **Responsibilities**:
+
 - Main website (statex.cz)
 - Contact forms and user interaction
 - Content management and blog
@@ -150,6 +164,7 @@ StateX follows a **distributed microservices architecture** with clear separatio
 - Static site generation
 
 **Components**:
+
 - **Frontend** (3000): Next.js with TypeScript
 - **Submission Service** (8002): Form submission and file handling
 - **User Portal** (8006): User management and authentication
@@ -158,6 +173,7 @@ StateX follows a **distributed microservices architecture** with clear separatio
 - **Design System**: Component library
 
 **Technology Stack**:
+
 - Next.js (React/TypeScript)
 - Node.js/Fastify (Backend)
 - Prisma (Database ORM)
@@ -166,11 +182,13 @@ StateX follows a **distributed microservices architecture** with clear separatio
 ---
 
 ### **5. StateX Infrastructure** (`statex-infrastructure`)
+
 **Purpose**: Infrastructure and SSL management
 **Repository**: `git@github.com:speakASAP/statex-infrastructure.git`
 **Ports**: 80 (HTTP), 443 (HTTPS)
 
 **Responsibilities**:
+
 - Nginx reverse proxy and load balancing
 - SSL certificate management (Let's Encrypt)
 - Domain routing and virtual hosts
@@ -178,12 +196,14 @@ StateX follows a **distributed microservices architecture** with clear separatio
 - Security headers and policies
 
 **Features**:
+
 - **Development**: Self-signed certificates
 - **Production**: Let's Encrypt certificates
 - **Automatic Renewal**: Certificate auto-renewal
 - **Rate Limit Protection**: Persistent certificate storage
 
 **Technology Stack**:
+
 - Nginx (Reverse Proxy)
 - Let's Encrypt (SSL Certificates)
 - Docker & Docker Compose
@@ -192,12 +212,14 @@ StateX follows a **distributed microservices architecture** with clear separatio
 ---
 
 ### **6. StateX Monitoring** (`statex-monitoring`)
+
 **Purpose**: Comprehensive monitoring and observability
 **Repository**: `git@github.com:speakASAP/statex-monitoring.git`
 **Ports**: 3002 (Grafana), 3100 (Loki), 3102 (Loki Direct), 8081 (cAdvisor), 9090 (Prometheus), 9093 (AlertManager), 9100 (Node Exporter), 9115 (Blackbox Exporter), 16686 (Jaeger), 8007 (Monitoring Service), 8008 (Logging Service)
 **Management**: Orchestrated by statex-platform
 
 **Responsibilities**:
+
 - System and application metrics collection
 - Log aggregation and analysis
 - Distributed tracing
@@ -207,6 +229,7 @@ StateX follows a **distributed microservices architecture** with clear separatio
 - Centralized logging
 
 **Monitoring Stack**:
+
 - **Prometheus** (9090): Metrics collection and storage
 - **Grafana** (3002): Visualization and dashboards
 - **Loki** (3100): Log aggregation
@@ -216,6 +239,7 @@ StateX follows a **distributed microservices architecture** with clear separatio
 - **Logging Service** (8008): Centralized logging and audit trails
 
 **Technology Stack**:
+
 - Prometheus (Metrics)
 - Grafana (Visualization)
 - Loki (Logs)
@@ -225,7 +249,8 @@ StateX follows a **distributed microservices architecture** with clear separatio
 ## 🔄 **Data Flow Architecture**
 
 ### **User Submission Workflow**
-```
+
+```text
 1. User visits statex.cz (Website)
 2. Fills contact form with text, voice, files
 3. Form submission → StateX Platform (API Gateway)
@@ -242,7 +267,8 @@ StateX follows a **distributed microservices architecture** with clear separatio
 ```
 
 ### **AI Processing Pipeline**
-```
+
+```text
 User Input → AI Orchestrator → Parallel AI Processing:
 ├── Free AI Service (Ollama/Hugging Face)
 ├── NLP Service (OpenAI/Anthropic)
@@ -256,6 +282,7 @@ User Input → AI Orchestrator → Parallel AI Processing:
 ## 🚀 **Quick Start**
 
 ### **Prerequisites**
+
 - Docker and Docker Compose
 - Node.js 23.11.0 (for frontend development)
 - Python 3.11 (for backend development)
@@ -264,6 +291,7 @@ User Input → AI Orchestrator → Parallel AI Processing:
 - API keys (OpenAI, WhatsApp, Telegram)
 
 ### **⚡ Optimized Development Setup (2-3 minutes)**
+
 StateX now uses a **hybrid Docker + Local development approach** for maximum speed:
 
 ```bash
@@ -291,6 +319,7 @@ cp ../env.development.template .env.development
 ```
 
 ### **🔧 Development Management**
+
 **New optimized development workflow:**
 
 - **Start all services**: `./dev-manage.sh start` (2-3 minutes vs 1+ hour)
@@ -301,6 +330,7 @@ cp ../env.development.template .env.development
 - **Health check**: `./dev-manage.sh health`
 
 **Legacy production management:**
+
 - **Start all services**: `./manage.sh start` (for production-like testing)
 - **Stop all services**: `./manage.sh stop`
 - **Check status**: `./manage.sh status`
@@ -308,6 +338,7 @@ cp ../env.development.template .env.development
 - **Health check**: `./manage.sh health`
 
 ### **🚀 Development Optimization Benefits**
+
 The new hybrid development approach provides significant improvements:
 
 | Metric | Before | After | Improvement |
@@ -318,11 +349,13 @@ The new hybrid development approach provides significant improvements:
 | **File System** | Docker overlay | Native | **5-10x faster** |
 
 **Architecture:**
+
 - **Infrastructure Services**: Docker (Postgres, Redis, RabbitMQ, MinIO, Nginx)
 - **Application Services**: Volume mounts with hot reload (Frontend, AI, Backend)
 - **Best of Both Worlds**: Containerization benefits + development speed
 
 ### **Production Deployment**
+
 ```bash
 # Deploy infrastructure
 cd statex-infrastructure
@@ -336,18 +369,21 @@ make deploy-prod
 ## 📊 **Monitoring & Observability**
 
 ### **Key Metrics**
+
 - **System Performance**: CPU, memory, disk usage
 - **Application Metrics**: Request rates, response times, error rates
 - **Business Metrics**: User submissions, AI processing time, notification delivery
 - **AI Agent Performance**: Processing time, success rates, model accuracy
 
 ### **Dashboards**
+
 - **Platform Overview**: System health and performance
 - **AI Services**: AI agent performance and accuracy
 - **Business Metrics**: User engagement and conversion
 - **Infrastructure**: Resource usage and capacity
 
 ### **Alerting**
+
 - **Critical**: Service down, high error rates
 - **Warning**: High response times, resource usage
 - **Info**: Deployments, capacity planning
@@ -355,18 +391,21 @@ make deploy-prod
 ## 🔒 **Security**
 
 ### **Authentication & Authorization**
+
 - JWT tokens for API authentication
 - OAuth 2.0 for third-party integration
 - Role-based access control (RBAC)
 - Multi-factor authentication (MFA)
 
 ### **Data Protection**
+
 - Encryption at rest and in transit
 - GDPR compliance for EU users
 - PII handling and anonymization
 - Comprehensive audit logging
 
 ### **Network Security**
+
 - TLS/SSL for all communications
 - mTLS for service-to-service communication
 - Network segmentation
@@ -375,18 +414,21 @@ make deploy-prod
 ## 🌍 **Deployment Environments**
 
 ### **Development**
+
 - Local Docker Compose
 - Self-signed SSL certificates
 - Mock external services
 - Debug logging enabled
 
 ### **Staging**
+
 - Kubernetes cluster
 - Let's Encrypt certificates
 - Production-like configuration
 - Performance testing
 
 ### **Production**
+
 - Multi-region Kubernetes
 - High availability setup
 - Production SSL certificates
@@ -395,12 +437,14 @@ make deploy-prod
 ## 📈 **Scaling Strategy**
 
 ### **Horizontal Scaling**
+
 - Microservices can scale independently
 - Load balancing across multiple instances
 - Database read replicas
 - CDN for static content
 
 ### **Vertical Scaling**
+
 - Resource optimization per service
 - Memory and CPU tuning
 - Database query optimization
@@ -409,6 +453,7 @@ make deploy-prod
 ## 🤝 **Contributing**
 
 ### **Development Workflow**
+
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
@@ -416,6 +461,7 @@ make deploy-prod
 5. Submit a pull request
 
 ### **Code Standards**
+
 - Python: PEP 8, type hints, docstrings
 - TypeScript: ESLint, Prettier
 - Docker: Multi-stage builds, security scanning
@@ -424,6 +470,7 @@ make deploy-prod
 ## 📚 **Documentation**
 
 ### **Service Documentation**
+
 - [StateX Architecture diagram](./ARCHITECTURE_DIAGRAM.md)
 - [StateX Platform](./statex-platform/README.md)
 - [StateX AI](./statex-ai/README.md)
@@ -433,56 +480,64 @@ make deploy-prod
 - [StateX Monitoring](./statex-monitoring/README.md)
 
 ### **Architecture Documentation**
+
 - [Complete Architecture Diagram](./ARCHITECTURE_DIAGRAM.md) - Visual representation of all services and their relationships
 
 ### **API Documentation**
-- **API Gateway**: http://localhost:8001 (unified access to all services)
-- **Platform Management**: http://localhost:8000/docs
-- **AI Orchestrator**: http://localhost:8010/docs
-- **Notification Service**: http://localhost:8005/docs
-- **Submission Service**: http://localhost:8002/docs (managed by statex-website)
-- **User Portal**: http://localhost:8006/docs (managed by statex-website)
-- **Content Service**: http://localhost:8009/docs (managed by statex-website)
-- **Monitoring Service**: http://localhost:8007/docs
-- **Logging Service**: http://localhost:8008/docs
+
+- **API Gateway**: <http://localhost:8001> (unified access to all services)
+- **Platform Management**: <http://localhost:8000/docs>
+- **AI Orchestrator**: <http://localhost:8010/docs>
+- **Notification Service**: <http://localhost:8005/docs>
+- **Submission Service**: <http://localhost:8002/docs> (managed by statex-website)
+- **User Portal**: <http://localhost:8006/docs> (managed by statex-website)
+- **Content Service**: <http://localhost:8009/docs> (managed by statex-website)
+- **Monitoring Service**: <http://localhost:8007/docs>
+- **Logging Service**: <http://localhost:8008/docs>
 
 ### **Service Access URLs**
-- **Website**: http://localhost:${FRONTEND_PORT:-3000}
-- **API Gateway**: http://localhost:8001
-- **Grafana**: http://localhost:3002 (admin/statex123)
-- **Prometheus**: http://localhost:9090
-- **Jaeger**: http://localhost:16686
-- **Loki**: http://localhost:3100
-- **cAdvisor**: http://localhost:8081
+
+- **Website**: <http://localhost:${FRONTEND_PORT:-3000}>
+- **API Gateway**: <http://localhost:8001>
+- **Grafana**: <http://localhost:3002> (admin/statex123)
+- **Prometheus**: <http://localhost:9090>
+- **Jaeger**: <http://localhost:16686>
+- **Loki**: <http://localhost:3100>
+- **cAdvisor**: <http://localhost:8081>
 
 ## 🆘 **Support**
 
 ### **Getting Help**
+
 - **Documentation**: [docs.statex.cz](https://docs.statex.cz)
 - **Issues**: GitHub Issues in respective repositories
-- **Email**: support@statex.cz
+- **Email**: <support@statex.cz>
 - **Slack**: #statex-support
 
 ### **Emergency Support**
+
 - **Critical Issues**: PagerDuty alerts
 - **Service Outages**: Status page at status.statex.cz
-- **Security Issues**: security@statex.cz
+- **Security Issues**: <security@statex.cz>
 
 ## 🗺️ **Roadmap**
 
 ### **Stage 1**
+
 - [ ] Complete AI agent performance optimization
 - [ ] Advanced monitoring and alerting
 - [ ] Multi-language support
 - [ ] Mobile application
 
 ### **Stage 2**
+
 - [ ] Multi-region deployment
 - [ ] Advanced analytics and reporting
 - [ ] AI model fine-tuning
 - [ ] Enterprise features
 
 ### **Stage 3**
+
 - [ ] Marketplace for AI agents
 - [ ] Advanced workflow automation
 - [ ] Integration with external platforms
@@ -491,5 +546,3 @@ make deploy-prod
 ---
 
 **StateX** - Transforming business ideas into digital solutions through AI-powered automation 🚀
-
-*Built with ❤️ for the EU and UAE markets*
