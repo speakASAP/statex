@@ -3,15 +3,18 @@
 ## **Phase 1: Immediate Fixes (Priority: HIGH)**
 
 ### **1.1 Create Prototypes Directory Structure**
+
 - **File**: `statex-website/frontend/public/prototypes/`
 - **Action**: Create the missing directory structure
 - **Implementation**:
+
   ```bash
   mkdir -p statex-website/frontend/public/prototypes
   touch statex-website/frontend/public/prototypes/.gitkeep
   ```
 
 ### **1.2 Fix Prototype Page Error Handling**
+
 - **File**: `statex-website/frontend/src/app/prototypes/[projectId]/page.tsx`
 - **Action**: Add graceful error handling for missing prototypes
 - **Implementation**:
@@ -21,17 +24,19 @@
   - Show loading state while checking
 
 ### **1.3 Update Prototype URLs to Use Working Service**
+
 - **File**: `statex-website/frontend/src/components/forms/ProcessingFeedback.tsx`
 - **File**: `statex-website/frontend/src/components/sections/FormSection.tsx`
 - **Action**: Change prototype URLs to use the working prototype service
 - **Implementation**:
-  - Change from `http://project-proto_${projectId}.localhost:3000` 
+  - Change from `http://project-proto_${projectId}.localhost:3000`
   - To `http://localhost:8003/prototype/${projectId}`
   - Update all prototype-related URLs (view, plan, offer)
 
 ## **Phase 2: Prototype Generation System Fix (Priority: HIGH)**
 
 ### **2.1 Diagnose AI Orchestrator Integration**
+
 - **File**: `statex-ai/services/ai-orchestrator/workflows/prototype_workflow.py`
 - **Action**: Check if prototype generation is being triggered
 - **Implementation**:
@@ -40,6 +45,7 @@
   - Ensure proper error handling and logging
 
 ### **2.2 Fix Prototype Service Integration**
+
 - **File**: `statex-ai/services/prototype-generator/`
 - **Action**: Ensure prototype service is properly integrated
 - **Implementation**:
@@ -48,6 +54,7 @@
   - Test prototype generation manually
 
 ### **2.3 Update Form Submission to Trigger Prototype Generation**
+
 - **File**: `statex-website/frontend/src/components/sections/FormSection.tsx`
 - **Action**: Ensure form submission triggers prototype generation
 - **Implementation**:
@@ -58,6 +65,7 @@
 ## **Phase 3: Subdomain Routing Implementation (Priority: MEDIUM)**
 
 ### **3.1 Implement Development Subdomain Routing**
+
 - **File**: `statex-website/frontend/next.config.js`
 - **Action**: Add subdomain routing for development
 - **Implementation**:
@@ -66,6 +74,7 @@
   - Add fallback to main site
 
 ### **3.2 Create Subdomain Handler**
+
 - **File**: `statex-website/frontend/src/middleware.ts`
 - **Action**: Handle subdomain routing in Next.js
 - **Implementation**:
@@ -76,6 +85,7 @@
 ## **Phase 4: Error Handling and User Experience (Priority: MEDIUM)**
 
 ### **4.1 Add Prototype Status Checking**
+
 - **File**: `statex-website/frontend/src/services/prototypeService.ts`
 - **Action**: Create service to check prototype status
 - **Implementation**:
@@ -84,6 +94,7 @@
   - Handle different states (generating, completed, failed)
 
 ### **4.2 Update Processing Feedback to Show Prototype Status**
+
 - **File**: `statex-website/frontend/src/components/forms/ProcessingFeedback.tsx`
 - **Action**: Show prototype generation progress
 - **Implementation**:
@@ -92,6 +103,7 @@
   - Display prototype links when ready
 
 ### **4.3 Add Prototype Not Found Page**
+
 - **File**: `statex-website/frontend/src/app/prototypes/[projectId]/not-found.tsx`
 - **Action**: Create proper 404 page for missing prototypes
 - **Implementation**:
@@ -102,6 +114,7 @@
 ## **Phase 5: Testing and Validation (Priority: HIGH)**
 
 ### **5.1 Test Prototype Generation End-to-End**
+
 - **Action**: Verify complete prototype generation workflow
 - **Implementation**:
   - Submit form with test data
@@ -110,6 +123,7 @@
   - Confirm prototype is accessible
 
 ### **5.2 Test All Prototype URL Patterns**
+
 - **Action**: Verify all URL patterns work correctly
 - **Implementation**:
   - Test subdomain URLs: `http://project-proto_*.localhost:3000`
@@ -117,6 +131,7 @@
   - Test direct service URLs: `http://localhost:8003/prototype/*`
 
 ### **5.3 Test Error Scenarios**
+
 - **Action**: Verify error handling works correctly
 - **Implementation**:
   - Test with non-existent prototype IDs
@@ -126,6 +141,7 @@
 ## **IMPLEMENTATION CHECKLIST**
 
 ### **Phase 1: Immediate Fixes**
+
 1. [ ] Create prototypes directory structure
 2. [ ] Fix prototype page error handling
 3. [ ] Update prototype URLs to use working service
@@ -133,6 +149,7 @@
 5. [ ] Verify prototype URLs work with service
 
 ### **Phase 2: Prototype Generation System Fix**
+
 6. [ ] Diagnose AI orchestrator integration
 7. [ ] Fix prototype service integration
 8. [ ] Update form submission to trigger prototype generation
@@ -140,6 +157,7 @@
 10. [ ] Verify prototypes are created and stored
 
 ### **Phase 3: Subdomain Routing Implementation**
+
 11. [ ] Implement development subdomain routing
 12. [ ] Create subdomain handler middleware
 13. [ ] Test subdomain URL patterns
@@ -147,6 +165,7 @@
 15. [ ] Verify subdomain routing works
 
 ### **Phase 4: Error Handling and User Experience**
+
 16. [ ] Add prototype status checking service
 17. [ ] Update processing feedback to show prototype status
 18. [ ] Add prototype not found page
@@ -154,6 +173,7 @@
 20. [ ] Verify user experience improvements
 
 ### **Phase 5: Testing and Validation**
+
 21. [ ] Test prototype generation end-to-end
 22. [ ] Test all prototype URL patterns
 23. [ ] Test error scenarios
