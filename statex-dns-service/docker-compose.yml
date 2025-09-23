@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  dns-service:
+    build: .
+    container_name: statex-dns-service
+    ports:
+      - "8053:8053"  # HTTP API
+      - "5353:5353/udp"  # DNS server
+      - "5353:5353/tcp"  # DNS server
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - NODE_ENV=production
+      - DNS_SERVICE_PORT=8053
+      - DNS_PORT=5353
+      - DATABASE_PATH=/app/data/subdomains.db
+      - LOG_LEVEL=info
+    networks:
+      - statex_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8053/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  statex_network:
+    external: true

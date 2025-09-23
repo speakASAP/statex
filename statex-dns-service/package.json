@@ -1,0 +1,37 @@
+{
+  "name": "statex-dns-service",
+  "version": "1.0.0",
+  "description": "Dynamic DNS management service for StateX subdomains",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest",
+    "build": "echo 'No build step required for Node.js'"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "dotenv": "^16.4.1",
+    "dns2": "^2.0.2",
+    "sqlite3": "^5.1.6",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0",
+    "joi": "^17.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
+  },
+  "keywords": [
+    "dns",
+    "subdomain",
+    "microservice",
+    "statex",
+    "dynamic"
+  ],
+  "author": "StateX Team",
+  "license": "MIT"
+}

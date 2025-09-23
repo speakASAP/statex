@@ -1,10 +1,10 @@
 # Microservices - separate repositories
-statex-ai/
-statex-infrastructure/
-statex-monitoring/
-statex-notification-service/
-statex-platform/
-statex-website/
+# statex-ai/
+# statex-infrastructure/
+# statex-monitoring/
+# statex-notification-service/
+# statex-platform/
+# statex-website/
 
 # Node.js
 node_modules/
