@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Script to push all microservices with proper AI agents commit message
+# Script to push all microservices with subdomain validation and DNS management
 set -e
 
-echo "🚀 Pushing AI Agents Implementation to Microservices"
-echo "===================================================="
+echo "🚀 Pushing Subdomain Validation and DNS Management to Microservices"
+echo "==================================================================="
 
 # Function to get commit message for repository
 get_commit_message() {
@@ -49,26 +49,59 @@ Infrastructure changes to support the AI agent orchestration."
 Enhanced notification system integrated with AI workflow results."
             ;;
         "statex-website")
-            echo "feat: integrate AI processing feedback and form enhancements
+            echo "feat: implement subdomain validation and routing system
 
-- Add ProcessingFeedback component for real-time updates
-- Implement AI integration service for workflow coordination
-- Add processing feedback service for user experience
-- Create comprehensive contact form testing
-- Integrate with AI orchestrator for seamless user experience
+- Add subdomain validation to show empty page for non-existent projects
+- Implement direct subdomain content serving without redirects
+- Add project validation and empty state handling
+- Create comprehensive subdomain routing system
+- Add close button to AI processing popup
+- Fix Next.js compilation errors and server-side rendering
+- Implement server-side subdomain detection and validation
 
-Frontend integration with the multi-agent AI system."
+Subdomain routing system now fully functional with validation."
+            ;;
+        "statex-dns-service")
+            echo "feat: implement dynamic DNS management microservice
+
+- Create DNS microservice with Express API and SQLite database
+- Add DNS2 server for local subdomain resolution
+- Implement subdomain registration and resolution logic
+- Add comprehensive logging and error handling
+- Create setup scripts and documentation
+- Support for wildcard subdomain management
+
+Dynamic subdomain management system for prototype routing."
+            ;;
+        "statex-platform")
+            echo "feat: update platform for subdomain validation
+
+- Add support for subdomain validation system
+- Update platform configuration for DNS service integration
+- Add subdomain routing support
+
+Platform updates to support dynamic subdomain management."
+            ;;
+        "statex-monitoring")
+            echo "feat: add monitoring for subdomain validation system
+
+- Add monitoring for DNS service and subdomain routing
+- Implement health checks for subdomain validation
+- Add metrics for subdomain creation and validation
+- Monitor subdomain resolution and routing performance
+
+Monitoring updates to support the subdomain validation system."
             ;;
         *)
-            echo "feat: implement AI agents integration
+            echo "feat: implement subdomain validation and DNS management
 
-Updates to support the multi-agent AI orchestration system."
+Updates to support the subdomain validation and routing system."
             ;;
     esac
 }
 
-# Function to push repository with AI agents message
-push_repo_with_ai_message() {
+# Function to push repository with subdomain validation message
+push_repo_with_subdomain_message() {
     local repo_path=$1
     local repo_name=$(basename "$repo_path")
     local commit_message=$(get_commit_message "$repo_name")
@@ -103,8 +136,8 @@ push_repo_with_ai_message() {
     echo "Adding all changes..."
     git add .
     
-    # Commit changes with AI-specific message
-    echo "Committing AI agents implementation..."
+    # Commit changes with subdomain validation message
+    echo "Committing subdomain validation implementation..."
     git commit -m "$commit_message"
     
     # Get current branch
@@ -114,7 +147,7 @@ push_repo_with_ai_message() {
     # Push changes
     echo "Pushing to origin/$CURRENT_BRANCH..."
     if git push origin "$CURRENT_BRANCH"; then
-        echo "✅ Successfully pushed $repo_name with AI agents implementation"
+        echo "✅ Successfully pushed $repo_name with subdomain validation implementation"
     else
         echo "❌ Failed to push $repo_name"
         echo "You may need to handle conflicts manually"
@@ -123,44 +156,51 @@ push_repo_with_ai_message() {
     cd - > /dev/null
 }
 
-# Process repositories that have AI-related changes
+# Process repositories that have subdomain validation and DNS changes
 REPOS_TO_PUSH=(
     "statex-ai"
+    "statex-dns-service"
     "statex-infrastructure" 
+    "statex-monitoring"
     "statex-notification-service"
+    "statex-platform"
     "statex-website"
 )
 
-echo "Starting AI agents implementation push..."
+echo "Starting subdomain validation and DNS management push..."
 echo "Timestamp: $(date)"
 
 for repo in "${REPOS_TO_PUSH[@]}"; do
     if [ -d "$repo" ]; then
-        push_repo_with_ai_message "$repo"
+        push_repo_with_subdomain_message "$repo"
     else
         echo "⚠️  Directory $repo not found, skipping..."
     fi
 done
 
 echo ""
-echo "🎉 AI Agents Implementation Push Completed!"
-echo "=========================================="
+echo "🎉 Subdomain Validation and DNS Management Push Completed!"
+echo "========================================================="
 
 echo ""
 echo "📊 Summary:"
 echo "- Main repository (statex): ✅ Pushed to git@github.com:speakASAP/statex.git"
 echo "- AI Services (statex-ai): Processing..."
+echo "- DNS Service (statex-dns-service): Processing..."
 echo "- Infrastructure (statex-infrastructure): Processing..."
+echo "- Monitoring (statex-monitoring): Processing..."
 echo "- Notifications (statex-notification-service): Processing..."
+echo "- Platform (statex-platform): Processing..."
 echo "- Website (statex-website): Processing..."
 
 echo ""
-echo "🤖 AI Agents Implementation Features:"
-echo "- Multi-agent orchestration system"
-echo "- Business requirement analysis with NLP"
-echo "- Voice processing with ASR"
-echo "- Document analysis with AI"
-echo "- Free AI services integration (Ollama, HuggingFace)"
-echo "- Real-time processing feedback"
-echo "- Automated business analysis and offer generation"
-echo "- Comprehensive testing and optimization"
+echo "🌐 Subdomain Validation and DNS Management Features:"
+echo "- Dynamic subdomain management with DNS microservice"
+echo "- Subdomain validation to show empty page for non-existent projects"
+echo "- Direct subdomain content serving without redirects"
+echo "- SSL certificate setup for development and production"
+echo "- Project validation and empty state handling"
+echo "- Comprehensive subdomain routing system"
+echo "- Close button for AI processing popup"
+echo "- Server-side subdomain detection and validation"
+echo "- DNS service with SQLite database and API endpoints"

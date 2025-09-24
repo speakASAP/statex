@@ -7,6 +7,7 @@ This guide shows how to set up dynamic subdomains with SSL certificates for the 
 ## 🚀 Quick Start (Development)
 
 ### 1. Install mkcert
+
 ```bash
 # macOS
 brew install mkcert
@@ -22,6 +23,7 @@ mkcert -install
 ```
 
 ### 2. Generate Wildcard Certificate
+
 ```bash
 # Create certificates directory
 mkdir -p /Users/sergiystashok/Documents/GitHub/statex/certificates
@@ -33,18 +35,22 @@ mkcert -key-file certificates/localhost-key.pem \
 ```
 
 ### 3. Set up Wildcard DNS
+
 Add to `/etc/hosts`:
-```
+
+```text
 127.0.0.1 *.localhost
 ```
 
 ### 4. Start HTTPS Development Server
+
 ```bash
 cd statex-website/frontend
 npm run dev:https
 ```
 
 ### 5. Test Dynamic Subdomains
+
 ```bash
 # These will all work automatically:
 curl -k https://project-customer1.localhost:3000/
@@ -55,18 +61,22 @@ curl -k https://project-customer3.localhost:3000/offer
 ## 🏭 Production Setup
 
 ### 1. DNS Configuration
+
 Set up wildcard DNS record:
-```
+
+```text
 *.yourdomain.com → YOUR_SERVER_IP
 ```
 
 ### 2. SSL Certificate Setup
+
 ```bash
 # Run the setup script
 ./scripts/setup-wildcard-ssl.sh
 ```
 
 ### 3. Nginx Configuration
+
 ```nginx
 server {
     listen 443 ssl http2;

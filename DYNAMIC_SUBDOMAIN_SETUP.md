@@ -5,6 +5,7 @@ This document describes the complete solution for managing dynamic subdomains in
 ## Overview
 
 The system consists of:
+
 1. **DNS Microservice** - Handles subdomain registration and DNS resolution
 2. **Database** - Stores subdomain mappings and customer information
 3. **DNS Server** - Resolves `*.localhost` domains to `127.0.0.1`
@@ -12,7 +13,7 @@ The system consists of:
 
 ## Architecture
 
-```
+```text
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
 │   Frontend      │    │   DNS Service    │    │   DNS Server    │
 │   (Next.js)     │───▶│   (Port 8053)    │───▶│   (Port 5353)   │

@@ -12,6 +12,7 @@ echo "=============================================="
 REPOS=(
     ".:statex-main"
     "statex-ai"
+    "statex-dns-service"
     "statex-infrastructure" 
     "statex-monitoring"
     "statex-notification-service"
@@ -61,16 +62,18 @@ push_repo() {
     git add .
     
     # Create commit message based on recent changes
-    COMMIT_MSG="feat: implement final integration testing and optimization
+    COMMIT_MSG="feat: implement subdomain validation and dynamic DNS management
 
-- Add comprehensive system testing with real user scenarios
-- Implement performance optimization and tuning procedures  
-- Create complete deployment documentation and runbooks
-- Add troubleshooting guides and API documentation
-- Implement monitoring and maintenance procedures
+- Add subdomain validation to show empty page for non-existent projects
+- Implement dynamic subdomain management with DNS microservice
+- Add SSL certificate setup for development and production
+- Create comprehensive subdomain routing system
+- Add close button to AI processing popup
+- Implement direct subdomain content serving without redirects
+- Add project validation and empty state handling
+- Create DNS service with SQLite database and API endpoints
 
-Task 10 completion: Final integration testing and optimization
-Requirements covered: 8.1-8.7, 9.1-9.7, 10.6-10.7, 1.7"
+Subdomain routing system now fully functional with validation."
     
     # Commit changes
     echo "Committing changes..."

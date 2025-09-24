@@ -7,6 +7,7 @@ Fix subdomain routing issues and implement local AI development setup to enable 
 ## 📊 **CURRENT PROGRESS STATUS**
 
 ### **✅ COMPLETED TASKS**
+
 1. **Phase 1.1**: Removed duplicate prototype system (`prototypes/[projectId]/page.tsx`)
 2. **Phase 1.2**: Fixed middleware location (moved to correct directory)
 3. **Phase 1.3**: Resolved Docker container conflicts
@@ -15,18 +16,21 @@ Fix subdomain routing issues and implement local AI development setup to enable 
 6. **Phase 2.3**: Added subdomain detection to `generateMetadata` function
 
 ### **⚠️ IN PROGRESS TASKS**
+
 1. **Phase 2.4**: Fix React error preventing redirect execution
    - **Issue**: `ContentLoader` and `TemplateRenderer` classes causing React error
    - **Status**: Subdomain detection working, redirect logic working, but React error blocks final execution
    - **Next**: Restructure component to avoid class instantiation for subdomains
 
 ### **❌ PENDING TASKS**
+
 1. **Phase 2.5**: Test subdomain routing functionality
 2. **Phase 3**: Implement local AI development setup
 3. **Phase 4**: Update development workflow
 4. **Phase 5**: Testing and validation
 
 ### **🚨 BLOCKING ISSUES**
+
 - **Critical**: React error preventing subdomain redirects from executing
 - **Impact**: Phase 2 cannot be completed until this is resolved
 - **Priority**: **HIGH** - Must be fixed before proceeding to Phase 3
@@ -34,21 +38,25 @@ Fix subdomain routing issues and implement local AI development setup to enable 
 ## 🔍 **CURRENT PROBLEMS IDENTIFIED**
 
 ### **1. Subdomain Routing Issues**
+
 - **Problem**: Prototype subdomains (`project-{id}.localhost:3000/plan`) go to CMS system instead of prototype system
 - **Root Cause**: Middleware not executing properly due to Docker container conflicts
 - **Impact**: Users see "Page not found" instead of prototype pages
 
 ### **2. Docker Container Conflicts**
+
 - **Problem**: Container naming conflicts prevent proper restarts
 - **Error**: `Container name "/statex-website-frontend-1" is already in use`
 - **Impact**: Development environment becomes unstable
 
 ### **3. Slow AI Development Cycle**
+
 - **Problem**: Every AI service change requires Docker rebuild (4+ minutes)
 - **Impact**: Extremely slow development iteration
 - **Resource Heavy**: Multiple containers consume significant resources
 
 ### **4. Duplicate Prototype Systems**
+
 - **Problem**: Two different prototype systems exist:
   - `prototype-results/[prototypeId]/page.tsx` (comprehensive, newer)
   - `prototypes/[projectId]/page.tsx` (simpler, older)
@@ -57,6 +65,7 @@ Fix subdomain routing issues and implement local AI development setup to enable 
 ## 🏗️ **CURRENT ARCHITECTURE ANALYSIS**
 
 ### **Content Management System (CMS)**
+
 - **Pages**: Created from markdown files in `/src/content/pages/`
 - **Blog Posts**: Created from markdown files in `/src/content/blog/`
 - **Multi-language**: Support for `en/`, `cs/`, `de/`, `fr/`
@@ -64,6 +73,7 @@ Fix subdomain routing issues and implement local AI development setup to enable 
 - **Catch-all Route**: `[...slug]/page.tsx` handles all dynamic pages
 
 ### **Prototype Systems**
+
 - **System A**: `prototype-results/[prototypeId]/page.tsx`
   - **Purpose**: Shows detailed AI analysis results and workflow data
   - **Data Source**: API calls to `/api/results/prototype/{prototypeId}`
@@ -75,6 +85,7 @@ Fix subdomain routing issues and implement local AI development setup to enable 
   - **Status**: ❌ **REMOVE** (simpler, older, duplicate)
 
 ### **AI Services Architecture**
+
 Each AI service is a **FastAPI application** that can run locally:
 
 | Service | Purpose | Port | Technology |
@@ -91,18 +102,21 @@ Each AI service is a **FastAPI application** that can run locally:
 ### **Phase 1: Clean Up Current Issues** ⚡ **IMMEDIATE**
 
 #### **1.1 Remove Duplicate Prototype System**
+
 - **Action**: Delete `statex-website/frontend/src/app/prototypes/[projectId]/page.tsx`
 - **Action**: Delete `statex-website/frontend/src/app/prototypes/[projectId]/plan/page.tsx`
 - **Action**: Delete `statex-website/frontend/src/app/prototypes/[projectId]/offer/page.tsx`
 - **Reason**: Eliminate duplicate system, keep only comprehensive `prototype-results` system
 
 #### **1.2 Fix Middleware Location**
+
 - **Action**: Delete `statex-website/frontend/middleware.ts` (wrong location)
 - **Action**: Keep `statex-website/middleware.ts` (correct location)
 - **Action**: Update middleware to route to `prototype-results` instead of `prototypes`
 - **Reason**: Next.js middleware must be in project root, not frontend subdirectory
 
 #### **1.3 Resolve Docker Container Conflicts**
+
 - **Action**: Stop all running containers
 - **Action**: Remove conflicting containers
 - **Action**: Clean up orphaned containers
@@ -111,6 +125,7 @@ Each AI service is a **FastAPI application** that can run locally:
 ### **Phase 2: Fix Subdomain Routing** 🔧 **CRITICAL**
 
 #### **2.1 Update Middleware for Correct Routing**
+
 ```typescript
 // statex-website/middleware.ts
 export function middleware(request: NextRequest) {
@@ -146,11 +161,13 @@ export function middleware(request: NextRequest) {
 ```
 
 #### **2.2 Create Subdomain Route Handlers**
+
 - **Action**: Create `statex-website/frontend/src/app/prototype-results/[prototypeId]/plan/page.tsx`
 - **Action**: Create `statex-website/frontend/src/app/prototype-results/[prototypeId]/offer/page.tsx`
 - **Purpose**: Handle `/plan` and `/offer` sub-paths for prototype subdomains
 
 #### **2.3 Test Subdomain Routing**
+
 - **Test**: `http://project-{id}.localhost:3000/` → Should show prototype results
 - **Test**: `http://project-{id}.localhost:3000/plan` → Should show plan page
 - **Test**: `http://project-{id}.localhost:3000/offer` → Should show offer page
@@ -160,6 +177,7 @@ export function middleware(request: NextRequest) {
 #### **3.1 Create Local Development Scripts**
 
 **File**: `statex-ai/scripts/dev-start.sh`
+
 ```bash
 #!/bin/bash
 # StateX AI Local Development Startup Script
@@ -222,6 +240,7 @@ wait
 ```
 
 **File**: `statex-ai/scripts/dev-stop.sh`
+
 ```bash
 #!/bin/bash
 # StateX AI Local Development Stop Script
@@ -237,6 +256,7 @@ echo "✅ All AI services stopped!"
 #### **3.2 Create Python Virtual Environment Setup**
 
 **File**: `statex-ai/scripts/setup-dev-env.sh`
+
 ```bash
 #!/bin/bash
 # StateX AI Development Environment Setup
@@ -278,6 +298,7 @@ echo "To start services: ./scripts/dev-start.sh"
 #### **3.3 Create Development Management Script**
 
 **File**: `statex-ai/dev-manage.sh`
+
 ```bash
 #!/bin/bash
 # StateX AI Development Management Script
@@ -326,6 +347,7 @@ esac
 ### **Phase 4: Update Development Workflow** 📝 **PROCESS IMPROVEMENT**
 
 #### **4.1 New Development Workflow**
+
 ```bash
 # 1. Start infrastructure services (PostgreSQL, Redis, RabbitMQ)
 cd statex-infrastructure
@@ -346,6 +368,7 @@ cd statex-ai
 ```
 
 #### **4.2 Benefits of Local AI Development**
+
 - **⚡ Instant Hot Reload**: No Docker rebuilds needed (4+ minutes → 0 seconds)
 - **🐛 Easy Debugging**: Direct Python debugging with breakpoints
 - **📊 Better Performance**: No container overhead
@@ -356,18 +379,21 @@ cd statex-ai
 ### **Phase 5: Testing and Validation** ✅ **QUALITY ASSURANCE**
 
 #### **5.1 Subdomain Routing Tests**
+
 - **Test 1**: `http://project-{id}.localhost:3000/` → Prototype results page
 - **Test 2**: `http://project-{id}.localhost:3000/plan` → Plan page
 - **Test 3**: `http://project-{id}.localhost:3000/offer` → Offer page
 - **Test 4**: Regular pages still work via CMS system
 
 #### **5.2 AI Services Integration Tests**
+
 - **Test 1**: Form submission triggers AI workflow
 - **Test 2**: AI agents process data correctly
 - **Test 3**: Prototype generation works
 - **Test 4**: Results display properly in frontend
 
 #### **5.3 Performance Tests**
+
 - **Test 1**: Local AI services start in < 30 seconds
 - **Test 2**: Code changes apply instantly
 - **Test 3**: Memory usage is reasonable
@@ -376,11 +402,13 @@ cd statex-ai
 ## 🎯 **SUCCESS CRITERIA**
 
 ### **Phase 1 Success**
+
 - ✅ Duplicate prototype system removed
 - ✅ Middleware in correct location
 - ✅ Docker container conflicts resolved
 
 ### **Phase 2 Success**
+
 - ✅ Subdomain detection working perfectly
 - ✅ Redirect logic implemented and working
 - ⚠️ React error preventing final redirect execution
@@ -389,17 +417,20 @@ cd statex-ai
 - ✅ Regular CMS pages still work
 
 ### **Phase 3 Success**
+
 - ✅ AI services run locally without Docker
 - ✅ Hot reload works for all AI services
 - ✅ Development scripts work correctly
 - ✅ All services start in < 30 seconds
 
 ### **Phase 4 Success**
+
 - ✅ New development workflow documented
 - ✅ Team can use local AI development
 - ✅ Faster development iteration achieved
 
 ### **Phase 5 Success**
+
 - ✅ All tests pass
 - ✅ No regressions in existing functionality
 - ✅ Performance improvements achieved
@@ -407,21 +438,25 @@ cd statex-ai
 ## 📊 **EXPECTED BENEFITS**
 
 ### **Development Speed**
+
 - **Before**: 4+ minutes per AI service change
 - **After**: 0 seconds (instant hot reload)
 - **Improvement**: 100x faster development
 
 ### **Resource Usage**
+
 - **Before**: 6+ Docker containers running
 - **After**: 0 AI service containers (only infrastructure)
 - **Improvement**: 50%+ reduction in resource usage
 
 ### **Debugging Experience**
+
 - **Before**: Complex Docker debugging
 - **After**: Direct Python debugging with breakpoints
 - **Improvement**: Much easier debugging
 
 ### **Development Workflow**
+
 - **Before**: Complex Docker management
 - **After**: Simple `./dev-manage.sh start` command
 - **Improvement**: Streamlined workflow
@@ -429,16 +464,19 @@ cd statex-ai
 ## 🚨 **RISKS AND MITIGATION**
 
 ### **Risk 1: Environment Differences**
+
 - **Risk**: Local development differs from production
 - **Mitigation**: Use same Python versions and dependencies
 - **Mitigation**: Regular testing against Docker environment
 
 ### **Risk 2: Service Dependencies**
+
 - **Risk**: AI services depend on infrastructure services
 - **Mitigation**: Keep infrastructure services in Docker
 - **Mitigation**: Clear documentation of dependencies
 
 ### **Risk 3: Team Adoption**
+
 - **Risk**: Team prefers Docker development
 - **Mitigation**: Provide both options (Docker + Local)
 - **Mitigation**: Clear documentation and training
@@ -446,16 +484,19 @@ cd statex-ai
 ## 📅 **IMPLEMENTATION TIMELINE**
 
 ### **Week 1: Phase 1 & 2** (Critical Issues) - **IN PROGRESS**
+
 - ✅ **Day 1-2**: Clean up duplicate systems and middleware - **COMPLETED**
 - ⚠️ **Day 3-4**: Fix subdomain routing - **IN PROGRESS** (React error blocking)
 - **Day 5**: Testing and validation
 
 ### **Week 2: Phase 3** (Local AI Development) - **PENDING**
+
 - **Day 1-2**: Create development scripts
 - **Day 3-4**: Set up local environment
 - **Day 5**: Testing and documentation
 
 ### **Week 3: Phase 4 & 5** (Process and Validation) - **PENDING**
+
 - **Day 1-2**: Update development workflow
 - **Day 3-4**: Comprehensive testing
 - **Day 5**: Documentation and team training
@@ -463,12 +504,14 @@ cd statex-ai
 ## 🚨 **CURRENT BLOCKING ISSUE**
 
 ### **React Error: Server Component Class Instantiation**
+
 - **Error**: `"Only plain objects, and a few built-ins, can be passed to Client Components from Server Components. Classes or null prototypes are not supported."`
 - **Root Cause**: `ContentLoader` and `TemplateRenderer` classes being instantiated in Server Components
 - **Impact**: Prevents subdomain redirects from executing properly
 - **Status**: **CRITICAL** - Blocking Phase 2 completion
 
 ### **Immediate Next Steps**
+
 1. **Fix React Error**: Restructure `CatchAllPage` to avoid class instantiation for subdomains
 2. **Test Redirects**: Verify subdomain redirects work after React error fix
 3. **Complete Phase 2**: Ensure all subdomain routes work correctly
@@ -477,17 +520,20 @@ cd statex-ai
 ## 🔧 **TECHNICAL ANALYSIS: REACT ERROR**
 
 ### **Error Details**
-```
+
+```text
 Error: Only plain objects, and a few built-ins, can be passed to Client Components from Server Components. Classes or null prototypes are not supported.
 ```
 
 ### **Root Cause Analysis**
+
 1. **Server Component Issue**: `CatchAllPage` is a Server Component that instantiates `ContentLoader` and `TemplateRenderer` classes
 2. **Class Instantiation**: These classes are being passed to Client Components (likely through the `PageRenderer` component)
 3. **Next.js Limitation**: Server Components cannot pass class instances to Client Components
 4. **Subdomain Impact**: Even though subdomain detection works, the component still tries to instantiate these classes
 
 ### **Current Code Structure**
+
 ```typescript
 // In CatchAllPage (Server Component)
 const loader = new ContentLoader();        // ❌ Class instantiation
@@ -498,11 +544,13 @@ const renderer = new TemplateRenderer();   // ❌ Class instantiation
 ```
 
 ### **Solution Strategy**
+
 1. **Conditional Instantiation**: Only instantiate classes when NOT dealing with subdomains
 2. **Early Return**: Return redirect response before any class instantiation
 3. **Component Restructuring**: Separate subdomain logic from CMS logic
 
 ### **Proposed Fix**
+
 ```typescript
 export default async function CatchAllPage({ params }: CatchAllPageProps) {
   const resolvedParams = await params;
@@ -539,6 +587,7 @@ export default async function CatchAllPage({ params }: CatchAllPageProps) {
 ```
 
 ### **Expected Outcome**
+
 - ✅ Subdomain requests redirect immediately without class instantiation
 - ✅ CMS pages continue to work normally
 - ✅ No React errors
@@ -547,11 +596,13 @@ export default async function CatchAllPage({ params }: CatchAllPageProps) {
 ## 🔧 **MAINTENANCE AND MONITORING**
 
 ### **Regular Tasks**
+
 - **Daily**: Check service status with `./dev-manage.sh status`
 - **Weekly**: Update dependencies and test compatibility
 - **Monthly**: Review performance and optimize
 
 ### **Monitoring**
+
 - **Service Health**: Built-in health checks for all services
 - **Performance**: Monitor startup times and resource usage
 - **Error Tracking**: Log and track any issues
@@ -559,12 +610,14 @@ export default async function CatchAllPage({ params }: CatchAllPageProps) {
 ## 📚 **DOCUMENTATION UPDATES**
 
 ### **Files to Update**
+
 1. **README.md**: Update development setup instructions
 2. **DEVELOPMENT.md**: Add local AI development guide
 3. **TROUBLESHOOTING.md**: Add common issues and solutions
 4. **API.md**: Update API documentation if needed
 
 ### **New Documentation**
+
 1. **LOCAL_AI_DEVELOPMENT.md**: Complete guide for local development
 2. **SUBDOMAIN_ROUTING.md**: Technical details of subdomain routing
 3. **DEVELOPMENT_SCRIPTS.md**: Documentation for all development scripts
@@ -576,12 +629,14 @@ export default async function CatchAllPage({ params }: CatchAllPageProps) {
 This comprehensive plan addresses all current issues and provides a path to much faster, more efficient development. The local AI development setup will transform the development experience while maintaining all existing functionality.
 
 **Key Benefits:**
+
 - ⚡ **100x faster development** (4+ minutes → 0 seconds)
 - 🐛 **Much easier debugging** (direct Python debugging)
 - 💾 **50%+ resource reduction** (fewer containers)
 - 🚀 **Streamlined workflow** (simple commands)
 
 **Next Steps:**
+
 1. **Approve this plan**
 2. **Begin Phase 1 implementation** (clean up issues)
 3. **Proceed with Phase 2** (fix subdomain routing)
