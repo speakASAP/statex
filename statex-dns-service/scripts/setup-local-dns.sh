@@ -85,3 +85,4 @@ echo "To revert changes:"
 echo "sudo cp /etc/hosts.backup /etc/hosts"
 echo "sudo dscacheutil -flushcache  # macOS"
 echo "sudo systemctl restart systemd-resolved  # Linux"
+

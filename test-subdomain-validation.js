@@ -64,3 +64,4 @@ async function testSubdomainValidation() {
 
 // Run the test
 testSubdomainValidation().catch(console.error);
+

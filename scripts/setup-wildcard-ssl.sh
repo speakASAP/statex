@@ -51,3 +51,4 @@ echo "  - fullchain.pem (certificate + chain)"
 
 # Clean up
 rm /tmp/cloudflare.ini
+

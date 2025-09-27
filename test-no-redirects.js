@@ -118,3 +118,4 @@ async function testNoRedirects() {
 
 // Run the test
 testNoRedirects().catch(console.error);
+
