@@ -1,0 +1,28 @@
+/* Dark Theme Design Tokens */
+[data-theme="dark"] {
+  /* Background Colors */
+  --bg-primary: var(--gray-900);
+  --bg-secondary: var(--gray-800);
+  --bg-tertiary: var(--gray-700);
+  
+  /* Text Colors */
+  --text-primary: var(--gray-100);
+  --text-secondary: var(--gray-300);
+  --text-tertiary: var(--gray-400);
+  
+  /* Border Colors */
+  --border-color: var(--gray-600);
+  --border-color-focus: var(--primary-blue);
+  
+  /* Form Colors */
+  --form-background: var(--gray-800);
+  --form-text-color: var(--gray-100);
+  --form-border-color: var(--gray-600);
+  --form-placeholder-color: var(--gray-400);
+  
+  /* Shadow Colors */
+  --shadow-color: rgb(0 0 0 / 0.3);
+  
+  /* Theme Identifier */
+  --theme-current: 'dark';
+} 

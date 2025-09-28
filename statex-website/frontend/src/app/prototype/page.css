@@ -1,0 +1,70 @@
+/* ===== PROTOTYPE PAGE STYLES ===== */
+/* Uses bulletproof CSS variables system - Layer 3 only */
+
+/* Prototype page container */
+.prototype-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Prototype hero section */
+.prototype-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-secondary) 100%);
+  padding-top: var(--stx-space-3xl);
+  padding-bottom: var(--stx-space-3xl);
+}
+
+/* Prototype form enhancements */
+.prototype-page .stx-form {
+  padding-top: var(--stx-space-3xl);
+  padding-bottom: var(--stx-space-3xl);
+}
+
+.prototype-page .stx-form__container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--stx-space-2xl);
+  background: var(--stx-color-surface-elevated);
+  border-radius: var(--stx-radius-xl);
+  box-shadow: var(--stx-shadow-xl);
+}
+
+/* Prototype process section */
+.prototype-page .stx-process {
+  padding-top: var(--stx-space-3xl);
+  padding-bottom: var(--stx-space-3xl);
+  background: var(--stx-color-surface-secondary);
+}
+
+/* Prototype CTA section */
+.prototype-page .stx-cta {
+  padding-top: var(--stx-space-3xl);
+  padding-bottom: var(--stx-space-3xl);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .prototype-page .stx-hero {
+    padding-top: var(--stx-space-2xl);
+    padding-bottom: var(--stx-space-2xl);
+  }
+  
+  .prototype-page .stx-form__container {
+    padding: var(--stx-space-lg);
+    margin: 0 var(--stx-space-md);
+  }
+}
+
+/* Theme-specific enhancements */
+[data-theme="dark"] .prototype-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-inverse) 100%);
+}
+
+[data-theme="eu"] .prototype-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-tertiary) 100%);
+}
+
+[data-theme="uae"] .prototype-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-secondary) 100%);
+} 

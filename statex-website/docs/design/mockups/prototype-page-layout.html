@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Prototype Page Template - Statex</title>
+    <meta name="description" content="Get your free working prototype in 24-48 hours. Professional template showcasing the complete process and requirements for AI-powered prototype development.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../frontend/src/styles/design-tokens.css">
+    <style>
+        /* All styles are now handled by design-tokens.css */
+        /* This file uses only design token variables and BEM + STX classes */
+    </style>
+
+
+
+
+
+
+    </style>
+</head>
+<body>
+
+
+    <!-- Hero Section -->
+    <section class="stx-hero">
+        <div class="stx-hero__content">
+            <div class="stx-badge">100% FREE • NO COMMITMENT</div>
+            <h1 class="stx-hero__title">Get Your Working Prototype in 24-48 Hours</h1>
+            <p class="stx-hero__subtitle">Experience the future of rapid development. Describe your idea through voice, text, or files, and receive a fully functional prototype — completely free with one modification included.</p>
+            
+            <div class="stx-guarantees">
+                <div class="stx-guarantee-item">
+                    <div class="stx-guarantee-icon">⚡</div>
+                    <div class="stx-guarantee-text">24-48 Hour Delivery</div>
+                </div>
+                <div class="stx-guarantee-item">
+                    <div class="stx-guarantee-icon">🆓</div>
+                    <div class="stx-guarantee-text">Completely Free</div>
+                </div>
+                <div class="stx-guarantee-item">
+                    <div class="stx-guarantee-icon">🔧</div>
+                    <div class="stx-guarantee-text">One Free Modification</div>
+                </div>
+                <div class="stx-guarantee-item">
+                    <div class="stx-guarantee-icon">🚀</div>
+                    <div class="stx-guarantee-text">Production Ready</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Form Block -->
+    <section class="stx-form-block">
+        <div class="stx-form-block__container">
+            <div class="stx-section-header">
+                <h1 class="stx-section-title">Submit your requirements</h1>
+                <p class="stx-section-subtitle">Tell us about your idea — we'll create a working prototype for free</p>
+            </div>
+
+            <div class="stx-form__container">
+                <form class="stx-form__form" id="prototypeForm">
+                    <!-- Main Description Section -->
+                    <div class="stx-form__section">
+                        <label class="stx-form__label">
+                            💡 Describe your idea <span class="stx-form__required">*</span>
+                        </label>
+                        <textarea class="stx-form__textarea" placeholder="Tell us about your idea in a way you explain it to your friend:
+                        • What do you want
+                        • What problem are you solving
+                        • How is this problem currently being solved
+                        • What do you want to automate or improve
+                        • What results do you expect
+                        • Any additional details..." required></textarea>
+                    </div>
+
+                    <!-- Media Row Section -->
+                    <div class="stx-form__section">
+                        <div class="stx-form__media-row">
+                            <div class="stx-form__media-field">
+                                <label class="stx-form__label">🎤 Tell us with your voice (optional)</label>
+                                <div class="stx-form__audio-section">
+                                    <button type="button" class="stx-form__audio-btn" onclick="toggleRecording(this)">
+                                        🎤 Record voice message
+                                    </button>
+                                    <div class="stx-form__recording-info" id="recordingInfo" style="display: none;">
+                                        ⏱️ Recording: <span id="recordingTime">00:00</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stx-form__media-field">
+                                <label class="stx-form__label">📎 Attach documents (optional)</label>
+                                <div class="stx-form__file-upload" onclick="document.getElementById('fileInput').click()">
+                                    <p>📁 Drag files here or click to select</p>
+                                    <p style="font-size: 14px; color: var(--stx-color-text-tertiary); margin-top: 8px;">
+                                        Presentations, diagrams, documents, images, video etc. 
+                                    </p>
+                                </div>
+                                <input type="file" id="fileInput" class="stx-form__file-input" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.png,.txt,.mp4,.mov,.avi">
+                                <div id="fileList" class="stx-form__file-list"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information Section -->
+                    <div class="stx-form__section">
+                        <div class="stx-form__field-group">
+                            <div class="stx-form__field stx-form__field--name">
+                                <label class="stx-form__label">
+                                    Your Name <span class="stx-form__required">*</span>
+                                </label>
+                                <input type="text" class="stx-form__input" placeholder="Your name" required>
+                            </div>
+                            <div class="stx-form__field stx-form__field--contact-type">
+                                <label class="stx-form__label">
+                                    Contact Method <span class="stx-form__required">*</span>
+                                </label>
+                                <select class="stx-form__select" id="contactType" onchange="updateContactPlaceholder()">
+                                    <option value="email">📧 Email</option>
+                                    <option value="linkedin">💼 LinkedIn</option>
+                                    <option value="whatsapp">📱 WhatsApp</option>
+                                    <option value="telegram">✈️ Telegram</option>
+                                </select>
+                            </div>
+                            <div class="stx-form__field stx-form__field--contact-value">
+                                <label class="stx-form__label">
+                                    Contact Details <span class="stx-form__required">*</span>
+                                </label>
+                                <input type="text" id="contactValue" class="stx-form__input" placeholder="your@email.com" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="stx-form__section">
+                        <button type="submit" class="stx-form__submit-btn">🚀 Get prototype in 24 hours</button>
+                    </div>
+
+                    <!-- Privacy Note -->
+                    <div class="stx-form__privacy-note">
+                        🔒 Your data is protected in accordance with GDPR. Confidentiality guaranteed.
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="stx-process">
+        <div class="stx-section-container">
+            <div class="stx-section-header">
+                <h2 class="stx-section-title">How Our Free Prototype Process Works</h2>
+                <p class="stx-section-subtitle">From your initial idea to a working prototype in just 4 simple steps. No hidden fees, no commitments—just results.</p>
+            </div>
+
+            <div class="stx-timeline">
+                <div class="stx-timeline-item">
+                    <div class="stx-timeline-number">1</div>
+                    <div class="stx-timeline-content">
+                        <h3 class="stx-timeline-title">Share Your Vision</h3>
+                        <p class="stx-timeline-description">Describe your project through voice recording, detailed text, or file uploads. The more details you provide, the better we can understand your needs.</p>
+                        <div class="stx-timeline-details">
+                            <ul>
+                                <li><span class="stx-check-icon">✓</span> Voice message recording (up to 10 minutes)</li>
+                                <li><span class="stx-check-icon">✓</span> Detailed text descriptions</li>
+                                <li><span class="stx-check-icon">✓</span> File uploads (documents, images, sketches)</li>
+                                <li><span class="stx-check-icon">✓</span> Reference websites or applications</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stx-timeline-item">
+                    <div class="stx-timeline-number">2</div>
+                    <div class="stx-timeline-content">
+                        <h3 class="stx-timeline-title">AI Analysis & Planning</h3>
+                        <p class="stx-timeline-description">Our advanced AI system analyzes your requirements, identifies key features, and creates a comprehensive development plan.</p>
+                        <div class="stx-timeline-details">
+                            <ul>
+                                <li><span class="stx-check-icon">✓</span> Requirement analysis and feature extraction</li>
+                                <li><span class="stx-check-icon">✓</span> Technical architecture planning</li>
+                                <li><span class="stx-check-icon">✓</span> UI/UX design recommendations</li>
+                                <li><span class="stx-check-icon">✓</span> Development timeline estimation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stx-timeline-item">
+                    <div class="stx-timeline-number">3</div>
+                    <div class="stx-timeline-content">
+                        <h3 class="stx-timeline-title">Rapid Development</h3>
+                        <p class="stx-timeline-description">Our expert team combines AI-generated code with human expertise to build your prototype using modern technologies and best practices.</p>
+                        <div class="stx-timeline-details">
+                            <ul>
+                                <li><span class="stx-check-icon">✓</span> AI-assisted code generation</li>
+                                <li><span class="stx-check-icon">✓</span> Human review and optimization</li>
+                                <li><span class="stx-check-icon">✓</span> Responsive design implementation</li>
+                                <li><span class="stx-check-icon">✓</span> Quality assurance testing</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stx-timeline-item">
+                    <div class="stx-timeline-number">4</div>
+                    <div class="stx-timeline-content">
+                        <h3 class="stx-timeline-title">Delivery & Refinement</h3>
+                        <p class="stx-timeline-description">Receive your live, hosted prototype with full functionality. Test everything and request one free modification to perfect your vision.</p>
+                        <div class="stx-timeline-details">
+                            <ul>
+                                <li><span class="stx-check-icon">✓</span> Live hosted prototype on our platform</li>
+                                <li><span class="stx-check-icon">✓</span> Complete source code access</li>
+                                <li><span class="stx-check-icon">✓</span> Documentation and setup instructions</li>
+                                <li><span class="stx-check-icon">✓</span> One free modification included</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Deliverables Section -->
+    <section class="stx-deliverables">
+        <div class="stx-section-container">
+            <div class="stx-section-header">
+                <h2 class="stx-section-title">What You'll Receive</h2>
+                <p class="stx-section-subtitle">Your free prototype includes everything you need to evaluate and continue development.</p>
+            </div>
+
+            <div class="stx-deliverables-grid">
+                <div class="stx-deliverable-card">
+                    <div class="stx-deliverable-icon">🚀</div>
+                    <h3 class="stx-deliverable-title">Live Working Prototype</h3>
+                    <p class="stx-deliverable-description">Fully functional application hosted on our platform with all core features implemented and ready for testing.</p>
+                    <ul class="stx-deliverable-features">
+                        <li><span class="stx-check-icon">✓</span> Live hosted application</li>
+                        <li><span class="stx-check-icon">✓</span> Responsive mobile design</li>
+                        <li><span class="stx-check-icon">✓</span> Core functionality implemented</li>
+                        <li><span class="stx-check-icon">✓</span> Test data and examples</li>
+                    </ul>
+                </div>
+
+                <div class="stx-deliverable-card">
+                    <div class="stx-deliverable-icon">💻</div>
+                    <h3 class="stx-deliverable-title">Complete Source Code</h3>
+                    <p class="stx-deliverable-description">Full access to clean, documented source code using modern technologies and best practices.</p>
+                    <ul class="stx-deliverable-features">
+                        <li><span class="stx-check-icon">✓</span> Clean, commented code</li>
+                        <li><span class="stx-check-icon">✓</span> Modern framework (React/Next.js)</li>
+                        <li><span class="stx-check-icon">✓</span> Database schema and setup</li>
+                        <li><span class="stx-check-icon">✓</span> Development documentation</li>
+                    </ul>
+                </div>
+
+                <div class="stx-deliverable-card">
+                    <div class="stx-deliverable-icon">📋</div>
+                    <h3 class="stx-deliverable-title">Technical Documentation</h3>
+                    <p class="stx-deliverable-description">Comprehensive documentation including setup instructions, feature explanations, and development roadmap.</p>
+                    <ul class="stx-deliverable-features">
+                        <li><span class="stx-check-icon">✓</span> Setup and installation guide</li>
+                        <li><span class="stx-check-icon">✓</span> Feature documentation</li>
+                        <li><span class="stx-check-icon">✓</span> API documentation</li>
+                        <li><span class="stx-check-icon">✓</span> Future development roadmap</li>
+                    </ul>
+                </div>
+
+                <div class="stx-deliverable-card">
+                    <div class="stx-deliverable-icon">🔧</div>
+                    <h3 class="stx-deliverable-title">One Free Modification</h3>
+                    <p class="stx-deliverable-description">After reviewing your prototype, request one free modification to better align with your vision.</p>
+                    <ul class="stx-deliverable-features">
+                        <li><span class="stx-check-icon">✓</span> Feature adjustments</li>
+                        <li><span class="stx-check-icon">✓</span> Design modifications</li>
+                        <li><span class="stx-check-icon">✓</span> Additional functionality</li>
+                        <li><span class="stx-check-icon">✓</span> Performance optimizations</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="stx-faq">
+        <div class="stx-section-container">
+            <div class="stx-section-header">
+                <h2 class="stx-section-title">Frequently Asked Questions</h2>
+                <p class="stx-section-subtitle">Get answers to common questions about our free prototype service.</p>
+            </div>
+
+            <div class="stx-faq-container">
+                <div class="stx-faq-item">
+                    <button class="stx-faq-question">
+                        Is the prototype really completely free?
+                        <span class="stx-faq-icon">▼</span>
+                    </button>
+                    <div class="stx-faq-answer">
+                        <p>Yes, absolutely! There are no hidden fees, no credit card required, and no commitment. We provide a fully functional prototype including source code and documentation at no cost.</p>
+                    </div>
+                </div>
+
+                <div class="stx-faq-item">
+                    <button class="stx-faq-question">
+                        How long does it take to receive my prototype?
+                        <span class="stx-faq-icon">▼</span>
+                    </button>
+                    <div class="stx-faq-answer">
+                        <p>Most prototypes are delivered within 24-48 hours. Complex projects may take up to 72 hours. We'll provide you with a specific timeline after reviewing your requirements.</p>
+                    </div>
+                </div>
+
+                <div class="stx-faq-item">
+                    <button class="stx-faq-question">
+                        What technologies do you use for prototypes?
+                        <span class="stx-faq-icon">▼</span>
+                    </button>
+                    <div class="stx-faq-answer">
+                        <p>We use modern, industry-standard technologies including React, Next.js, Node.js, and PostgreSQL. All prototypes are built with production-ready code and best practices.</p>
+                    </div>
+                </div>
+
+                <div class="stx-faq-item">
+                    <button class="stx-faq-question">
+                        Can I use the prototype for my business?
+                        <span class="stx-faq-icon">▼</span>
+                    </button>
+                    <div class="stx-faq-answer">
+                        <p>Yes! The prototype and source code are yours to use, modify, and deploy. You have full ownership and can continue development with any team or use it as-is.</p>
+                    </div>
+                </div>
+
+                <div class="stx-faq-item">
+                    <button class="stx-faq-question">
+                        What if I need changes to the prototype?
+                        <span class="stx-faq-icon">▼</span>
+                    </button>
+                    <div class="stx-faq-answer">
+                        <p>One modification is included free of charge. Additional changes can be made through our paid development services, but you're also free to modify the code yourself or hire any developer.</p>
+                    </div>
+                </div>
+
+                <div class="stx-faq-item">
+                    <button class="stx-faq-question">
+                        Do you provide ongoing support?
+                        <span class="stx-faq-icon">▼</span>
+                    </button>
+                    <div class="stx-faq-answer">
+                        <p>The prototype includes basic documentation and setup support. For ongoing development, maintenance, and support, we offer paid service plans starting from €9.90/month.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // FAQ Accordion functionality
+        document.querySelectorAll('.stx-faq-question').forEach(question => {
+            question.addEventListener('click', function() {
+                const faqItem = this.parentNode;
+                const isActive = faqItem.classList.contains('stx-faq-item--active');
+                
+                // Close all FAQ items
+                document.querySelectorAll('.stx-faq-item').forEach(item => {
+                    item.classList.remove('stx-faq-item--active');
+                });
+                
+                // Open clicked item if it wasn't active
+                if (!isActive) {
+                    faqItem.classList.add('stx-faq-item--active');
+                }
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // PROTOTYPE FORM FUNCTIONS
+        
+        // Contact dropdown placeholder
+        function updateContactPlaceholder() {
+            const contactType = document.getElementById('contactType')?.value;
+            const contactValue = document.getElementById('contactValue');
+            
+            if (!contactType || !contactValue) return;
+            
+            const placeholders = {
+                email: 'your@email.com',
+                linkedin: 'https://linkedin.com/in/your-profile',
+                whatsapp: '+1 234 567 8900',
+                telegram: '@your_telegram'
+            };
+            
+            contactValue.placeholder = placeholders[contactType];
+            contactValue.type = (contactType === 'email') ? 'email' : (contactType === 'whatsapp') ? 'tel' : 'text';
+        }
+
+        // Audio recording simulation
+        let recordingInterval;
+        let recordingTime = 0;
+        
+        function toggleRecording(button) {
+            const isRecording = button.classList.contains('recording');
+            const info = document.getElementById('recordingInfo');
+            const timeDisplay = document.getElementById('recordingTime');
+            
+            if (!isRecording) {
+                // Start recording
+                button.classList.add('recording');
+                button.innerHTML = '⏹️ Stop recording';
+                if (info) info.style.display = 'block';
+                recordingTime = 0;
+                
+                recordingInterval = setInterval(() => {
+                    recordingTime++;
+                    const minutes = Math.floor(recordingTime / 60).toString().padStart(2, '0');
+                    const seconds = (recordingTime % 60).toString().padStart(2, '0');
+                    if (timeDisplay) timeDisplay.textContent = `${minutes}:${seconds}`;
+                }, 1000);
+            } else {
+                // Stop recording
+                button.classList.remove('recording');
+                button.innerHTML = '🎤 Re-record';
+                clearInterval(recordingInterval);
+                
+                // Show success state
+                setTimeout(() => {
+                    button.innerHTML = '✅ Recording ready';
+                    button.style.background = 'var(--raw-stx-green-active)';
+                }, 500);
+            }
+        }
+
+        // File upload handling
+        function setupFileUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const fileList = document.getElementById('fileList');
+            const uploadArea = fileInput?.previousElementSibling;
+            
+            if (!fileInput || !uploadArea) return;
+            
+            fileInput.addEventListener('change', function(e) {
+                handleFiles(e.target.files);
+            });
+            
+            // Drag and drop
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                handleFiles(e.dataTransfer.files);
+            });
+        }
+        
+        function handleFiles(files) {
+            const fileList = document.getElementById('fileList');
+            if (!fileList) return;
+            
+            Array.from(files).forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'stx-form__file-item';
+                fileItem.innerHTML = `
+                    <span>📄 ${file.name} (${Math.round(file.size / 1024)}KB)</span>
+                    <button type="button" class="stx-form__file-remove" onclick="this.parentElement.remove()">Remove</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        // Form submission
+        function setupFormSubmission() {
+            const form = document.getElementById('prototypeForm');
+            if (!form) return;
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const submitBtn = this.querySelector('.stx-form__submit-btn');
+                if (!submitBtn) return;
+                
+                const originalText = submitBtn.innerHTML;
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '⏳ Submitting...';
+                
+                // Simulate submission
+                setTimeout(() => {
+                    submitBtn.innerHTML = '✅ Submitted! Expect our call';
+                    submitBtn.style.background = 'var(--raw-stx-green-active)';
+                    
+                    setTimeout(() => {
+                        alert('Form submitted! This is a demo version, so data is not saved.');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.style.background = '';
+                    }, 2000);
+                }, 1500);
+            });
+        }
+
+        // Auto-save to localStorage
+        function setupAutoSave() {
+            const inputs = document.querySelectorAll('.stx-form__form input, .stx-form__form textarea, .stx-form__form select');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    localStorage.setItem(`prototype_form_${this.name || this.id}`, this.value);
+                });
+                
+                // Load saved value
+                const saved = localStorage.getItem(`prototype_form_${input.name || input.id}`);
+                if (saved) {
+                    input.value = saved;
+                }
+            });
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setupFileUpload();
+            setupFormSubmission();
+            setupAutoSave();
+            console.log('✅ Prototype Form initialized');
+        });
+    </script>
+</body>
+</html> 

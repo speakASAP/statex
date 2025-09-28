@@ -1,0 +1,133 @@
+{
+  "id": 1,
+  "uid": "ai-agents",
+  "title": "AI Agents",
+  "tags": ["statex", "ai", "agents"],
+  "style": "dark",
+  "timezone": "browser",
+  "panels": [
+    {
+      "id": 1,
+      "title": "AI Agents Status Overview",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "up{job=~\"statex.*ai.*\"}",
+          "legendFormat": "{{job}} - {{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": 2,
+      "title": "AI Agents Performance",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total{job=~\"statex.*ai.*\"}[5m]) * 100",
+          "legendFormat": "{{job}} CPU %"
+        },
+        {
+          "expr": "process_resident_memory_bytes{job=~\"statex.*ai.*\"} / 1024 / 1024",
+          "legendFormat": "{{job}} Memory MB"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      }
+    },
+    {
+      "id": 3,
+      "title": "AI Agents Success Rate",
+      "type": "gauge",
+      "targets": [
+        {
+          "expr": "up{job=~\"statex.*ai.*\"}",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      }
+    },
+    {
+      "id": 4,
+      "title": "AI Agents List",
+      "type": "table",
+      "targets": [
+        {
+          "expr": "up{job=~\"statex.*ai.*\"}",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "displayMode": "table"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "text": "❌ Down"
+                },
+                "1": {
+                  "text": "✅ Up"
+                }
+              },
+              "type": "value"
+            }
+          ]
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      }
+    }
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "refresh": "5s"
+}

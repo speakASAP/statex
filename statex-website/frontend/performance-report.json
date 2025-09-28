@@ -1,0 +1,180 @@
+{
+  "summary": {
+    "overallScore": 100,
+    "totalTests": 30,
+    "excellentTests": 30,
+    "goodTests": 0,
+    "needsImprovementTests": 0
+  },
+  "results": {
+    "contentLoading": {
+      "blog_en": {
+        "loadTime": 9,
+        "filesLoaded": 10,
+        "totalSize": 103846,
+        "avgTimePerFile": 1,
+        "status": "EXCELLENT"
+      },
+      "blog_cs": {
+        "loadTime": 10,
+        "filesLoaded": 10,
+        "totalSize": 81705,
+        "avgTimePerFile": 1,
+        "status": "EXCELLENT"
+      },
+      "blog_de": {
+        "loadTime": 11,
+        "filesLoaded": 10,
+        "totalSize": 92387,
+        "avgTimePerFile": 1,
+        "status": "EXCELLENT"
+      },
+      "blog_fr": {
+        "loadTime": 7,
+        "filesLoaded": 10,
+        "totalSize": 98916,
+        "avgTimePerFile": 1,
+        "status": "EXCELLENT"
+      },
+      "pages_en": {
+        "loadTime": 9,
+        "filesLoaded": 10,
+        "totalSize": 73676,
+        "avgTimePerFile": 1,
+        "status": "EXCELLENT"
+      },
+      "pages_cs": {
+        "loadTime": 6,
+        "filesLoaded": 10,
+        "totalSize": 39901,
+        "avgTimePerFile": 1,
+        "status": "EXCELLENT"
+      },
+      "pages_de": {
+        "loadTime": 8,
+        "filesLoaded": 10,
+        "totalSize": 30819,
+        "avgTimePerFile": 1,
+        "status": "EXCELLENT"
+      },
+      "pages_fr": {
+        "loadTime": 6,
+        "filesLoaded": 10,
+        "totalSize": 58689,
+        "avgTimePerFile": 1,
+        "status": "EXCELLENT"
+      }
+    },
+    "aiServing": {
+      "markdownProcessing": {
+        "processingTime": 9,
+        "filesProcessed": 11,
+        "totalMarkdownSize": 101470,
+        "avgProcessingTime": 1,
+        "throughput": 11268918,
+        "status": "EXCELLENT"
+      },
+      "routePerformance": {
+        "/ai/services/digital-transformation": {
+          "responseTime": 0,
+          "status": "EXCELLENT"
+        },
+        "/ai/solutions/cloud-migration": {
+          "responseTime": 0,
+          "status": "EXCELLENT"
+        },
+        "/ai/legal/privacy-policy": {
+          "responseTime": 0,
+          "status": "EXCELLENT"
+        },
+        "/cs/ai/sluzby/digitalni-transformace": {
+          "responseTime": 0,
+          "status": "EXCELLENT"
+        },
+        "/de/ai/services/digital-transformation": {
+          "responseTime": 0,
+          "status": "EXCELLENT"
+        },
+        "/fr/ai/services/transformation-numerique": {
+          "responseTime": 0,
+          "status": "EXCELLENT"
+        }
+      }
+    },
+    "languageSwitching": {
+      "en_to_cs": {
+        "switchTime": 0,
+        "status": "EXCELLENT"
+      },
+      "en_to_de": {
+        "switchTime": 0,
+        "status": "EXCELLENT"
+      },
+      "en_to_fr": {
+        "switchTime": 0,
+        "status": "EXCELLENT"
+      },
+      "cs_to_en": {
+        "switchTime": 0,
+        "status": "EXCELLENT"
+      },
+      "cs_to_de": {
+        "switchTime": 0,
+        "status": "EXCELLENT"
+      },
+      "cs_to_fr": {
+        "switchTime": 0,
+        "status": "EXCELLENT"
+      },
+      "de_to_en": {
+        "switchTime": 0,
+        "status": "EXCELLENT"
+      },
+      "de_to_cs": {
+        "switchTime": 0,
+        "status": "EXCELLENT"
+      },
+      "de_to_fr": {
+        "switchTime": 0,
+        "status": "EXCELLENT"
+      },
+      "fr_to_en": {
+        "switchTime": 0,
+        "status": "EXCELLENT"
+      },
+      "fr_to_cs": {
+        "switchTime": 0,
+        "status": "EXCELLENT"
+      },
+      "fr_to_de": {
+        "switchTime": 0,
+        "status": "EXCELLENT"
+      }
+    },
+    "seoMetrics": {
+      "metadataGeneration": {
+        "generationTime": 0,
+        "pagesProcessed": 12,
+        "avgTimePerPage": 0,
+        "status": "EXCELLENT"
+      },
+      "sitemapGeneration": {
+        "generationTime": 0,
+        "urlsGenerated": 160,
+        "avgTimePerUrl": 0,
+        "status": "EXCELLENT"
+      },
+      "contentAnalysis": {
+        "analysisTime": 24,
+        "filesAnalyzed": 37,
+        "totalWordCount": 36896,
+        "avgWordCount": 997,
+        "totalReadingTime": 203,
+        "avgAnalysisTime": 1,
+        "status": "EXCELLENT"
+      }
+    },
+    "overall": {}
+  },
+  "generatedAt": "2025-09-18T15:02:45.273Z"
+}

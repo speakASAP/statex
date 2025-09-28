@@ -1,0 +1,23 @@
+# Base image for StateX services
+FROM python:3.11-slim
+
+# Create user first
+RUN useradd -m -u 1000 appuser
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies (this will be cached)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Switch to non-root user
+USER appuser
+
+# This base image can be built once and reused

@@ -1,0 +1,71 @@
+/* ===== PRICING PAGE STYLES ===== */
+/* Uses bulletproof CSS variables system - Layer 3 only */
+
+/* Pricing page container */
+.pricing-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Pricing hero section */
+.pricing-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-secondary) 100%);
+  padding-top: var(--stx-space-3xl);
+  padding-bottom: var(--stx-space-3xl);
+}
+
+/* Pricing section enhancements */
+.pricing-page .stx-pricing {
+  padding-top: var(--stx-space-3xl);
+  padding-bottom: var(--stx-space-3xl);
+}
+
+.pricing-page .stx-pricing__grid {
+  gap: var(--stx-space-xl);
+}
+
+.pricing-page .stx-pricing__item {
+  transition: transform var(--stx-duration-300) var(--stx-ease-out);
+}
+
+.pricing-page .stx-pricing__item:hover {
+  transform: translateY(-4px);
+}
+
+/* Pricing CTA section */
+.pricing-page .stx-cta {
+  padding-top: var(--stx-space-3xl);
+  padding-bottom: var(--stx-space-3xl);
+  background: var(--stx-color-surface-secondary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .pricing-page .stx-hero {
+    padding-top: var(--stx-space-2xl);
+    padding-bottom: var(--stx-space-2xl);
+  }
+  
+  .pricing-page .stx-pricing {
+    padding-top: var(--stx-space-2xl);
+    padding-bottom: var(--stx-space-2xl);
+  }
+  
+  .pricing-page .stx-pricing__grid {
+    gap: var(--stx-space-lg);
+  }
+}
+
+/* Theme-specific enhancements */
+[data-theme="dark"] .pricing-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-inverse) 100%);
+}
+
+[data-theme="eu"] .pricing-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-tertiary) 100%);
+}
+
+[data-theme="uae"] .pricing-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-secondary) 100%);
+} 

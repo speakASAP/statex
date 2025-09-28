@@ -1,0 +1,107 @@
+/* ABTestProvider Component - Bulletproof CSS Variables System */
+@import '../../styles/design-tokens.css';
+
+.stx-ab-test-provider {
+  /* Provider-specific variables */
+  --stx-ab-provider-bg: var(--stx-color-surface-primary);
+  --stx-ab-provider-text: var(--stx-color-text-primary);
+  --stx-ab-provider-border: var(--stx-color-border-primary);
+  --stx-ab-provider-shadow: var(--stx-shadow-sm);
+  
+  /* Base styles for the provider container */
+  background: var(--stx-ab-provider-bg);
+  color: var(--stx-ab-provider-text);
+  border: 1px solid var(--stx-ab-provider-border);
+  box-shadow: var(--stx-ab-provider-shadow);
+  
+  /* Ensure proper inheritance */
+  width: 100%;
+  min-height: 100vh;
+  
+  /* Smooth transitions for A/B test changes */
+  transition: 
+    background-color var(--stx-duration-normal) var(--stx-ease-default),
+    color var(--stx-duration-normal) var(--stx-ease-default),
+    border-color var(--stx-duration-normal) var(--stx-ease-default);
+}
+
+/* ===== A/B TEST VARIANT STYLES ===== */
+.stx-ab-test-provider--variant-a {
+  --stx-ab-provider-bg: var(--stx-color-surface-primary);
+  --stx-ab-provider-text: var(--stx-color-text-primary);
+}
+
+.stx-ab-test-provider--variant-b {
+  --stx-ab-provider-bg: var(--stx-color-surface-secondary);
+  --stx-ab-provider-text: var(--stx-color-text-secondary);
+}
+
+/* ===== A/B TEST INDICATOR ===== */
+.stx-ab-test-indicator {
+  position: fixed;
+  top: var(--stx-space-sm);
+  right: var(--stx-space-sm);
+  background: var(--stx-color-action-primary);
+  color: var(--stx-color-text-inverse);
+  padding: var(--stx-space-xs) var(--stx-space-sm);
+  border-radius: var(--stx-radius-md);
+  font-size: var(--stx-font-size-xs);
+  font-weight: var(--stx-font-weight-medium);
+  z-index: var(--stx-z-fixed);
+  opacity: 0.8;
+  transition: opacity var(--stx-duration-fast) var(--stx-ease-default);
+}
+
+.stx-ab-test-indicator:hover {
+  opacity: 1;
+}
+
+/* ===== A/B TEST DEBUG PANEL ===== */
+.stx-ab-test-debug {
+  position: fixed;
+  bottom: var(--stx-space-sm);
+  left: var(--stx-space-sm);
+  background: var(--stx-color-surface-elevated);
+  border: 1px solid var(--stx-color-border-primary);
+  border-radius: var(--stx-radius-lg);
+  padding: var(--stx-space-md);
+  font-size: var(--stx-font-size-sm);
+  color: var(--stx-color-text-secondary);
+  z-index: var(--stx-z-fixed);
+  max-width: 300px;
+  box-shadow: var(--stx-shadow-lg);
+}
+
+.stx-ab-test-debug__title {
+  font-weight: var(--stx-font-weight-semibold);
+  margin-bottom: var(--stx-space-sm);
+  color: var(--stx-color-text-primary);
+}
+
+.stx-ab-test-debug__item {
+  margin-bottom: var(--stx-space-xs);
+}
+
+/* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+@media (prefers-reduced-motion: reduce) {
+  .stx-ab-test-provider {
+    transition: none;
+  }
+  .stx-ab-test-indicator {
+    transition: none;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .stx-ab-test-provider {
+    border-width: 2px;
+  }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .stx-ab-test-indicator,
+  .stx-ab-test-debug {
+    display: none;
+  }
+} 

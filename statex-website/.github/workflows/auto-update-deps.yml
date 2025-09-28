@@ -1,0 +1,112 @@
+name: Auto-update Dependencies
+
+on:
+  schedule:
+    # Run every Monday at 9:00 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-deps:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        npm ci
+        cd frontend && npm ci
+        cd ../backend && npm ci
+        cd ..
+    
+    - name: Check for updates
+      id: check-updates
+      run: |
+        echo "Checking for dependency updates..."
+        ROOT_UPDATES=$(npx npm-check-updates --json | jq -r 'keys | length')
+        cd frontend
+        FRONTEND_UPDATES=$(npx npm-check-updates --json | jq -r 'keys | length')
+        cd ../backend
+        BACKEND_UPDATES=$(npx npm-check-updates --json | jq -r 'keys | length')
+        cd ..
+        
+        TOTAL_UPDATES=$((ROOT_UPDATES + FRONTEND_UPDATES + BACKEND_UPDATES))
+        echo "total_updates=$TOTAL_UPDATES" >> $GITHUB_OUTPUT
+        
+        if [ $TOTAL_UPDATES -gt 0 ]; then
+          echo "Found $TOTAL_UPDATES package updates available"
+        else
+          echo "No updates available"
+        fi
+    
+    - name: Update dependencies
+      if: steps.check-updates.outputs.total_updates > '0'
+      run: |
+        echo "Updating dependencies..."
+        
+        # Update root dependencies
+        npx npm-check-updates -u
+        npm install
+        
+        # Update frontend dependencies
+        cd frontend
+        npx npm-check-updates -u
+        npm install
+        cd ..
+        
+        # Update backend dependencies
+        cd backend
+        npx npm-check-updates -u
+        npm install
+        cd ..
+        
+        # Copy package-lock.json to frontend for Docker builds
+        cp package-lock.json frontend/
+    
+    - name: Test build
+      if: steps.check-updates.outputs.total_updates > '0'
+      run: |
+        echo "Testing project build..."
+        npm run docker:dev:build
+    
+    - name: Create Pull Request
+      if: steps.check-updates.outputs.total_updates > '0'
+      uses: peter-evans/create-pull-request@v7
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "chore: auto-update dependencies"
+        title: "🤖 Auto-update dependencies"
+        body: |
+          ## 🤖 Automatic Dependency Update
+          
+          This PR was automatically created to update dependencies to their latest versions.
+          
+          ### Changes Made:
+          - Updated root dependencies
+          - Updated frontend dependencies  
+          - Updated backend dependencies
+          - Verified project still builds successfully
+          
+          ### To apply these updates:
+          1. Review the changes
+          2. Test the application locally
+          3. Merge when ready
+          
+          *This PR was created automatically by GitHub Actions*
+        
+        branch: auto-update-deps
+        delete-branch: true
+        labels: |
+          dependencies
+          automated
+          auto-update

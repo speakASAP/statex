@@ -1,0 +1,279 @@
+{
+  "summary": {
+    "totalTests": 42,
+    "passed": 41,
+    "failed": 0,
+    "warnings": 1,
+    "successRate": "100.00%"
+  },
+  "details": {
+    "translationCompleteness": {
+      "blog_cs_complete": {
+        "status": "PASS",
+        "message": "All 12 blog posts translated to cs",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.958Z"
+      },
+      "blog_de_complete": {
+        "status": "PASS",
+        "message": "All 12 blog posts translated to de",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.963Z"
+      },
+      "blog_fr_complete": {
+        "status": "PASS",
+        "message": "All 12 blog posts translated to fr",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.964Z"
+      },
+      "page_home_cs": {
+        "status": "PASS",
+        "message": "Page home translated to cs",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.965Z"
+      },
+      "page_home_de": {
+        "status": "PASS",
+        "message": "Page home translated to de",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.965Z"
+      },
+      "page_home_fr": {
+        "status": "PASS",
+        "message": "Page home translated to fr",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.965Z"
+      },
+      "page_about_cs": {
+        "status": "PASS",
+        "message": "Page about translated to cs",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.965Z"
+      },
+      "page_about_de": {
+        "status": "PASS",
+        "message": "Page about translated to de",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.965Z"
+      },
+      "page_about_fr": {
+        "status": "PASS",
+        "message": "Page about translated to fr",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.965Z"
+      },
+      "page_contact_cs": {
+        "status": "PASS",
+        "message": "Page contact translated to cs",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.965Z"
+      },
+      "page_contact_de": {
+        "status": "PASS",
+        "message": "Page contact translated to de",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.965Z"
+      },
+      "page_contact_fr": {
+        "status": "PASS",
+        "message": "Page contact translated to fr",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.965Z"
+      },
+      "services_cs_complete": {
+        "status": "PASS",
+        "message": "All 11 services files translated to cs",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.967Z"
+      },
+      "services_de_complete": {
+        "status": "PASS",
+        "message": "All 11 services files translated to de",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.967Z"
+      },
+      "services_fr_complete": {
+        "status": "PASS",
+        "message": "All 11 services files translated to fr",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.967Z"
+      },
+      "solutions_cs_complete": {
+        "status": "PASS",
+        "message": "All 10 solutions files translated to cs",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.968Z"
+      },
+      "solutions_de_complete": {
+        "status": "PASS",
+        "message": "All 10 solutions files translated to de",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.968Z"
+      },
+      "solutions_fr_complete": {
+        "status": "PASS",
+        "message": "All 10 solutions files translated to fr",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.968Z"
+      },
+      "legal_cs_complete": {
+        "status": "PASS",
+        "message": "All 13 legal files translated to cs",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.969Z"
+      },
+      "legal_de_complete": {
+        "status": "PASS",
+        "message": "All 13 legal files translated to de",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.969Z"
+      },
+      "legal_fr_complete": {
+        "status": "PASS",
+        "message": "All 13 legal files translated to fr",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.969Z"
+      }
+    },
+    "urlPatterns": {
+      "slug_mapper_exists": {
+        "status": "PASS",
+        "message": "SlugMapper file exists",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.971Z"
+      },
+      "slug_mapper_services": {
+        "status": "PASS",
+        "message": "SlugMapper includes services mappings",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.972Z"
+      },
+      "slug_mapper_solutions": {
+        "status": "PASS",
+        "message": "SlugMapper includes solutions mappings",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.972Z"
+      },
+      "slug_mapper_legal": {
+        "status": "PASS",
+        "message": "SlugMapper includes legal mappings",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.972Z"
+      },
+      "route_src_app__lang__services__service__page.tsx": {
+        "status": "PASS",
+        "message": "Route file exists: src/app/[lang]/services/[service]/page.tsx",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.973Z"
+      },
+      "route_src_app__lang__solutions__solution__page.tsx": {
+        "status": "PASS",
+        "message": "Route file exists: src/app/[lang]/solutions/[solution]/page.tsx",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.973Z"
+      },
+      "route_src_app__lang__legal__legal__page.tsx": {
+        "status": "PASS",
+        "message": "Route file exists: src/app/[lang]/legal/[legal]/page.tsx",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.973Z"
+      },
+      "route_src_app_ai_services__service__route.ts": {
+        "status": "PASS",
+        "message": "Route file exists: src/app/ai/services/[service]/route.ts",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.973Z"
+      },
+      "route_src_app_ai_solutions__solution__route.ts": {
+        "status": "PASS",
+        "message": "Route file exists: src/app/ai/solutions/[solution]/route.ts",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.973Z"
+      },
+      "route_src_app_ai_legal__legal__route.ts": {
+        "status": "PASS",
+        "message": "Route file exists: src/app/ai/legal/[legal]/route.ts",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.973Z"
+      }
+    },
+    "aiContentServing": {
+      "ai_routes_directory": {
+        "status": "PASS",
+        "message": "AI routes directory exists",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.974Z"
+      },
+      "ai_route_services": {
+        "status": "PASS",
+        "message": "AI route exists for services",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.974Z"
+      },
+      "ai_route_solutions": {
+        "status": "PASS",
+        "message": "AI route exists for solutions",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.974Z"
+      },
+      "ai_route_legal": {
+        "status": "PASS",
+        "message": "AI route exists for legal",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.974Z"
+      },
+      "content_loader_exists": {
+        "status": "PASS",
+        "message": "ContentLoader exists",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.974Z"
+      },
+      "content_loader_caching": {
+        "status": "PASS",
+        "message": "ContentLoader includes caching functionality",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.975Z"
+      }
+    },
+    "languageSwitching": {
+      "language_switcher_component": {
+        "status": "PASS",
+        "message": "Language switcher component found at src/components/layout/LanguageSwitcher.tsx",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.976Z"
+      },
+      "language_detection": {
+        "status": "PASS",
+        "message": "Language detection utilities found at src/lib/utils/language.ts",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.976Z"
+      }
+    },
+    "seoOptimization": {
+      "metadata_generation": {
+        "status": "PASS",
+        "message": "Metadata generation utilities found at src/lib/utils/metadata.ts",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.977Z"
+      },
+      "sitemap_generation": {
+        "status": "PASS",
+        "message": "Sitemap generation found at src/app/sitemap.xml/route.ts",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.977Z"
+      },
+      "hreflang_implementation_missing": {
+        "status": "WARN",
+        "message": "Hreflang implementation not found in layout",
+        "details": null,
+        "timestamp": "2025-09-18T15:29:49.978Z"
+      }
+    },
+    "overall": {
+      "passed": 41,
+      "failed": 0,
+      "warnings": 1
+    }
+  },
+  "generatedAt": "2025-09-18T15:29:49.978Z"
+}

@@ -1,0 +1,110 @@
+{
+  "id": "page",
+  "name": "Page Template",
+  "description": "Template for general website pages with hero, content, and CTA sections",
+  "sections": [
+    {
+      "id": "hero",
+      "type": "hero",
+      "variant": "page",
+      "priority": "high",
+      "config": {
+        "showBreadcrumbs": true,
+        "showTitle": true,
+        "showSubtitle": true,
+        "showBackground": true,
+        "layout": "centered"
+      }
+    },
+    {
+      "id": "content",
+      "type": "content",
+      "variant": "markdown",
+      "priority": "high",
+      "config": {
+        "enableToc": false,
+        "enableSharing": false,
+        "maxWidth": "1200px",
+        "typography": "prose"
+      }
+    },
+    {
+      "id": "cta",
+      "type": "cta",
+      "variant": "page",
+      "priority": "medium",
+      "config": {
+        "showContactForm": true,
+        "showSocialProof": true,
+        "layout": "centered"
+      }
+    }
+  ],
+  "metadata": {
+    "seo": {
+      "enableStructuredData": true,
+      "enableOpenGraph": true,
+      "enableTwitterCard": true,
+      "enableBreadcrumbs": true
+    },
+    "performance": {
+      "enableLazyLoading": true,
+      "enableCompression": true,
+      "cacheStrategy": "static",
+      "preloadCritical": true
+    },
+    "accessibility": {
+      "enableSkipLinks": true,
+      "enableKeyboardNavigation": true,
+      "enableScreenReader": true
+    }
+  },
+  "variants": {
+    "default": {
+      "description": "Standard page layout"
+    },
+    "landing": {
+      "description": "Landing page with enhanced CTAs",
+      "sections": [
+        {
+          "id": "hero",
+          "type": "hero",
+          "variant": "landing",
+          "priority": "high",
+          "config": {
+            "showBreadcrumbs": false,
+            "showTitle": true,
+            "showSubtitle": true,
+            "showBackground": true,
+            "showCTA": true,
+            "layout": "hero"
+          }
+        },
+        {
+          "id": "content",
+          "type": "content",
+          "variant": "markdown",
+          "priority": "high",
+          "config": {
+            "enableToc": true,
+            "enableSharing": true,
+            "maxWidth": "1200px",
+            "typography": "prose-lg"
+          }
+        },
+        {
+          "id": "cta",
+          "type": "cta",
+          "variant": "landing",
+          "priority": "high",
+          "config": {
+            "showContactForm": true,
+            "showSocialProof": true,
+            "showTestimonials": true,
+            "layout": "hero"
+          }
+        }
+      ]
+    }
+  }
+} 

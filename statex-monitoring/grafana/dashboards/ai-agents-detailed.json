@@ -1,0 +1,346 @@
+{
+  "id": 4,
+  "uid": "ai-detailed",
+  "title": "AI Detailed",
+  "slug": "ai-agents-detailed",
+  "tags": ["statex", "ai", "agents", "detailed"],
+  "style": "dark",
+  "timezone": "browser",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Free AI Service (Port 8016)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "up{job=~\"statex.*free.*ai.*\"}",
+          "legendFormat": "Free AI Service"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": 2,
+      "title": "NLP Service (Port 8011)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "up{job=~\"statex.*nlp.*\"}",
+          "legendFormat": "NLP Service"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      }
+    },
+    {
+      "id": 3,
+      "title": "ASR Service (Port 8012)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "up{job=~\"statex.*asr.*\"}",
+          "legendFormat": "ASR Service"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      }
+    },
+    {
+      "id": 4,
+      "title": "Document AI (Port 8013)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "up{job=~\"statex.*document.*\"}",
+          "legendFormat": "Document AI"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      }
+    },
+    {
+      "id": 5,
+      "title": "AI Orchestrator (Port 8010)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "up{job=~\"statex.*orchestrator.*\"}",
+          "legendFormat": "AI Orchestrator"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 4
+      }
+    },
+    {
+      "id": 6,
+      "title": "Prototype Generator (Port 8014)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "up{job=~\"statex.*prototype.*\"}",
+          "legendFormat": "Prototype Generator"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 4
+      }
+    },
+    {
+      "id": 7,
+      "title": "Template Repository (Port 8015)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "up{job=~\"statex.*template.*\"}",
+          "legendFormat": "Template Repository"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 4
+      }
+    },
+    {
+      "id": 8,
+      "title": "Ollama Service (Port 11434)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "up{job=~\"statex.*ollama.*\"}",
+          "legendFormat": "Ollama Service"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 4
+      }
+    },
+    {
+      "id": 9,
+      "title": "AI Agents Performance Metrics",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total{job=~\"statex.*ai.*\"}[5m]) * 100",
+          "legendFormat": "{{job}} CPU %"
+        },
+        {
+          "expr": "process_resident_memory_bytes{job=~\"statex.*ai.*\"} / 1024 / 1024",
+          "legendFormat": "{{job}} Memory MB"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      }
+    },
+    {
+      "id": 10,
+      "title": "AI Agents Request Metrics",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(http_requests_total{job=~\"statex.*ai.*\"}[5m])",
+          "legendFormat": "{{job}} Requests/sec"
+        },
+        {
+          "expr": "rate(http_request_duration_seconds{job=~\"statex.*ai.*\"}[5m])",
+          "legendFormat": "{{job}} Response Time"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      }
+    }
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "refresh": "5s"
+}

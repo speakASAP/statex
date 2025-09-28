@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dashboard - StateX</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .button { 
+            background: #0066CC; 
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            margin: 10px 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .button:hover { background: #0052A3; }
+        .status { 
+            padding: 15px; 
+            margin: 20px 0; 
+            border-radius: 6px; 
+            background: #f0f8ff; 
+            border: 1px solid #0066CC;
+        }
+        .success { background: #f0fff0; border-color: #00aa00; }
+        .error { background: #fff0f0; border-color: #aa0000; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 StateX Dashboard Test</h1>
+        
+        <div class="status" id="status">
+            <h3>Current Status:</h3>
+            <p id="statusText">Ready to test dashboard...</p>
+        </div>
+
+        <h3>Test Actions:</h3>
+        <button class="button" onclick="setupTestUser()">1. Setup Test User Session</button>
+        <button class="button" onclick="testDashboard()">2. Test Dashboard Access</button>
+        <button class="button" onclick="checkData()">3. Check Available Data</button>
+        <button class="button" onclick="openDashboard()">4. Open Dashboard</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const TEST_USER_ID = 'dev-user-1757845974658';
+        
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            const statusText = document.getElementById('statusText');
+            statusText.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function setupTestUser() {
+            try {
+                // Set up test user session
+                localStorage.setItem('statex_user_id', TEST_USER_ID);
+                localStorage.setItem('statex_session_id', 'test-session-' + Date.now());
+                
+                updateStatus(`✅ Test user session set up! User ID: ${TEST_USER_ID}`, 'success');
+                
+                // Show what's in localStorage
+                const results = document.getElementById('results');
+                results.innerHTML = `
+                    <h4>LocalStorage Contents:</h4>
+                    <pre>${JSON.stringify({
+                        'statex_user_id': localStorage.getItem('statex_user_id'),
+                        'statex_session_id': localStorage.getItem('statex_session_id')
+                    }, null, 2)}</pre>
+                `;
+            } catch (error) {
+                updateStatus(`❌ Error setting up test user: ${error.message}`, 'error');
+            }
+        }
+
+        function testDashboard() {
+            fetch('http://localhost:3000/dashboard')
+                .then(response => {
+                    if (response.ok) {
+                        updateStatus('✅ Dashboard is accessible!', 'success');
+                        return response.text();
+                    } else {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                })
+                .then(html => {
+                    const results = document.getElementById('results');
+                    results.innerHTML = `
+                        <h4>Dashboard Response:</h4>
+                        <p>Status: ${response.status}</p>
+                        <p>Content length: ${html.length} characters</p>
+                        <details>
+                            <summary>View HTML (first 500 chars)</summary>
+                            <pre>${html.substring(0, 500)}...</pre>
+                        </details>
+                    `;
+                })
+                .catch(error => {
+                    updateStatus(`❌ Dashboard test failed: ${error.message}`, 'error');
+                });
+        }
+
+        function checkData() {
+            fetch('http://localhost:8010/api/submissions')
+                .then(response => response.json())
+                .then(data => {
+                    updateStatus(`✅ Found ${data.length} submissions in the system`, 'success');
+                    
+                    const results = document.getElementById('results');
+                    results.innerHTML = `
+                        <h4>Available Submissions:</h4>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                })
+                .catch(error => {
+                    updateStatus(`❌ Error checking data: ${error.message}`, 'error');
+                });
+        }
+
+        function openDashboard() {
+            window.open('http://localhost:3000/dashboard', '_blank');
+        }
+
+        // Auto-setup on page load
+        window.onload = function() {
+            setupTestUser();
+        };
+    </script>
+</body>
+</html>
+

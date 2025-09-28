@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statex - AI-Powered Prototype Development | Transform Ideas into Working Apps in 24 Hours</title>
+    <meta name="description" content="Get your free working prototype in 24-48 hours. AI-powered development services for EU businesses. Voice, text, or file input - we create your app instantly.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../frontend/src/styles/design-tokens.css">
+    <style>
+        /* CTA Section Styles */
+        .solution-cta {
+            padding: var(--stx-space-2xl) 0;
+            background: linear-gradient(135deg, var(--stx-color-action-primary), var(--stx-color-action-primary-active));
+            color: var(--stx-color-text-inverse);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .cta-grid {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 var(--stx-space-md);
+        }
+
+        .cta-content h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 auto var(--stx-space-md);
+            max-width: 600px;
+        }
+
+        .cta-content p {
+            font-size: 1.125rem;
+            margin: 0 auto var(--stx-space-xl);
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 600px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: var(--stx-space-md);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--stx-color-status-success);
+            color: var(--stx-color-text-inverse);
+            padding: var(--stx-space-sm) var(--stx-space-lg);
+            border: none;
+            border-radius: var(--stx-radius-full);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--stx-button-bg-cta-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--stx-color-text-inverse);
+            padding: var(--stx-space-sm) var(--stx-space-lg);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: var(--stx-radius-full);
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Homepage Hero Section -->
+    <section class="stx-homepage-hero">
+        <div class="stx-homepage-hero__container">
+            <div class="stx-homepage-hero__content">
+                <h1>Transform Your Ideas Into <span class="stx-homepage-hero__highlight">Working Prototypes</span> in 24 Hours</h1>
+                <p class="stx-homepage-hero__subtitle">Experience the future of software development with AI-powered prototype creation. Simply describe your vision through voice, text, or files, and receive a functional web application prototype — completely free.</p>
+                
+                <div class="stx-homepage-hero__trust-indicators">
+                    <div class="stx-homepage-hero__trust-badge">
+                        <span class="stx-homepage-hero__trust-icon">⚡</span>
+                        <span>24-48 Hour Delivery</span>
+                    </div>
+                    <div class="stx-homepage-hero__trust-badge">
+                        <span class="stx-homepage-hero__trust-icon">🌍</span>
+                        <span>EU Market Expertise</span>
+                    </div>
+                    <div class="stx-homepage-hero__trust-badge">
+                        <span class="stx-homepage-hero__trust-icon">🗣️</span>
+                        <span>9 Languages Supported</span>
+                    </div>
+                    <div class="stx-homepage-hero__trust-badge">
+                        <span class="stx-homepage-hero__trust-icon">🆓</span>
+                        <span>Completely Free Prototype</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stx-homepage-hero__prototype-interface">
+                <div class="stx-homepage-hero__interface-header">
+                    <h2 class="stx-homepage-hero__interface-title">Get Your Free Prototype</h2>
+                    <p class="stx-homepage-hero__interface-subtitle">No commitment required • Delivered within 24-48 hours</p>
+                </div>
+                
+                <!-- Form Block - Using prototype page form styles -->
+                <div class="stx-form__container">
+                    <form class="stx-form__form" id="prototypeForm">
+                        <!-- Main Description Section -->
+                        <div class="stx-form__section">
+                            <textarea class="stx-form__textarea" placeholder="💡 Describe your idea - Tell us about your idea in a way you explain it to your friend:
+                                • What do you want
+                                • What problem are you solving
+                                • How is this problem currently being solved
+                                • What do you want to automate or improve
+                                • What results do you expect
+                                • Any additional details..." required></textarea>
+                        </div>
+
+                        <!-- Media Row Section -->
+                        <div class="stx-form__section">
+                            <div class="stx-form__media-row">
+                                <div class="stx-form__media-field">
+                                    <div class="stx-form__audio-section">
+                                        <button type="button" class="stx-form__audio-btn" onclick="toggleRecording(this)">
+                                            🎤 Tell us with your voice (optional)
+                                        </button>
+                                        <div class="stx-form__recording-info" id="recordingInfo" style="display: none;">
+                                            ⏱️ Recording: <span id="recordingTime">00:00</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="stx-form__media-field">
+                                    <div class="stx-form__file-upload" onclick="document.getElementById('fileInput').click()">
+                                        <p>📎 Attach documents (optional)</p>
+                                        <p style="font-size: 14px; color: var(--stx-color-text-tertiary); margin-top: 8px;">
+                                            Presentations, diagrams, documents, images, video etc. 
+                                        </p>
+                                    </div>
+                                    <input type="file" id="fileInput" class="stx-form__file-input" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.png,.txt,.mp4,.mov,.avi">
+                                    <div id="fileList" class="stx-form__file-list"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="stx-form__section">
+                            <button type="submit" class="stx-form__submit-btn">🚀 Get Prototype in 24 Hours</button>
+                        </div>
+
+                        <!-- Privacy Note -->
+                        <div class="stx-form__privacy-note">
+                            🔒 Your data is protected in accordance with GDPR. Confidentiality guaranteed.
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="stx-features">
+        <div class="stx-section-container">
+            <div class="stx-section-header">
+                <h2 class="stx-section-title">Our Core Services for European Businesses</h2>
+                <p class="stx-section-subtitle">Transform your business with our comprehensive suite of AI-powered development services. Each solution is tailored to meet the unique needs of European Union markets.</p>
+            </div>
+            
+            <div class="stx-features__grid">
+                <div class="stx-features__item">
+                    <div class="stx-features__header">
+                        <div class="stx-features__icon">🌐</div>
+                        <h3 class="stx-features__heading">Web Development</h3>
+                    </div>
+                    <p class="stx-features__text">Create lightning-fast, responsive websites and web applications using cutting-edge technologies.</p>
+                    <ul class="stx-features__list">
+                        <li><span class="stx-check-icon">✅</span> Progressive Web Apps (PWA)</li>
+                        <li><span class="stx-check-icon">✅</span> Mobile-responsive design</li>
+                        <li><span class="stx-check-icon">✅</span> EU accessibility compliance</li>
+                        <li><span class="stx-check-icon">✅</span> Multi-language support</li>
+                    </ul>
+                    <a href="/services/web-development" class="stx-features__link">Learn More About Web Development →</a>
+                </div>
+                
+                <div class="stx-features__item">
+                    <div class="stx-features__header">
+                        <div class="stx-features__icon">🤖</div>
+                        <h3 class="stx-features__heading">AI Automation</h3>
+                    </div>
+                    <p class="stx-features__text">Automate repetitive tasks and streamline business processes with custom AI solutions.</p>
+                    <ul class="stx-features__list">
+                        <li><span class="stx-check-icon">✅</span> Business process automation</li>
+                        <li><span class="stx-check-icon">✅</span> Chatbot development</li>
+                        <li><span class="stx-check-icon">✅</span> Document processing systems</li>
+                        <li><span class="stx-check-icon">✅</span> Workflow optimization</li>
+                    </ul>
+                    <a href="/services/ai-automation" class="stx-features__link">Discover AI Automation Solutions →</a>
+                </div>
+                
+                <div class="stx-features__item">
+                    <div class="stx-features__header">
+                        <div class="stx-features__icon">🔄</div>
+                        <h3 class="stx-features__heading">System Modernization</h3>
+                    </div>
+                    <p class="stx-features__text">Transform outdated systems into modern, scalable solutions without disrupting your business operations.</p>
+                    <ul class="stx-features__list">
+                        <li><span class="stx-check-icon">✅</span> Legacy system migration</li>
+                        <li><span class="stx-check-icon">✅</span> Cloud infrastructure setup</li>
+                        <li><span class="stx-check-icon">✅</span> API development & integration</li>
+                        <li><span class="stx-check-icon">✅</span> Database modernization</li>
+                    </ul>
+                    <a href="/services/system-modernization" class="stx-features__link">Explore System Modernization →</a>
+                </div>
+                
+                <div class="stx-features__item">
+                    <div class="stx-features__header">
+                        <div class="stx-features__icon">🛒</div>
+                        <h3 class="stx-features__heading">E-Commerce Solutions</h3>
+                    </div>
+                    <p class="stx-features__text">Launch powerful e-commerce platforms optimized for European markets with multi-currency support.</p>
+                    <ul class="stx-features__list">
+                        <li><span class="stx-check-icon">✅</span> Custom online stores</li>
+                        <li><span class="stx-check-icon">✅</span> Payment gateway integration</li>
+                        <li><span class="stx-check-icon">✅</span> Multi-currency & multi-language</li>
+                        <li><span class="stx-check-icon">✅</span> Inventory management systems</li>
+                    </ul>
+                    <a href="/services/e-commerce" class="stx-features__link">Build Your E-Commerce Platform →</a>
+                </div>
+                
+                <div class="stx-features__item">
+                    <div class="stx-features__header">
+                        <div class="stx-features__icon">💡</div>
+                        <h3 class="stx-features__heading">IT Consulting</h3>
+                    </div>
+                    <p class="stx-features__text">Navigate complex technology decisions with expert guidance from our experienced consultants.</p>
+                    <ul class="stx-features__list">
+                        <li><span class="stx-check-icon">✅</span> Digital transformation strategy</li>
+                        <li><span class="stx-check-icon">✅</span> Technology assessment</li>
+                        <li><span class="stx-check-icon">✅</span> Architecture planning</li>
+                        <li><span class="stx-check-icon">✅</span> Implementation guidance</li>
+                    </ul>
+                    <a href="/services/consulting" class="stx-features__link">Get Expert IT Consulting →</a>
+                </div>
+                
+                <div class="stx-features__item">
+                    <div class="stx-features__header">
+                        <div class="stx-features__icon">🔧</div>
+                        <h3 class="stx-features__heading">Custom Software</h3>
+                    </div>
+                    <p class="stx-features__text">Build tailored software solutions that perfectly match your business requirements and workflows.</p>
+                    <ul class="stx-features__list">
+                        <li><span class="stx-check-icon">✅</span> Custom application development</li>
+                        <li><span class="stx-check-icon">✅</span> Enterprise software solutions</li>
+                        <li><span class="stx-check-icon">✅</span> Integration with existing systems</li>
+                        <li><span class="stx-check-icon">✅</span> Scalable architecture design</li>
+                    </ul>
+                    <a href="/services/custom-software" class="stx-features__link">Develop Custom Software →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="stx-how-it-works">
+        <div class="stx-section-container">
+            <div class="stx-section-header">
+                <h2 class="stx-section-title">How It Works</h2>
+                <p class="stx-section-subtitle">Get your working prototype in just 4 simple steps. Our AI-powered process makes development faster and more efficient than ever before.</p>
+            </div>
+            
+            <div class="stx-how-it-works__steps">
+                <div class="stx-how-it-works__step">
+                    <div class="stx-how-it-works__number">1</div>
+                    <h3 class="stx-how-it-works__title">Describe Your Idea</h3>
+                    <p class="stx-how-it-works__description">Share your project vision through voice messages, detailed text descriptions, or by uploading relevant files and documents.</p>
+                </div>
+                
+                <div class="stx-how-it-works__step">
+                    <div class="stx-how-it-works__number">2</div>
+                    <h3 class="stx-how-it-works__title">AI Analysis</h3>
+                    <p class="stx-how-it-works__description">Our advanced AI system analyzes your requirements, identifies key features, and creates a comprehensive development plan.</p>
+                </div>
+                
+                <div class="stx-how-it-works__step">
+                    <div class="stx-how-it-works__number">3</div>
+                    <h3 class="stx-how-it-works__title">Rapid Development</h3>
+                    <p class="stx-how-it-works__description">Our expert team combines AI-generated code with human expertise to build your working prototype in 24-48 hours.</p>
+                </div>
+                
+                <div class="stx-how-it-works__step">
+                    <div class="stx-how-it-works__number">4</div>
+                    <h3 class="stx-how-it-works__title">Receive & Test</h3>
+                    <p class="stx-how-it-works__description">Get your live, functional prototype hosted on our platform. Test all features and request one free modification if needed.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="stx-testimonials">
+        <div class="stx-section-container">
+            <div class="stx-section-header">
+                <h2 class="stx-section-title">What Our Clients Say</h2>
+                <p class="stx-section-subtitle">Trusted by businesses across Europe for rapid development and exceptional results.</p>
+            </div>
+            
+            <div class="stx-testimonials__items">
+                <div class="stx-testimonials__item">
+                    <div class="stx-testimonials__quote">
+                        "Incredible speed and quality! Statex delivered a working prototype of our e-commerce platform in just 36 hours. The AI-powered approach saved us months of development time."
+                    </div>
+                    <div class="stx-testimonials__author">
+                        <div class="stx-testimonials__author-info">
+                            <div class="stx-testimonials__name">Heinrich Kainz</div>
+                            <div class="stx-testimonials__role">CEO</div>
+                            <div class="stx-testimonials__company">TechVision GmbH</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stx-testimonials__item">
+                    <div class="stx-testimonials__quote">
+                        "The prototype they created exceeded our expectations. The team understood our complex requirements perfectly and delivered a solution that our stakeholders loved."
+                    </div>
+                    <div class="stx-testimonials__author">
+                        <div class="stx-testimonials__author-info">
+                            <div class="stx-testimonials__name">Sophie Dubois</div>
+                            <div class="stx-testimonials__role">CTO</div>
+                            <div class="stx-testimonials__company">InnovaCorp France</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stx-testimonials__item">
+                    <div class="stx-testimonials__quote">
+                        "Working with Statex was a game-changer for our digital transformation. Their expertise in both AI and traditional development is unmatched in the EU market."
+                    </div>
+                    <div class="stx-testimonials__author">
+                        <div class="stx-testimonials__author-info">
+                            <div class="stx-testimonials__name">Alessandro Rossi</div>
+                            <div class="stx-testimonials__role">Director</div>
+                            <div class="stx-testimonials__company">Milano Solutions</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stx-testimonials__item">
+                    <div class="stx-testimonials__quote">
+                        "From concept to working prototype in less than 48 hours - I couldn't believe it was possible until I experienced it myself. Highly recommended!"
+                    </div>
+                    <div class="stx-testimonials__author">
+                        <div class="stx-testimonials__author-info">
+                            <div class="stx-testimonials__name">Jan Novák</div>
+                            <div class="stx-testimonials__role">Founder</div>
+                            <div class="stx-testimonials__company">Prague Digital</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stx-testimonials__item">
+                    <div class="stx-testimonials__quote">
+                        "The free prototype convinced our board immediately. The quality and functionality were production-ready from day one. We're now planning our full development with Statex."
+                    </div>
+                    <div class="stx-testimonials__author">
+                        <div class="stx-testimonials__author-info">
+                            <div class="stx-testimonials__name">Elena Weber</div>
+                            <div class="stx-testimonials__role">Product Manager</div>
+                            <div class="stx-testimonials__company">Berlin Startup Hub</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="solution-cta">
+        <div class="section-container">
+            <div class="cta-grid">
+                <div class="cta-content">
+                    <h2>Ready to Transform Your Business?</h2>
+                    <p>Start your digital transformation journey today and unlock the full potential of your business operations.</p>
+                    <div class="cta-buttons">
+                        <a href="/free-prototype" class="btn-primary">Get Free Assessment</a>
+                        <a href="/contact" class="btn-secondary">Schedule Consultation</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+
+        // Voice recording functionality
+        function toggleRecording(button) {
+            const recordingInfo = document.getElementById('recordingInfo');
+            const recordingTime = document.getElementById('recordingTime');
+            
+            if (button.classList.contains('recording')) {
+                // Stop recording
+                button.classList.remove('recording');
+                button.textContent = '🎤 Record voice message';
+                recordingInfo.style.display = 'none';
+            } else {
+                // Start recording
+                button.classList.add('recording');
+                button.textContent = '⏹️ Stop recording';
+                recordingInfo.style.display = 'block';
+                
+                // Simulate recording time
+                let seconds = 0;
+                const timer = setInterval(() => {
+                    if (!button.classList.contains('recording')) {
+                        clearInterval(timer);
+                        return;
+                    }
+                    seconds++;
+                    const minutes = Math.floor(seconds / 60);
+                    const remainingSeconds = seconds % 60;
+                    recordingTime.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+                }, 1000);
+            }
+        }
+
+        // File upload functionality
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            Array.from(e.target.files).forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'stx-form__file-item';
+                fileItem.innerHTML = `
+                    <span>📎 ${file.name}</span>
+                    <button type="button" class="stx-form__file-remove" onclick="removeFile(${index})">×</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        });
+
+        function removeFile(index) {
+            const fileInput = document.getElementById('fileInput');
+            const dt = new DataTransfer();
+            const { files } = fileInput;
+            
+            for (let i = 0; i < files.length; i++) {
+                if (i !== index) {
+                    dt.items.add(files[i]);
+                }
+            }
+            
+            fileInput.files = dt.files;
+            document.getElementById('fileInput').dispatchEvent(new Event('change'));
+        }
+
+        // Form submission
+        document.getElementById('prototypeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Thank you! Your prototype request has been submitted. We\'ll get back to you within 24 hours.');
+        });
+
+
+    </script>
+</body>
+</html> 

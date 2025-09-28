@@ -1,0 +1,46 @@
+{
+  "summary": {
+    "created": 6,
+    "skipped": 0,
+    "total": 6
+  },
+  "fixes": [
+    {
+      "component": "ai_services_route",
+      "status": "CREATED",
+      "message": "AI services route created",
+      "timestamp": "2025-09-18T14:59:03.500Z"
+    },
+    {
+      "component": "ai_solutions_route",
+      "status": "CREATED",
+      "message": "AI solutions route created",
+      "timestamp": "2025-09-18T14:59:03.504Z"
+    },
+    {
+      "component": "ai_legal_route",
+      "status": "CREATED",
+      "message": "AI legal route created",
+      "timestamp": "2025-09-18T14:59:03.505Z"
+    },
+    {
+      "component": "language_switcher",
+      "status": "CREATED",
+      "message": "Language switcher component created",
+      "timestamp": "2025-09-18T14:59:03.508Z"
+    },
+    {
+      "component": "metadata_utils",
+      "status": "CREATED",
+      "message": "Metadata utilities created",
+      "timestamp": "2025-09-18T14:59:03.510Z"
+    },
+    {
+      "component": "language_detection",
+      "status": "CREATED",
+      "message": "Language detection utilities created",
+      "timestamp": "2025-09-18T14:59:03.512Z"
+    }
+  ],
+  "generatedAt": "2025-09-18T14:59:03.515Z"
+}

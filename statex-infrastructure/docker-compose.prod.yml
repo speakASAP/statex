@@ -1,0 +1,65 @@
+services:
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: statex_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/statex-reverse-proxy.conf.template:/etc/nginx/templates/statex.conf.template
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+      - ./webroot:/var/www/html
+    environment:
+      - virtual_host=${VIRTUAL_HOST:-statex.cz}
+      - DEFAULT_HOST=${DEFAULT_HOST:-statex.cz}
+      - ALLOW_SELF_SIGNED=false
+    networks:
+      - statex_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Let's Encrypt Certificate Management
+  letsencrypt:
+    image: certbot/certbot:latest
+    container_name: statex_letsencrypt
+    restart: unless-stopped
+    volumes:
+      - letsencrypt_data:/etc/letsencrypt
+      - ./logs/certbot:/var/log/letsencrypt
+      - ./ssl:/ssl
+      - ./webroot:/var/www/html:rw
+      - ./scripts/manage-certificates.sh:/manage-certificates.sh
+    environment:
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+      - VIRTUAL_HOST=${VIRTUAL_HOST:-statex.cz}
+    entrypoint: []
+    command:
+      - sh
+      - -c
+      - |
+        chmod +x /manage-certificates.sh &&
+        /manage-certificates.sh
+    depends_on:
+      - nginx
+    networks:
+      - statex_network
+
+volumes:
+  letsencrypt_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./letsencrypt-persistent
+
+networks:
+  statex_network:
+    driver: bridge
+    external: true

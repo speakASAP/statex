@@ -1,0 +1,45 @@
+# Ultra-fast Development Frontend Dockerfile with BuildKit
+FROM node:23.11.0-slim as base
+
+# Set build arguments
+ARG BUILD_DATE
+ARG PACKAGE_VERSION
+ARG USER_UID=1000
+
+WORKDIR /app
+
+# Install minimal packages
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends wget ca-certificates && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get clean
+
+# Update npm
+RUN npm install -g npm@11.5.2
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies with maximum caching
+RUN npm install --omit=dev --prefer-offline --no-audit --no-fund
+
+# Copy source code
+COPY . .
+
+# Set permissions
+RUN chown -R node:node /app
+
+# Switch to node user
+USER node
+
+# Environment variables
+ENV NODE_ENV=development
+ENV NEXT_TURBO=1
+ENV LIGHTNINGCSS_NATIVE=1
+ENV NODE_OPTIONS="--max-old-space-size=2048"
+
+# Expose port
+EXPOSE 3000
+
+# Development command
+CMD ["npm", "run", "dev"]

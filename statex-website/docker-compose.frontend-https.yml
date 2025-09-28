@@ -1,0 +1,31 @@
+services:
+  # Frontend with HTTPS support
+  frontend-https:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: statex_frontend_https_dev
+    volumes:
+      - ./frontend:/app
+      - ./certificates:/app/certificates
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    command: ["npm", "run", "dev:https"]
+    networks:
+      - statex_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-k", "https://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  statex_network:
+    external: true
+

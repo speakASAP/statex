@@ -1,0 +1,91 @@
+/* ===== COMPANY STORY PAGE STYLES ===== */
+/* Uses bulletproof CSS variables system - Layer 3 only */
+
+/* Company story page container */
+.company-story-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Company story hero section */
+.company-story-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-secondary) 100%);
+  padding-top: var(--stx-space-3xl);
+  padding-bottom: var(--stx-space-3xl);
+}
+
+/* Company story content section */
+.company-story-page .stx-content {
+  padding-top: var(--stx-space-3xl);
+  padding-bottom: var(--stx-space-3xl);
+}
+
+.company-story-page .stx-content__container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 var(--stx-space-lg);
+}
+
+.company-story-page .stx-content__section {
+  margin-bottom: var(--stx-space-3xl);
+  padding: var(--stx-space-2xl);
+  background: var(--stx-color-surface-elevated);
+  border-radius: var(--stx-radius-lg);
+  box-shadow: var(--stx-shadow-md);
+}
+
+.company-story-page .stx-content__section-title {
+  margin-bottom: var(--stx-space-xl);
+  color: var(--stx-color-text-primary);
+  font-size: var(--stx-font-size-2xl);
+  font-weight: var(--stx-font-bold);
+}
+
+.company-story-page .stx-content__text {
+  color: var(--stx-color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--stx-space-lg);
+}
+
+.company-story-page .stx-content__timeline {
+  margin-top: var(--stx-space-2xl);
+}
+
+.company-story-page .stx-content__timeline-item {
+  padding: var(--stx-space-lg);
+  margin-bottom: var(--stx-space-lg);
+  background: var(--stx-color-surface-primary);
+  border-left: 4px solid var(--stx-color-action-primary);
+  border-radius: var(--stx-radius-md);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .company-story-page .stx-hero {
+    padding-top: var(--stx-space-2xl);
+    padding-bottom: var(--stx-space-2xl);
+  }
+  
+  .company-story-page .stx-content {
+    padding-top: var(--stx-space-2xl);
+    padding-bottom: var(--stx-space-2xl);
+  }
+  
+  .company-story-page .stx-content__section {
+    padding: var(--stx-space-lg);
+  }
+}
+
+/* Theme-specific enhancements */
+[data-theme="dark"] .company-story-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-inverse) 100%);
+}
+
+[data-theme="eu"] .company-story-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-tertiary) 100%);
+}
+
+[data-theme="uae"] .company-story-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-secondary) 100%);
+} 

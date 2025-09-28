@@ -1,0 +1,252 @@
+{
+  "id": 5,
+  "uid": "ai-performance",
+  "title": "AI Performance Optimization",
+  "tags": ["statex", "ai", "performance", "optimization"],
+  "style": "dark",
+  "timezone": "browser",
+  "panels": [
+    {
+      "id": 1,
+      "title": "AI Agents Performance Overview",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "up{job=~\"statex.*ai.*\"}",
+          "legendFormat": "{{job}} - {{instance}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": 2,
+      "title": "Request Rate by AI Agent",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(ai_requests_total[5m])",
+          "legendFormat": "{{job}} - {{provider}}"
+        },
+        {
+          "expr": "rate(nlp_requests_total[5m])",
+          "legendFormat": "NLP - {{provider}}"
+        },
+        {
+          "expr": "rate(asr_requests_total[5m])",
+          "legendFormat": "ASR - {{provider}}"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      }
+    },
+    {
+      "id": 3,
+      "title": "Response Time by AI Agent",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(ai_request_duration_seconds_bucket[5m]))",
+          "legendFormat": "Free AI - 95th percentile"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(nlp_request_duration_seconds_bucket[5m]))",
+          "legendFormat": "NLP - 95th percentile"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(asr_request_duration_seconds_bucket[5m]))",
+          "legendFormat": "ASR - 95th percentile"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      }
+    },
+    {
+      "id": 4,
+      "title": "Success Rate by AI Agent",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(ai_requests_total{status=\"success\"}[5m]) / rate(ai_requests_total[5m]) * 100",
+          "legendFormat": "Free AI Success Rate %"
+        },
+        {
+          "expr": "rate(nlp_requests_total{status=\"success\"}[5m]) / rate(nlp_requests_total[5m]) * 100",
+          "legendFormat": "NLP Success Rate %"
+        },
+        {
+          "expr": "rate(asr_requests_total{status=\"success\"}[5m]) / rate(asr_requests_total[5m]) * 100",
+          "legendFormat": "ASR Success Rate %"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      }
+    },
+    {
+      "id": 5,
+      "title": "Active Requests by AI Agent",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "ai_active_requests",
+          "legendFormat": "Free AI Active"
+        },
+        {
+          "expr": "nlp_active_requests",
+          "legendFormat": "NLP Active"
+        },
+        {
+          "expr": "asr_active_requests",
+          "legendFormat": "ASR Active"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      }
+    },
+    {
+      "id": 6,
+      "title": "Token Usage by Provider",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(nlp_tokens_total[5m])",
+          "legendFormat": "NLP Tokens - {{provider}} ({{type}})"
+        },
+        {
+          "expr": "rate(ai_tokens_total[5m])",
+          "legendFormat": "AI Tokens - {{provider}} ({{type}})"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      }
+    },
+    {
+      "id": 7,
+      "title": "AI Agent Performance Comparison",
+      "type": "table",
+      "targets": [
+        {
+          "expr": "ai_request_duration_seconds_count",
+          "legendFormat": "{{job}} - Total Requests"
+        },
+        {
+          "expr": "ai_request_duration_seconds_sum / ai_request_duration_seconds_count",
+          "legendFormat": "{{job}} - Avg Response Time"
+        },
+        {
+          "expr": "rate(ai_requests_total{status=\"success\"}[5m]) / rate(ai_requests_total[5m]) * 100",
+          "legendFormat": "{{job}} - Success Rate %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "displayMode": "table"
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      }
+    },
+    {
+      "id": 8,
+      "title": "Cost Optimization Recommendations",
+      "type": "table",
+      "targets": [
+        {
+          "expr": "ai_request_duration_seconds_sum / ai_request_duration_seconds_count",
+          "legendFormat": "{{job}} - Avg Time (s)"
+        },
+        {
+          "expr": "rate(ai_requests_total[5m])",
+          "legendFormat": "{{job}} - Requests/min"
+        },
+        {
+          "expr": "rate(nlp_tokens_total[5m])",
+          "legendFormat": "{{job}} - Tokens/min"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "displayMode": "table"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0-1": {
+                  "text": "🟢 Fast"
+                },
+                "1-5": {
+                  "text": "🟡 Medium"
+                },
+                "5+": {
+                  "text": "🔴 Slow"
+                }
+              },
+              "type": "range"
+            }
+          ]
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      }
+    }
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "refresh": "5s"
+}

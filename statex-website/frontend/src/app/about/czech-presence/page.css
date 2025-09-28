@@ -1,0 +1,97 @@
+/* ===== CZECH PRESENCE PAGE STYLES ===== */
+/* Uses bulletproof CSS variables system - Layer 3 only */
+
+/* Czech presence page container */
+.czech-presence-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Czech presence hero section */
+.czech-presence-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-secondary) 100%);
+  padding-top: var(--stx-space-3xl);
+  padding-bottom: var(--stx-space-3xl);
+}
+
+/* Czech presence content section */
+.czech-presence-page .stx-content {
+  padding-top: var(--stx-space-3xl);
+  padding-bottom: var(--stx-space-3xl);
+}
+
+.czech-presence-page .stx-content__container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 var(--stx-space-lg);
+}
+
+.czech-presence-page .stx-content__section {
+  margin-bottom: var(--stx-space-3xl);
+  padding: var(--stx-space-2xl);
+  background: var(--stx-color-surface-elevated);
+  border-radius: var(--stx-radius-lg);
+  box-shadow: var(--stx-shadow-md);
+}
+
+.czech-presence-page .stx-content__section-title {
+  margin-bottom: var(--stx-space-xl);
+  color: var(--stx-color-text-primary);
+  font-size: var(--stx-font-size-2xl);
+  font-weight: var(--stx-font-bold);
+}
+
+.czech-presence-page .stx-content__text {
+  color: var(--stx-color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--stx-space-lg);
+}
+
+.czech-presence-page .stx-content__features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--stx-space-lg);
+  margin-top: var(--stx-space-xl);
+}
+
+.czech-presence-page .stx-content__feature {
+  padding: var(--stx-space-lg);
+  background: var(--stx-color-surface-primary);
+  border-radius: var(--stx-radius-md);
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .czech-presence-page .stx-hero {
+    padding-top: var(--stx-space-2xl);
+    padding-bottom: var(--stx-space-2xl);
+  }
+  
+  .czech-presence-page .stx-content {
+    padding-top: var(--stx-space-2xl);
+    padding-bottom: var(--stx-space-2xl);
+  }
+  
+  .czech-presence-page .stx-content__section {
+    padding: var(--stx-space-lg);
+  }
+  
+  .czech-presence-page .stx-content__features {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Theme-specific enhancements */
+[data-theme="dark"] .czech-presence-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-inverse) 100%);
+}
+
+[data-theme="eu"] .czech-presence-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-tertiary) 100%);
+}
+
+[data-theme="uae"] .czech-presence-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-secondary) 100%);
+} 

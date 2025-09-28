@@ -1,0 +1,28 @@
+/* Light Theme Design Tokens */
+[data-theme="light"] {
+  /* Background Colors */
+  --bg-primary: var(--raw-white);
+  --bg-secondary: var(--raw-gray-50);
+  --bg-tertiary: var(--raw-gray-100);
+  
+  /* Text Colors */
+  --text-primary: var(--raw-gray-900);
+  --text-secondary: var(--raw-gray-700);
+  --text-tertiary: var(--raw-gray-500);
+  
+  /* Border Colors */
+  --border-color: var(--raw-gray-200);
+  --border-color-focus: var(--primary-blue);
+  
+  /* Form Colors */
+  --form-background: var(--raw-white);
+  --form-text-color: var(--raw-gray-900);
+  --form-border-color: var(--raw-gray-200);
+  --form-placeholder-color: var(--raw-gray-400);
+  
+  /* Shadow Colors */
+  --shadow-color: var(--raw-bg-overlay-dark);
+  
+  /* Theme Identifier */
+  --theme-current: 'light';
+} 

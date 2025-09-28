@@ -1,0 +1,97 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "rules/*.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # StateX Monitoring Service
+  - job_name: 'statex-monitoring'
+    static_configs:
+      - targets: ['statex-monitoring-service:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # StateX Platform Services
+  - job_name: 'statex-platform'
+    static_configs:
+      - targets: ['host.docker.internal:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # StateX AI Services
+  - job_name: 'statex-ai-orchestrator'
+    static_configs:
+      - targets: ['host.docker.internal:8010']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  - job_name: 'statex-free-ai-service'
+    static_configs:
+      - targets: ['host.docker.internal:8016']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  - job_name: 'statex-nlp-service'
+    static_configs:
+      - targets: ['host.docker.internal:8011']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  - job_name: 'statex-asr-service'
+    static_configs:
+      - targets: ['host.docker.internal:8012']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  - job_name: 'statex-document-ai'
+    static_configs:
+      - targets: ['host.docker.internal:8013']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  - job_name: 'statex-prototype-generator'
+    static_configs:
+      - targets: ['host.docker.internal:8014']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  - job_name: 'statex-template-repository'
+    static_configs:
+      - targets: ['host.docker.internal:8015']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # StateX Notification Service
+  - job_name: 'statex-notification-service'
+    static_configs:
+      - targets: ['host.docker.internal:8005']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # Node Exporter
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # cAdvisor
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # Blackbox Exporter
+  - job_name: 'blackbox-exporter'
+    static_configs:
+      - targets: ['blackbox-exporter:9115']

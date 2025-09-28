@@ -1,0 +1,17 @@
+{
+  "target": "latest",
+  "upgrade": true,
+  "reject": [
+    "@types/react",
+    "@types/react-dom",
+    "react",
+    "react-dom",
+    "next"
+  ],
+  "dep": "prod,dev,peer,optional",
+  "packageManager": "npm",
+  "registry": "https://registry.npmjs.org/",
+  "timeout": 300000,
+  "concurrency": 8,
+  "loglevel": "info"
+}

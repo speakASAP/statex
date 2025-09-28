@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>StateX Loki - Log Aggregation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #1e1e1e; color: #fff; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #00d4aa; }
+        .status { background: #2d2d2d; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .endpoint { background: #3d3d3d; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .endpoint a { color: #00d4aa; text-decoration: none; }
+        .endpoint a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 StateX Loki - Log Aggregation</h1>
+        
+        <div class="status">
+            <h3>✅ Service Status: Running</h3>
+            <p>Loki is successfully running and ready to collect and query logs.</p>
+        </div>
+        
+        <h3>Available Endpoints:</h3>
+        <div class="endpoint">
+            <strong>Health Check:</strong> <a href="/ready">/ready</a>
+        </div>
+        <div class="endpoint">
+            <strong>Query API:</strong> <a href="/loki/api/v1/query">/loki/api/v1/query</a>
+        </div>
+        <div class="endpoint">
+            <strong>Labels API:</strong> <a href="/loki/api/v1/labels">/loki/api/v1/labels</a>
+        </div>
+        <div class="endpoint">
+            <strong>Series API:</strong> <a href="/loki/api/v1/series">/loki/api/v1/series</a>
+        </div>
+        
+        <h3>Integration:</h3>
+        <p>Loki is integrated with Grafana for log visualization and analysis.</p>
+        <p>Access Grafana at: <a href="http://localhost:${GRAFANA_PORT:-3000}" style="color: #00d4aa;">http://localhost:${GRAFANA_PORT:-3000}</a></p>
+    </div>
+</body>
+</html>

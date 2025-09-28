@@ -1,0 +1,43 @@
+{
+  "project_id": "project-1758380993",
+  "prototype_type": "website",
+  "requirements": "Test requirements",
+  "analysis": {},
+  "content": {
+    "hero": {
+      "headline": "Professional Business Solutions",
+      "subheading": "We help businesses grow with innovative solutions and expert guidance",
+      "cta_text": "Get Started"
+    },
+    "about": {
+      "title": "About Our Company",
+      "description": "We are a dedicated team of professionals committed to delivering exceptional results. With years of experience and a passion for excellence, we help our clients achieve their goals."
+    },
+    "services": [
+      {
+        "title": "Consulting",
+        "description": "Expert advice to help you make informed business decisions"
+      },
+      {
+        "title": "Strategy",
+        "description": "Comprehensive planning to drive your business forward"
+      },
+      {
+        "title": "Implementation",
+        "description": "Turn your ideas into reality with our proven methodologies"
+      }
+    ],
+    "contact": {
+      "title": "Let's Work Together",
+      "description": "Ready to take your business to the next level? Contact us today to discuss how we can help you achieve your goals.",
+      "form_title": "Send us a Message"
+    },
+    "seo": {
+      "title": "Business Solutions - Professional Services",
+      "description": "Professional business consulting and implementation services. Expert guidance to help your business grow and succeed.",
+      "keywords": "business consulting, professional services, strategy, implementation"
+    }
+  },
+  "created_at": "2025-09-20T15:09:53.294331",
+  "ai_generated": true
+}

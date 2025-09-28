@@ -1,0 +1,35 @@
+{
+  "enabled": true,
+  "name": "Source Code Documentation Sync",
+  "description": "Monitors all source files in the repository (TypeScript, Python, configuration files) and triggers documentation updates in README.md and /docs folder when changes are detected",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "frontend/src/**/*.ts",
+      "frontend/src/**/*.tsx",
+      "backend/src/**/*.ts",
+      "services/**/*.py",
+      "content-service/**/*.py",
+      "user-portal/**/*.py",
+      "*.json",
+      "*.js",
+      "*.ts",
+      "*.md",
+      "frontend/package.json",
+      "backend/package.json",
+      "package.json",
+      "docker-compose*.yml",
+      "Dockerfile*",
+      "*.config.js",
+      "*.config.ts",
+      "frontend/next.config.js",
+      "frontend/tailwind.config.js",
+      "backend/prisma/schema.prisma"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Source code files have been modified. Please analyze the changes and update the documentation accordingly. Focus on:\n\n1. Update README.md if there are architectural changes, new features, or setup instructions that need modification\n2. Update relevant documentation in the /docs folder, particularly:\n   - /docs/development/ for technical changes\n   - /docs/design/ for UI/component changes  \n   - /docs/content/ for content-related changes\n3. Ensure documentation reflects current API endpoints, component interfaces, and configuration options\n4. Update any outdated examples or code snippets in the documentation\n5. Maintain consistency between the codebase and documentation\n\nPlease review the changed files and provide updated documentation that accurately reflects the current state of the system."
+  }
+}

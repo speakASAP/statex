@@ -1,0 +1,116 @@
+{
+  "id": "blog-post",
+  "name": "Blog Post Template",
+  "description": "Template for blog post pages with hero, content, and related posts sections",
+  "sections": [
+    {
+      "id": "hero",
+      "type": "hero",
+      "variant": "blog",
+      "priority": "high",
+      "config": {
+        "showCategory": true,
+        "showAuthor": true,
+        "showDate": true,
+        "showReadTime": true,
+        "showTags": true,
+        "layout": "centered"
+      }
+    },
+    {
+      "id": "content",
+      "type": "content",
+      "variant": "markdown",
+      "priority": "high",
+      "config": {
+        "enableToc": true,
+        "enableSharing": true,
+        "enableComments": false,
+        "maxWidth": "800px",
+        "typography": "prose"
+      }
+    },
+    {
+      "id": "related",
+      "type": "related",
+      "variant": "blog",
+      "priority": "medium",
+      "config": {
+        "maxPosts": 3,
+        "sameCategory": true,
+        "showExcerpt": true,
+        "showDate": true
+      }
+    }
+  ],
+  "metadata": {
+    "seo": {
+      "enableStructuredData": true,
+      "enableOpenGraph": true,
+      "enableTwitterCard": true,
+      "enableBreadcrumbs": true
+    },
+    "performance": {
+      "enableLazyLoading": true,
+      "enableCompression": true,
+      "cacheStrategy": "static",
+      "preloadCritical": true
+    },
+    "accessibility": {
+      "enableSkipLinks": true,
+      "enableKeyboardNavigation": true,
+      "enableScreenReader": true
+    }
+  },
+  "variants": {
+    "default": {
+      "description": "Standard blog post layout"
+    },
+    "featured": {
+      "description": "Featured blog post with enhanced styling",
+      "sections": [
+        {
+          "id": "hero",
+          "type": "hero",
+          "variant": "featured",
+          "priority": "high",
+          "config": {
+            "showCategory": true,
+            "showAuthor": true,
+            "showDate": true,
+            "showReadTime": true,
+            "showTags": true,
+            "layout": "hero",
+            "backgroundImage": true
+          }
+        },
+        {
+          "id": "content",
+          "type": "content",
+          "variant": "markdown",
+          "priority": "high",
+          "config": {
+            "enableToc": true,
+            "enableSharing": true,
+            "enableComments": false,
+            "maxWidth": "800px",
+            "typography": "prose-lg"
+          }
+        },
+        {
+          "id": "related",
+          "type": "related",
+          "variant": "featured",
+          "priority": "medium",
+          "config": {
+            "maxPosts": 4,
+            "sameCategory": true,
+            "showExcerpt": true,
+            "showDate": true,
+            "layout": "grid"
+          }
+        }
+      ]
+    }
+  }
+} 

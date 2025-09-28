@@ -1,0 +1,42 @@
+{
+  "name": "statex-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "docker compose -f docker-compose.development.yml up --build",
+    "prod": "docker compose -f docker-compose.production.yml up --build",
+    "build": "npm run build:frontend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:frontend:webpack": "cd frontend && npm run build:webpack",
+    "build:backend": "cd backend && npm run build",
+    "build:all": "npm run build:backend && npm run build:frontend",
+    "start": "npm run start:frontend",
+    "start:frontend": "cd frontend && npm run start",
+    "start:backend": "cd backend && npm run start",
+    "start:all": "npm run start:backend & npm run start:frontend",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:all": "npm run dev:backend & npm run dev:frontend",
+    "clean": "npm run clean:frontend && npm run clean:backend",
+    "clean:frontend": "cd frontend && rm -rf .next dist",
+    "clean:backend": "cd backend && rm -rf dist",
+    "test": "vitest run --reporter=verbose --coverage",
+    "test:frontend": "cd frontend && npx vitest run",
+    "test:backend": "cd backend && npm run test",
+    "postinstall": "cd frontend && rm -rf public/themes && ln -s ../src/themes public/themes",
+    "update-deps": "npx npm-check-updates -u && npm install",
+    "update-deps:check": "npx npm-check-updates",
+    "update-deps:interactive": "npx npm-check-updates -i",
+    "update-deps:all": "npm run update-deps && cd frontend && npm run update-deps && cd ../backend && npm run update-deps"
+  },
+  "devDependencies": {
+    "@types/node": "^24.4.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4",
+    "@vitest/coverage-v8": "^3.2.4"
+  }
+} 

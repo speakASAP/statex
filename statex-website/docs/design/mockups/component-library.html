@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statex Component Library - Modern Design System</title>
+    <meta name="description" content="Complete component library for Statex with modern design system, BEM + STX naming conventions, and comprehensive theme support">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../frontend/src/styles/design-tokens.css">
+    <style>
+        /* Component Library Specific Styles */
+        .component-library {
+            padding: var(--stx-space-lg);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .component-section {
+            margin-bottom: var(--stx-space-2xl);
+            padding: var(--stx-space-lg);
+            border: 1px solid var(--stx-color-border-primary);
+            border-radius: var(--stx-radius-lg);
+            background: var(--stx-color-surface-primary);
+        }
+
+        .component-section__title {
+            font-size: var(--stx-text-2xl);
+            font-weight: var(--stx-font-weight-semibold);
+            margin-bottom: var(--stx-space-md);
+            color: var(--stx-color-text-primary);
+        }
+
+        .component-section__description {
+            color: var(--stx-color-text-secondary);
+            margin-bottom: var(--stx-space-lg);
+        }
+
+        .component-grid {
+            display: grid;
+            gap: var(--stx-space-md);
+            margin-bottom: var(--stx-space-lg);
+        }
+
+        .component-grid--2 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .component-grid--3 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .component-grid--4 {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .theme-switcher {
+            position: fixed;
+            top: var(--stx-space-md);
+            right: var(--stx-space-md);
+            background: var(--stx-color-surface-primary);
+            border: 1px solid var(--stx-color-border-primary);
+            border-radius: var(--stx-radius-md);
+            padding: var(--stx-space-sm);
+            z-index: 1000;
+        }
+
+        .theme-switcher__label {
+            font-size: var(--stx-text-sm);
+            font-weight: var(--stx-font-weight-medium);
+            margin-bottom: var(--stx-space-xs);
+            color: var(--stx-color-text-primary);
+        }
+
+        .theme-switcher__select {
+            background: var(--stx-color-surface-secondary);
+            border: 1px solid var(--stx-color-border-primary);
+            border-radius: var(--stx-radius-sm);
+            padding: var(--stx-space-xs) var(--stx-space-sm);
+            color: var(--stx-color-text-primary);
+            font-size: var(--stx-text-sm);
+        }
+
+        .code-example {
+            background: var(--stx-color-surface-tertiary);
+            border: 1px solid var(--stx-color-border-secondary);
+            border-radius: var(--stx-radius-md);
+            padding: var(--stx-space-md);
+            margin-top: var(--stx-space-md);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: var(--stx-text-sm);
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .component-library {
+                padding: var(--stx-space-md);
+            }
+            
+            .component-section {
+                padding: var(--stx-space-md);
+            }
+            
+            .theme-switcher {
+                position: static;
+                margin-bottom: var(--stx-space-lg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Switcher -->
+    <div class="theme-switcher">
+        <div class="theme-switcher__label">Theme:</div>
+        <select class="theme-switcher__select" onchange="switchTheme(this.value)">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+            <option value="eu">European</option>
+            <option value="uae">UAE</option>
+        </select>
+    </div>
+
+    <div class="component-library">
+        <h1>Statex Component Library</h1>
+        <p>Modern design system with BEM + STX naming conventions and comprehensive theme support.</p>
+
+        <!-- Buttons Section -->
+        <section class="component-section">
+            <h2 class="component-section__title">Buttons</h2>
+            <p class="component-section__description">Primary, secondary, and accent button variants with hover states.</p>
+            
+            <div class="component-grid component-grid--4">
+                <button class="stx-button stx-button--primary">Primary Button</button>
+                <button class="stx-button stx-button--secondary">Secondary Button</button>
+                <button class="stx-button stx-button--accent">Accent Button</button>
+                <button class="stx-button stx-button--primary" disabled>Disabled Button</button>
+            </div>
+
+            <div class="code-example">
+&lt;button class="stx-button stx-button--primary"&gt;Primary Button&lt;/button&gt;
+&lt;button class="stx-button stx-button--secondary"&gt;Secondary Button&lt;/button&gt;
+&lt;button class="stx-button stx-button--accent"&gt;Accent Button&lt;/button&gt;
+            </div>
+        </section>
+
+        <!-- Form Components Section -->
+        <section class="component-section">
+            <h2 class="component-section__title">Form Components</h2>
+            <p class="component-section__description">Input fields, textareas, selects, and form layouts.</p>
+            
+            <div class="stx-form__container">
+                <form class="stx-form__form">
+                    <div class="stx-form__section">
+                        <label class="stx-form__label">Text Input <span class="stx-form__required">*</span></label>
+                        <input type="text" class="stx-form__input" placeholder="Enter your text here">
+                    </div>
+                    
+                    <div class="stx-form__section">
+                        <label class="stx-form__label">Textarea</label>
+                        <textarea class="stx-form__textarea" placeholder="Enter your message here"></textarea>
+                    </div>
+                    
+                    <div class="stx-form__section">
+                        <label class="stx-form__label">Select</label>
+                        <select class="stx-form__select">
+                            <option>Option 1</option>
+                            <option>Option 2</option>
+                            <option>Option 3</option>
+                        </select>
+                    </div>
+                    
+                    <div class="stx-form__section">
+                        <button type="submit" class="stx-form__submit-btn">Submit Form</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="code-example">
+&lt;div class="stx-form__container"&gt;
+  &lt;form class="stx-form__form"&gt;
+    &lt;div class="stx-form__section"&gt;
+      &lt;label class="stx-form__label"&gt;Text Input &lt;span class="stx-form__required"&gt;*&lt;/span&gt;&lt;/label&gt;
+      &lt;input type="text" class="stx-form__input" placeholder="Enter your text here"&gt;
+    &lt;/div&gt;
+  &lt;/form&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- Hero Sections Section -->
+        <section class="component-section">
+            <h2 class="component-section__title">Hero Sections</h2>
+            <p class="component-section__description">Different hero section layouts for various page types.</p>
+            
+            <!-- Homepage Hero -->
+            <div class="stx-homepage-hero">
+                <div class="stx-homepage-hero__container">
+                    <div class="stx-homepage-hero__content">
+                        <h1>Transform Your Ideas Into <span class="stx-homepage-hero__highlight">Working Prototypes</span> in 24 Hours</h1>
+                        <p class="stx-homepage-hero__subtitle">Experience the future of software development with AI-powered prototype creation.</p>
+                        
+                        <div class="stx-homepage-hero__trust-indicators">
+                            <div class="stx-homepage-hero__trust-badge">
+                                <span class="stx-homepage-hero__trust-icon">⚡</span>
+                                <span>24-48 Hour Delivery</span>
+                            </div>
+                            <div class="stx-homepage-hero__trust-badge">
+                                <span class="stx-homepage-hero__trust-icon">🌍</span>
+                                <span>EU Market Expertise</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Hero -->
+            <div class="stx-about-hero">
+                <div class="stx-about-hero__container">
+                    <div class="stx-about-hero__content">
+                        <h1 class="stx-about-hero__title">Our Story: Innovation Through Technology</h1>
+                        <p class="stx-about-hero__subtitle">We are a team of passionate technologists dedicated to transforming businesses through AI-powered solutions.</p>
+                        
+                        <div class="stx-about-hero__cta">
+                            <a href="/free-prototype" class="stx-button stx-button--primary">Get Free Prototype</a>
+                        </div>
+                        
+                        <div class="stx-metrics">
+                            <div class="stx-metrics__item">
+                                <div class="stx-metrics__number">500+</div>
+                                <div class="stx-metrics__label">Projects Delivered</div>
+                            </div>
+                            <div class="stx-metrics__item">
+                                <div class="stx-metrics__number">15+</div>
+                                <div class="stx-metrics__label">Countries Served</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-example">
+&lt;div class="stx-homepage-hero"&gt;
+  &lt;div class="stx-homepage-hero__container"&gt;
+    &lt;div class="stx-homepage-hero__content"&gt;
+      &lt;h1&gt;Transform Your Ideas Into &lt;span class="stx-homepage-hero__highlight"&gt;Working Prototypes&lt;/span&gt; in 24 Hours&lt;/h1&gt;
+      &lt;p class="stx-homepage-hero__subtitle"&gt;Experience the future of software development...&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- Cards Section -->
+        <section class="component-section">
+            <h2 class="component-section__title">Cards</h2>
+            <p class="component-section__description">Various card layouts for content, features, and team members.</p>
+            
+            <div class="component-grid component-grid--3">
+                <!-- Values Card -->
+                <div class="stx-values__card">
+                    <div class="stx-values__icon">⚡</div>
+                    <h3 class="stx-values__card-title">Speed & Efficiency</h3>
+                    <p class="stx-values__card-description">We believe time is your most valuable asset. Our AI-powered approach delivers results in hours, not weeks.</p>
+                </div>
+
+                <!-- Features Card -->
+                <div class="stx-features__item">
+                    <div class="stx-features__header">
+                        <div class="stx-features__icon">🌐</div>
+                        <h3 class="stx-features__heading">Web Development</h3>
+                    </div>
+                    <p class="stx-features__text">Create lightning-fast, responsive websites and web applications using cutting-edge technologies.</p>
+                    <ul class="stx-features__list">
+                        <li><span class="stx-check-icon">✅</span> Progressive Web Apps (PWA)</li>
+                        <li><span class="stx-check-icon">✅</span> Mobile-responsive design</li>
+                    </ul>
+                    <a href="/services/web-development" class="stx-features__link">Learn More →</a>
+                </div>
+
+                <!-- Team Member Card -->
+                <div class="stx-team__member">
+                    <div class="stx-team__avatar">SS</div>
+                    <h3 class="stx-team__name">Sergej Stašok</h3>
+                    <p class="stx-team__role">Founder & CEO</p>
+                    <p class="stx-team__bio">Visionary leader with 15+ years in software development and AI.</p>
+                    <div class="stx-team__skills">
+                        <span class="stx-team__skill-tag">AI Strategy</span>
+                        <span class="stx-team__skill-tag">Leadership</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-example">
+&lt;div class="stx-values__card"&gt;
+  &lt;div class="stx-values__icon"&gt;⚡&lt;/div&gt;
+  &lt;h3 class="stx-values__card-title"&gt;Speed & Efficiency&lt;/h3&gt;
+  &lt;p class="stx-values__card-description"&gt;We believe time is your most valuable asset...&lt;/p&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- Process Section -->
+        <section class="component-section">
+            <h2 class="component-section__title">Process & Timeline</h2>
+            <p class="component-section__description">Step-by-step process layouts and timeline components.</p>
+            
+            <div class="stx-process">
+                <div class="stx-section-container">
+                    <div class="stx-section-header">
+                        <h2 class="stx-section-title">Our Development Process</h2>
+                        <p class="stx-section-subtitle">A proven methodology that ensures successful project delivery every time.</p>
+                    </div>
+
+                    <div class="stx-process__steps">
+                        <div class="stx-process__step">
+                            <div class="stx-process__number">1</div>
+                            <h3 class="stx-process__heading">Discovery & Planning</h3>
+                            <p class="stx-process__text">We analyze your requirements, target audience, and business goals to create a comprehensive project plan.</p>
+                        </div>
+
+                        <div class="stx-process__step">
+                            <div class="stx-process__number">2</div>
+                            <h3 class="stx-process__heading">Design & Prototyping</h3>
+                            <p class="stx-process__text">Create wireframes, mockups, and interactive prototypes to visualize the final product.</p>
+                        </div>
+
+                        <div class="stx-process__step">
+                            <div class="stx-process__number">3</div>
+                            <h3 class="stx-process__heading">Development & Testing</h3>
+                            <p class="stx-process__text">Build your website using modern technologies with comprehensive testing throughout the process.</p>
+                        </div>
+
+                        <div class="stx-process__step">
+                            <div class="stx-process__number">4</div>
+                            <h3 class="stx-process__heading">Launch & Support</h3>
+                            <p class="stx-process__text">Deploy your website and provide ongoing maintenance, updates, and technical support.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-example">
+&lt;div class="stx-process"&gt;
+  &lt;div class="stx-section-container"&gt;
+    &lt;div class="stx-section-header"&gt;
+      &lt;h2 class="stx-section-title"&gt;Our Development Process&lt;/h2&gt;
+    &lt;/div&gt;
+    &lt;div class="stx-process__steps"&gt;
+      &lt;div class="stx-process__step"&gt;
+        &lt;div class="stx-process__number"&gt;1&lt;/div&gt;
+        &lt;h3 class="stx-process__heading"&gt;Discovery & Planning&lt;/h3&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="component-section">
+            <h2 class="component-section__title">FAQ Accordion</h2>
+            <p class="component-section__description">Expandable FAQ sections with smooth animations.</p>
+            
+            <div class="stx-faq">
+                <div class="stx-section-container">
+                    <div class="stx-section-header">
+                        <h2 class="stx-section-title">Frequently Asked Questions</h2>
+                        <p class="stx-section-subtitle">Get answers to common questions about our services.</p>
+                    </div>
+
+                    <div class="stx-faq-container">
+                        <div class="stx-faq-item">
+                            <button class="stx-faq-question">
+                                How long does it take to develop a website?
+                                <span class="stx-faq-icon">▼</span>
+                            </button>
+                            <div class="stx-faq-answer">
+                                <p>Development time varies based on project complexity. Simple websites take 2-4 weeks, while complex web applications may take 2-3 months.</p>
+                            </div>
+                        </div>
+
+                        <div class="stx-faq-item">
+                            <button class="stx-faq-question">
+                                Do you provide website hosting and maintenance?
+                                <span class="stx-faq-icon">▼</span>
+                            </button>
+                            <div class="stx-faq-answer">
+                                <p>Yes, we offer comprehensive hosting solutions and maintenance packages. This includes regular updates, security monitoring, backups, and technical support.</p>
+                            </div>
+                        </div>
+
+                        <div class="stx-faq-item">
+                            <button class="stx-faq-question">
+                                Will my website be mobile-friendly?
+                                <span class="stx-faq-icon">▼</span>
+                            </button>
+                            <div class="stx-faq-answer">
+                                <p>Yes, all our websites are built with responsive design principles, ensuring perfect functionality and appearance across all devices and screen sizes.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-example">
+&lt;div class="stx-faq"&gt;
+  &lt;div class="stx-faq-container"&gt;
+    &lt;div class="stx-faq-item"&gt;
+      &lt;button class="stx-faq-question"&gt;
+        How long does it take to develop a website?
+        &lt;span class="stx-faq-icon"&gt;▼&lt;/span&gt;
+      &lt;/button&gt;
+      &lt;div class="stx-faq-answer"&gt;
+        &lt;p&gt;Development time varies based on project complexity...&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="component-section">
+            <h2 class="component-section__title">Call to Action</h2>
+            <p class="component-section__description">High-impact call-to-action sections for conversion optimization.</p>
+            
+            <div class="stx-cta">
+                <div class="stx-cta__content">
+                    <h2 class="stx-cta__title">Ready to Transform Your Business?</h2>
+                    <p class="stx-cta__description">Get your free prototype in 24-48 hours and see the power of AI-powered development in action.</p>
+                    <div class="stx-cta__buttons">
+                        <a href="/free-prototype" class="stx-cta__button stx-button stx-button--primary">Get Free Prototype</a>
+                        <a href="/contact" class="stx-cta__button stx-button stx-button--secondary">Schedule Consultation</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-example">
+&lt;div class="stx-cta"&gt;
+  &lt;div class="stx-cta__content"&gt;
+    &lt;h2 class="stx-cta__title"&gt;Ready to Transform Your Business?&lt;/h2&gt;
+    &lt;p class="stx-cta__description"&gt;Get your free prototype in 24-48 hours...&lt;/p&gt;
+    &lt;div class="stx-cta__buttons"&gt;
+      &lt;a href="/free-prototype" class="stx-cta__button stx-button stx-button--primary"&gt;Get Free Prototype&lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- Legal Layout Section -->
+        <section class="component-section">
+            <h2 class="component-section__title">Legal Page Layout</h2>
+            <p class="component-section__description">Professional legal page layout with navigation sidebar and content sections.</p>
+            
+            <div class="stx-legal-header">
+                <div class="stx-container">
+                    <div class="stx-legal-header__container">
+                        <div class="stx-legal-header__badge">Legal Document</div>
+                        <h1 class="stx-section-title">Privacy Policy</h1>
+                        <p class="stx-section-subtitle">We are committed to protecting your privacy and ensuring the security of your personal information.</p>
+                        
+                        <div class="stx-legal-header__meta">
+                            <div class="stx-legal-header__meta-item">
+                                <span class="stx-legal-header__meta-icon">📅</span>
+                                Last Updated: June 27, 2025
+                            </div>
+                            <div class="stx-legal-header__meta-item">
+                                <span class="stx-legal-header__meta-icon">🌍</span>
+                                Applies to: EU Residents
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stx-legal-layout">
+                <aside class="stx-legal-nav">
+                    <h3 class="stx-legal-nav__title">Table of Contents</h3>
+                    <ul class="stx-legal-nav__list">
+                        <li class="stx-legal-nav__list-item"><a href="#section-1" class="stx-legal-nav__link stx-legal-nav__link--active">Information We Collect</a></li>
+                        <li class="stx-legal-nav__list-item"><a href="#section-2" class="stx-legal-nav__link">How We Use Information</a></li>
+                        <li class="stx-legal-nav__list-item"><a href="#section-3" class="stx-legal-nav__link">Data Sharing & Disclosure</a></li>
+                    </ul>
+                </aside>
+
+                <main class="stx-legal-content">
+                    <section class="stx-legal-section" id="section-1">
+                        <h2><span class="stx-legal-section__number">1</span>Information We Collect</h2>
+                        <p>We collect the following types of personal information when you use our services:</p>
+                        <ul>
+                            <li><strong>Contact Information:</strong> Name, email address, phone number, company name</li>
+                            <li><strong>Project Information:</strong> Technical specifications, project descriptions, uploaded files</li>
+                        </ul>
+                    </section>
+                </main>
+            </div>
+
+            <div class="code-example">
+&lt;div class="stx-legal-header"&gt;
+  &lt;div class="stx-container"&gt;
+    &lt;div class="stx-legal-header__container"&gt;
+      &lt;div class="stx-legal-header__badge"&gt;Legal Document&lt;/div&gt;
+      &lt;h1 class="stx-section-title"&gt;Privacy Policy&lt;/h1&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="stx-legal-layout"&gt;
+  &lt;aside class="stx-legal-nav"&gt;...&lt;/aside&gt;
+  &lt;main class="stx-legal-content"&gt;...&lt;/main&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- Solution Page Components -->
+        <section class="component-section">
+            <h2 class="component-section__title">Solution Page Components</h2>
+            <p class="component-section__description">Problem-solution comparison and case study components.</p>
+            
+            <div class="stx-problem-solution">
+                <div class="stx-problem-solution__grid">
+                    <div class="stx-problem-solution__card stx-problem-solution__card--problem">
+                        <h3 class="stx-problem-solution__card-title stx-problem-solution__card-title--problem">🚫 Traditional Challenges</h3>
+                        <ul class="stx-problem-solution__list">
+                            <li class="stx-problem-solution__list-item stx-problem-solution__list-item--problem">Manual processes slow down operations</li>
+                            <li class="stx-problem-solution__list-item stx-problem-solution__list-item--problem">Limited data insights prevent informed decisions</li>
+                        </ul>
+                    </div>
+                    <div class="stx-problem-solution__card stx-problem-solution__card--solution">
+                        <h3 class="stx-problem-solution__card-title stx-problem-solution__card-title--solution">🚀 AI-Powered Solutions</h3>
+                        <ul class="stx-problem-solution__list">
+                            <li class="stx-problem-solution__list-item stx-problem-solution__list-item--solution">Automated intelligent workflows</li>
+                            <li class="stx-problem-solution__list-item stx-problem-solution__list-item--solution">Predictive analytics provide insights</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stx-solution-case-studies">
+                <div class="stx-solution-case-studies__grid">
+                    <div class="stx-solution-case-study">
+                        <div class="stx-solution-case-study__header">
+                            <div class="stx-solution-case-study__company">Automotive Parts GmbH</div>
+                            <div class="stx-solution-case-study__industry">Manufacturing • Germany</div>
+                        </div>
+                        <div class="stx-solution-case-study__content">
+                            <div class="stx-solution-case-study__challenge">
+                                <h4 class="stx-solution-case-study__challenge-title">Challenge</h4>
+                                <p class="stx-solution-case-study__challenge-description">Quality control inefficiencies causing production disruptions.</p>
+                            </div>
+                            <div class="stx-solution-case-study__results">
+                                <div class="stx-solution-case-study__result-item">
+                                    <span class="stx-solution-case-study__result-number">95%</span>
+                                    <span class="stx-solution-case-study__result-label">Defect Detection</span>
+                                </div>
+                                <div class="stx-solution-case-study__result-item">
+                                    <span class="stx-solution-case-study__result-number">60%</span>
+                                    <span class="stx-solution-case-study__result-label">Downtime Reduction</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-example">
+&lt;div class="stx-problem-solution"&gt;
+  &lt;div class="stx-problem-solution__grid"&gt;
+    &lt;div class="stx-problem-solution__card stx-problem-solution__card--problem"&gt;
+      &lt;h3 class="stx-problem-solution__card-title stx-problem-solution__card-title--problem"&gt;🚫 Traditional Challenges&lt;/h3&gt;
+      &lt;ul class="stx-problem-solution__list"&gt;...&lt;/ul&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- Prototype Form Section -->
+        <section class="component-section">
+            <h2 class="component-section__title">Prototype Form</h2>
+            <p class="component-section__description">Advanced form with media upload and audio recording capabilities.</p>
+            
+            <div class="stx-form-block">
+                <div class="stx-form-block__container">
+                    <div class="stx-section-header">
+                        <h1 class="stx-section-title">Submit your requirements</h1>
+                        <p class="stx-section-subtitle">Tell us about your idea — we'll create a working prototype for free</p>
+                    </div>
+
+                    <div class="stx-form__container">
+                        <form class="stx-form__form" id="prototypeForm">
+                            <div class="stx-form__section">
+                                <label class="stx-form__label">
+                                    💡 Describe your idea <span class="stx-form__required">*</span>
+                                </label>
+                                <textarea class="stx-form__textarea" placeholder="Tell us about your idea in a way you explain it to your friend..."></textarea>
+                            </div>
+
+                            <div class="stx-form__section">
+                                <div class="stx-form__media-row">
+                                    <div class="stx-form__media-field">
+                                        <label class="stx-form__label">🎤 Tell us with your voice (optional)</label>
+                                        <div class="stx-form__audio-section">
+                                            <button type="button" class="stx-form__audio-btn" onclick="toggleRecording(this)">
+                                                🎤 Record voice message
+                                            </button>
+                                            <div class="stx-form__recording-info" id="recordingInfo" style="display: none;">
+                                                ⏱️ Recording: <span id="recordingTime">00:00</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="stx-form__media-field">
+                                        <label class="stx-form__label">📎 Attach documents (optional)</label>
+                                        <div class="stx-form__file-upload" onclick="document.getElementById('fileInput').click()">
+                                            <p>📁 Drag files here or click to select</p>
+                                            <p style="font-size: 14px; color: var(--stx-color-text-tertiary); margin-top: 8px;">
+                                                Presentations, diagrams, documents, images, video etc.
+                                            </p>
+                                        </div>
+                                        <input type="file" id="fileInput" class="stx-form__file-input" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.png,.txt,.mp4,.mov,.avi">
+                                        <div id="fileList" class="stx-form__file-list"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stx-form__section">
+                                <button type="submit" class="stx-form__submit-btn">🚀 Get prototype in 24 hours</button>
+                            </div>
+
+                            <div class="stx-form__privacy-note">
+                                🔒 Your data is protected in accordance with GDPR. Confidentiality guaranteed.
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-example">
+&lt;div class="stx-form-block"&gt;
+  &lt;div class="stx-form-block__container"&gt;
+    &lt;div class="stx-form__container"&gt;
+      &lt;form class="stx-form__form"&gt;
+        &lt;div class="stx-form__section"&gt;
+          &lt;label class="stx-form__label"&gt;💡 Describe your idea &lt;span class="stx-form__required"&gt;*&lt;/span&gt;&lt;/label&gt;
+          &lt;textarea class="stx-form__textarea"&gt;&lt;/textarea&gt;
+        &lt;/div&gt;
+        &lt;div class="stx-form__media-row"&gt;...&lt;/div&gt;
+      &lt;/form&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="component-section">
+            <h2 class="component-section__title">Testimonials</h2>
+            <p class="component-section__description">Customer testimonials with quotes and author information.</p>
+            
+            <div class="stx-testimonials">
+                <div class="stx-section-container">
+                    <div class="stx-section-header">
+                        <h2 class="stx-section-title">What Our Clients Say</h2>
+                        <p class="stx-section-subtitle">Real feedback from businesses that transformed their operations with our solutions.</p>
+                    </div>
+
+                    <div class="stx-testimonials__items">
+                        <div class="stx-testimonials__item">
+                            <div class="stx-testimonials__quote">
+                                "Statex delivered our prototype in just 24 hours, exactly as promised. The quality exceeded our expectations and the AI-powered approach saved us weeks of development time."
+                            </div>
+                            <div class="stx-testimonials__author">
+                                <div class="stx-testimonials__author-info">
+                                    <div class="stx-testimonials__name">Maria Schmidt</div>
+                                    <div class="stx-testimonials__role">CTO</div>
+                                    <div class="stx-testimonials__company">TechStart GmbH</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stx-testimonials__item">
+                            <div class="stx-testimonials__quote">
+                                "The team's expertise in European markets and GDPR compliance gave us confidence from day one. Our e-commerce platform launched flawlessly."
+                            </div>
+                            <div class="stx-testimonials__author">
+                                <div class="stx-testimonials__author-info">
+                                    <div class="stx-testimonials__name">Pierre Dubois</div>
+                                    <div class="stx-testimonials__role">Founder</div>
+                                    <div class="stx-testimonials__company">EcoRetail France</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-example">
+&lt;div class="stx-testimonials"&gt;
+  &lt;div class="stx-testimonials__items"&gt;
+    &lt;div class="stx-testimonials__item"&gt;
+      &lt;div class="stx-testimonials__quote"&gt;
+        "Statex delivered our prototype in just 24 hours..."
+      &lt;/div&gt;
+      &lt;div class="stx-testimonials__author"&gt;
+        &lt;div class="stx-testimonials__author-info"&gt;
+          &lt;div class="stx-testimonials__name"&gt;Maria Schmidt&lt;/div&gt;
+          &lt;div class="stx-testimonials__role"&gt;CTO&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Theme switching functionality
+        function switchTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('stx-theme', theme);
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('stx-theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        document.querySelector('.theme-switcher__select').value = savedTheme;
+
+        // FAQ Accordion functionality
+        document.querySelectorAll('.stx-faq-question').forEach(question => {
+            question.addEventListener('click', function() {
+                const faqItem = this.parentElement;
+                const answer = faqItem.querySelector('.stx-faq-answer');
+                const icon = this.querySelector('.stx-faq-icon');
+                
+                // Close other open items
+                document.querySelectorAll('.stx-faq-item').forEach(item => {
+                    if (item !== faqItem) {
+                        item.classList.remove('stx-faq-item--active');
+                    }
+                });
+                
+                // Toggle current item
+                faqItem.classList.toggle('stx-faq-item--active');
+                
+                // Update icon
+                if (faqItem.classList.contains('stx-faq-item--active')) {
+                    icon.textContent = '▲';
+                } else {
+                    icon.textContent = '▼';
+                }
+            });
+        });
+
+        // File upload functionality
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                fileList.innerHTML = '';
+                Array.from(e.target.files).forEach(file => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'stx-form__file-item';
+                    fileItem.innerHTML = `
+                        <span>${file.name}</span>
+                        <button type="button" class="stx-form__file-remove" onclick="removeFile(this)">×</button>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+            });
+        }
+
+        function removeFile(button) {
+            button.parentElement.remove();
+        }
+
+        // Audio recording functionality
+        let isRecording = false;
+        let recordingStartTime;
+        let recordingTimer;
+
+        function toggleRecording(button) {
+            if (!isRecording) {
+                startRecording(button);
+            } else {
+                stopRecording(button);
+            }
+        }
+
+        function startRecording(button) {
+            isRecording = true;
+            button.classList.add('recording');
+            button.textContent = '⏹️ Stop Recording';
+            
+            const recordingInfo = button.parentElement.querySelector('.stx-form__recording-info');
+            const recordingTime = recordingInfo.querySelector('#recordingTime');
+            
+            recordingInfo.style.display = 'block';
+            recordingStartTime = Date.now();
+            
+            recordingTimer = setInterval(() => {
+                const elapsed = Date.now() - recordingStartTime;
+                const minutes = Math.floor(elapsed / 60000);
+                const seconds = Math.floor((elapsed % 60000) / 1000);
+                recordingTime.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function stopRecording(button) {
+            isRecording = false;
+            button.classList.remove('recording');
+            button.textContent = '🎤 Record voice message';
+            
+            const recordingInfo = button.parentElement.querySelector('.stx-form__recording-info');
+            recordingInfo.style.display = 'none';
+            
+            clearInterval(recordingTimer);
+        }
+
+        // Form submission
+        document.querySelectorAll('.stx-form__form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Add your form submission logic here
+                console.log('Form submitted');
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,98 @@
+/* ===== DESIGN SYSTEM PAGE STYLES ===== */
+/* Uses bulletproof CSS variables system - Layer 3 only */
+
+/* Design system page container */
+.design-system-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Design system hero section */
+.design-system-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-secondary) 100%);
+  padding-top: var(--stx-space-3xl);
+  padding-bottom: var(--stx-space-3xl);
+}
+
+/* Design system content section */
+.design-system-page .stx-content {
+  padding-top: var(--stx-space-3xl);
+  padding-bottom: var(--stx-space-3xl);
+}
+
+.design-system-page .stx-content__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--stx-space-lg);
+}
+
+.design-system-page .stx-content__section {
+  margin-bottom: var(--stx-space-3xl);
+  padding: var(--stx-space-2xl);
+  background: var(--stx-color-surface-elevated);
+  border-radius: var(--stx-radius-lg);
+  box-shadow: var(--stx-shadow-md);
+}
+
+.design-system-page .stx-content__section-title {
+  margin-bottom: var(--stx-space-xl);
+  color: var(--stx-color-text-primary);
+  font-size: var(--stx-font-size-2xl);
+  font-weight: var(--stx-font-bold);
+}
+
+.design-system-page .stx-content__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--stx-space-xl);
+}
+
+.design-system-page .stx-content__item {
+  padding: var(--stx-space-lg);
+  background: var(--stx-color-surface-primary);
+  border-radius: var(--stx-radius-md);
+  border: 1px solid var(--stx-color-border-primary);
+}
+
+/* Design system CTA section */
+.design-system-page .stx-cta {
+  padding-top: var(--stx-space-3xl);
+  padding-bottom: var(--stx-space-3xl);
+  background: var(--stx-color-surface-secondary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .design-system-page .stx-hero {
+    padding-top: var(--stx-space-2xl);
+    padding-bottom: var(--stx-space-2xl);
+  }
+  
+  .design-system-page .stx-content {
+    padding-top: var(--stx-space-2xl);
+    padding-bottom: var(--stx-space-2xl);
+  }
+  
+  .design-system-page .stx-content__section {
+    padding: var(--stx-space-lg);
+  }
+  
+  .design-system-page .stx-content__grid {
+    grid-template-columns: 1fr;
+    gap: var(--stx-space-lg);
+  }
+}
+
+/* Theme-specific enhancements */
+[data-theme="dark"] .design-system-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-inverse) 100%);
+}
+
+[data-theme="eu"] .design-system-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-tertiary) 100%);
+}
+
+[data-theme="uae"] .design-system-page .stx-hero {
+  background: linear-gradient(135deg, var(--stx-color-surface-primary) 0%, var(--stx-color-surface-secondary) 100%);
+} 

@@ -1,0 +1,21 @@
+# Use the base image (build with: docker build -f Dockerfile.base -t statex-python-base .)
+FROM statex-python-base
+
+# Copy application code with correct ownership
+COPY --chown=appuser:appuser . .
+
+# Copy shared directory from parent context with correct ownership
+COPY --chown=appuser:appuser shared /app/shared
+
+# Copy main.py from services/submission-service to root with correct ownership
+COPY --chown=appuser:appuser services/submission-service/main.py /app/main.py
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Expose port
+EXPOSE 8000
+
+# Start application
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

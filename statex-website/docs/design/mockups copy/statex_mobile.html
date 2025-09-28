@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statex Mobile App Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            color: #0066CC;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .demo-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .phones-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-bottom: 60px;
+        }
+
+        .phone-mockup {
+            width: 280px;
+            height: 560px;
+            background: #1a1a1a;
+            border-radius: 35px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .phone-mockup:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 25px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .status-bar {
+            height: 44px;
+            background: #0066CC;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .app-content {
+            height: calc(100% - 44px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Screen 1: Voice Recording */
+        .voice-screen {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .voice-icon {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin-bottom: 30px;
+            animation: voicePulse 2s ease-in-out infinite;
+            position: relative;
+        }
+
+        .voice-icon::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: voiceRipple 2s ease-in-out infinite;
+        }
+
+        @keyframes voicePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes voiceRipple {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.4); }
+        }
+
+        .voice-waveform {
+            display: flex;
+            align-items: end;
+            gap: 3px;
+            margin: 20px 0;
+            height: 40px;
+            justify-content: center;
+        }
+
+        .wave-bar {
+            width: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 2px;
+            animation: waveform 1.5s ease-in-out infinite;
+        }
+
+        .wave-bar:nth-child(1) { height: 20px; animation-delay: 0s; }
+        .wave-bar:nth-child(2) { height: 35px; animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { height: 25px; animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { height: 40px; animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { height: 15px; animation-delay: 0.4s; }
+        .wave-bar:nth-child(6) { height: 30px; animation-delay: 0.5s; }
+
+        @keyframes waveform {
+            0%, 100% { transform: scaleY(0.3); }
+            50% { transform: scaleY(1); }
+        }
+
+        /* Screen 2: AI Processing */
+        .processing-screen {
+            background: linear-gradient(135deg, #0066CC 0%, #00AAFF 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .ai-brain {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin-bottom: 30px;
+            animation: brainThink 3s ease-in-out infinite;
+        }
+
+        @keyframes brainThink {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            33% { transform: rotate(5deg) scale(1.05); }
+            66% { transform: rotate(-5deg) scale(0.95); }
+        }
+
+        .processing-dots {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: dotBounce 1.4s ease-in-out infinite;
+        }
+
+        .dot:nth-child(1) { animation-delay: 0s; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dotBounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 3px;
+            animation: progressFill 3s ease-out infinite;
+        }
+
+        @keyframes progressFill {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* Screen 3: Generated Prototype */
+        .prototype-screen {
+            background: #f8f9fa;
+            color: #333;
+            padding: 20px;
+        }
+
+        .prototype-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .prototype-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #0066CC;
+        }
+
+        .prototype-status {
+            font-size: 0.8rem;
+            color: #28a745;
+            background: #d4edda;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        .prototype-preview {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .preview-details {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #0066CC;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0052a3;
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .btn-secondary:hover {
+            background: #dee2e6;
+        }
+
+        .screen-label {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0066CC;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .features-section {
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .features-title {
+            font-size: 2rem;
+            color: #0066CC;
+            margin-bottom: 30px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 102, 204, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0066CC;
+            margin-bottom: 10px;
+        }
+
+        .feature-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .phones-container {
+                gap: 30px;
+            }
+            
+            .phone-mockup {
+                width: 250px;
+                height: 500px;
+            }
+            
+            .demo-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1 class="demo-title">AI Prototype App</h1>
+            <p class="demo-subtitle">Experience the power of voice-to-prototype technology with our mobile application</p>
+        </div>
+
+        <div class="phones-container">
+            <!-- Screen 1: Voice Recording -->
+            <div class="phone-mockup">
+                <div class="phone-screen">
+                    <div class="status-bar">
+                        <span>Statex AI</span>
+                        <span>9:41 AM</span>
+                    </div>
+                    <div class="app-content voice-screen">
+                        <div class="voice-icon">🎤</div>
+                        <h3>Describe Your Project</h3>
+                        <p>Tap and speak to start creating your prototype</p>
+                        <div class="voice-waveform">
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                            <div class="wave-bar"></div>
+                        </div>
+                        <p style="font-size: 0.9rem; opacity: 0.8;">Recording: "I need an e-commerce app for selling handmade jewelry..."</p>
+                    </div>
+                </div>
+                <div class="screen-label">Voice Input</div>
+            </div>
+
+            <!-- Screen 2: AI Processing -->
+            <div class="phone-mockup">
+                <div class="phone-screen">
+                    <div class="status-bar">
+                        <span>Statex AI</span>
+                        <span>9:42 AM</span>
+                    </div>
+                    <div class="app-content processing-screen">
+                        <div class="ai-brain">🧠</div>
+                        <h3>AI Processing</h3>
+                        <p>Analyzing your requirements and generating prototype...</p>
+                        <div class="processing-dots">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        <p style="font-size: 0.8rem; opacity: 0.8;">Estimated completion: 2 minutes</p>
+                    </div>
+                </div>
+                <div class="screen-label">AI Analysis</div>
+            </div>
+
+            <!-- Screen 3: Generated Prototype -->
+            <div class="phone-mockup">
+                <div class="phone-screen">
+                    <div class="status-bar">
+                        <span>Statex AI</span>
+                        <span>9:43 AM</span>
+                    </div>
+                    <div class="app-content prototype-screen">
+                        <div class="prototype-header">
+                            <h3 class="prototype-title">Jewelry Store App</h3>
+                            <span class="prototype-status">✓ Complete</span>
+                        </div>
+                        
+                        <div class="prototype-preview">
+                            <div class="preview-image">📱</div>
+                            <div class="preview-details">
+                                <strong>Features Generated:</strong><br>
+                                • Product catalog with search<br>
+                                • Shopping cart & checkout<br>
+                                • User authentication<br>
+                                • Payment integration<br>
+                                • Admin dashboard
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn btn-secondary">Preview</button>
+                            <button class="btn btn-primary">Download</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="screen-label">Generated Prototype</div>
+            </div>
+        </div>
+
+        <div class="features-section">
+            <h2 class="features-title">App Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title">Lightning Fast</h3>
+                    <p class="feature-description">Generate working prototypes in under 15 minutes using advanced AI algorithms</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">Smart Recognition</h3>
+                    <p class="feature-description">AI understands natural language and converts ideas into functional specifications</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3 class="feature-title">Multi-Platform</h3>
+                    <p class="feature-description">Generate prototypes for web, mobile, and desktop applications simultaneously</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3 class="feature-title">Secure & Private</h3>
+                    <p class="feature-description">Your project data is encrypted and protected with enterprise-grade security</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

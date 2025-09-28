@@ -1,0 +1,68 @@
+# Production Backend Dockerfile - Optimized for reliability
+FROM node:23.11.0-slim
+
+WORKDIR /app
+
+# Install essential packages with multiple fallback strategies
+RUN set -ex; \
+    # Try multiple package sources and use fallbacks
+    (apt-get update --fix-missing || \
+     (echo "deb http://deb.debian.org/debian bookworm main" > /etc/apt/sources.list && \
+      apt-get update --fix-missing)) && \
+    # Install packages with fallback
+    (apt-get install -y --no-install-recommends wget openssl ca-certificates || \
+     (echo "deb http://deb.debian.org/debian bookworm-updates main" >> /etc/apt/sources.list && \
+      apt-get update && \
+      apt-get install -y --no-install-recommends wget openssl ca-certificates)) && \
+    # Clean up
+    rm -rf /var/lib/apt/lists/* || true
+
+# Update npm to latest version with retry
+RUN npm install -g npm@11.5.2 || \
+    (sleep 5 && npm install -g npm@11.5.2) || \
+    (sleep 10 && npm install -g npm@11.5.2)
+
+# Copy package files first for better caching
+COPY package*.json ./
+
+# Install production dependencies with multiple retry strategies
+RUN set -ex; \
+    # Configure npm for reliability
+    npm config set registry https://registry.npmjs.org/ && \
+    npm config set fetch-retries 5 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    # Try installation with multiple strategies
+    (npm install --only=production --no-optional --network-timeout=300000 || \
+     (sleep 10 && npm install --only=production --no-optional --network-timeout=300000) || \
+     (sleep 20 && npm install --only=production --no-optional --network-timeout=300000) || \
+     (sleep 30 && npm install --only=production --no-optional --network-timeout=300000))
+
+# Copy source code
+COPY src ./src
+COPY prisma ./prisma
+COPY tsconfig.json ./
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Build application
+RUN npm run build
+
+# Use UID from environment variable
+ARG USER_UID
+
+# Create uploads directory and set proper permissions
+RUN mkdir -p /app/uploads && \
+    chown -R ${USER_UID}:${USER_UID} /app/uploads && \
+    chmod -R 755 /app/uploads
+
+# Switch to the specified user
+USER ${USER_UID}
+
+EXPOSE 4000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:4000/health || exit 1
+
+CMD ["npm", "start"]

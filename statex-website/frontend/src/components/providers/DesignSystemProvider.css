@@ -1,0 +1,69 @@
+/* DesignSystemProvider Component - Bulletproof CSS Variables System */
+@import '../../styles/design-tokens.css';
+
+.stx-design-system-provider {
+  /* Provider-specific variables */
+  --stx-provider-bg: var(--stx-color-surface-primary);
+  --stx-provider-text: var(--stx-color-text-primary);
+  --stx-provider-font-family: var(--stx-text-font-family);
+  --stx-provider-font-size: var(--stx-font-size-base);
+  --stx-provider-line-height: var(--stx-text-line-height-normal);
+  
+  /* Base styles for the provider container */
+  background: var(--stx-provider-bg);
+  color: var(--stx-provider-text);
+  font-family: var(--stx-provider-font-family);
+  font-size: var(--stx-provider-font-size);
+  line-height: var(--stx-provider-line-height);
+  
+  /* Ensure proper inheritance */
+  min-height: 100vh;
+  width: 100%;
+  
+  /* Smooth theme transitions */
+  transition: 
+    background-color var(--stx-duration-normal) var(--stx-ease-default),
+    color var(--stx-duration-normal) var(--stx-ease-default);
+}
+
+/* ===== THEME-SPECIFIC OVERRIDES ===== */
+.stx-design-system-provider[data-theme="light"] {
+  --stx-provider-bg: var(--stx-color-surface-primary);
+  --stx-provider-text: var(--stx-color-text-primary);
+}
+
+.stx-design-system-provider[data-theme="dark"] {
+  --stx-provider-bg: var(--stx-color-surface-primary);
+  --stx-provider-text: var(--stx-color-text-primary);
+}
+
+.stx-design-system-provider[data-theme="eu"] {
+  --stx-provider-bg: var(--stx-color-surface-primary);
+  --stx-provider-text: var(--stx-color-text-primary);
+}
+
+.stx-design-system-provider[data-theme="uae"] {
+  --stx-provider-bg: var(--stx-color-surface-primary);
+  --stx-provider-text: var(--stx-color-text-primary);
+}
+
+/* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+@media (prefers-reduced-motion: reduce) {
+  .stx-design-system-provider {
+    transition: none;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .stx-design-system-provider {
+    --stx-provider-text: var(--raw-black);
+  }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .stx-design-system-provider {
+    background: white !important;
+    color: black !important;
+  }
+} 

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dashboard - StateX</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            margin: 40px; 
+            background: #f5f5f5;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .button { 
+            background: #0066CC; 
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            margin: 10px 5px;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .button:hover { background: #0052A3; }
+        .button:disabled { background: #ccc; cursor: not-allowed; }
+        .status { 
+            padding: 15px; 
+            margin: 20px 0; 
+            border-radius: 6px; 
+            background: #f0f8ff; 
+            border: 1px solid #0066CC;
+        }
+        .success { background: #f0fff0; border-color: #00aa00; }
+        .error { background: #fff0f0; border-color: #aa0000; }
+        .info { background: #f0f8ff; border-color: #0066CC; }
+        .code {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #0066CC;
+            border-radius: 0 6px 6px 0;
+        }
+        h1 { color: #333; margin-bottom: 30px; }
+        h3 { color: #555; margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 StateX Dashboard Test</h1>
+        
+        <div class="status info" id="status">
+            <h3>Current Status:</h3>
+            <p id="statusText">Ready to test dashboard...</p>
+        </div>
+
+        <div class="step">
+            <h3>Step 1: Setup Test User Session</h3>
+            <p>Click the button below to set up a test user session with existing data:</p>
+            <button class="button" onclick="setupTestUser()" id="setupBtn">Setup Test User Session</button>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Test Dashboard Access</h3>
+            <p>After setting up the user session, test the dashboard:</p>
+            <button class="button" onclick="testDashboard()" id="testBtn" disabled>Test Dashboard Access</button>
+        </div>
+
+        <div class="step">
+            <h3>Step 3: Open Dashboard</h3>
+            <p>Open the dashboard in a new tab to see the profile and results:</p>
+            <button class="button" onclick="openDashboard()" id="openBtn" disabled>Open Dashboard</button>
+        </div>
+
+        <div class="step">
+            <h3>Manual Setup (Alternative)</h3>
+            <p>If the buttons don't work, you can manually set up the session:</p>
+            <div class="code">
+                localStorage.setItem('statex_user_id', 'dev-user-1757845974658');<br>
+                localStorage.setItem('statex_session_id', 'test-session-' + Date.now());<br>
+                window.location.href = '/dashboard';
+            </div>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const TEST_USER_ID = 'dev-user-1757847653551';
+        
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            const statusText = document.getElementById('statusText');
+            statusText.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function enableButtons() {
+            document.getElementById('testBtn').disabled = false;
+            document.getElementById('openBtn').disabled = false;
+        }
+
+        function setupTestUser() {
+            try {
+                // Set up test user session
+                localStorage.setItem('statex_user_id', TEST_USER_ID);
+                localStorage.setItem('statex_session_id', 'test-session-' + Date.now());
+                
+                updateStatus(`✅ Test user session set up! User ID: ${TEST_USER_ID}`, 'success');
+                enableButtons();
+                
+                // Show what's in localStorage
+                const results = document.getElementById('results');
+                results.innerHTML = `
+                    <div class="step">
+                        <h3>Session Details:</h3>
+                        <div class="code">
+                            User ID: ${localStorage.getItem('statex_user_id')}<br>
+                            Session ID: ${localStorage.getItem('statex_session_id')}
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                updateStatus(`❌ Error setting up test user: ${error.message}`, 'error');
+            }
+        }
+
+        function testDashboard() {
+            fetch('/dashboard')
+                .then(response => {
+                    if (response.ok) {
+                        updateStatus('✅ Dashboard is accessible!', 'success');
+                        return response.text().then(html => {
+                            const results = document.getElementById('results');
+                            const existingResults = results.innerHTML;
+                            results.innerHTML = existingResults + `
+                                <div class="step">
+                                    <h3>Dashboard Test Results:</h3>
+                                    <p>Status: ${response.status}</p>
+                                    <p>Content length: ${html.length} characters</p>
+                                    <details>
+                                        <summary>View HTML (first 500 chars)</summary>
+                                        <div class="code">${html.substring(0, 500)}...</div>
+                                    </details>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                })
+                .catch(error => {
+                    updateStatus(`❌ Dashboard test failed: ${error.message}`, 'error');
+                });
+        }
+
+        function openDashboard() {
+            window.open('/dashboard', '_blank');
+        }
+
+        // Auto-setup on page load
+        window.onload = function() {
+            // Check if user session already exists
+            const existingUserId = localStorage.getItem('statex_user_id');
+            if (existingUserId) {
+                updateStatus(`✅ User session already exists: ${existingUserId}`, 'success');
+                enableButtons();
+            } else {
+                updateStatus('Ready to set up test user session...', 'info');
+            }
+        };
+    </script>
+</body>
+</html>

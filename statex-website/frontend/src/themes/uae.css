@@ -1,0 +1,33 @@
+/* UAE Theme Design Tokens */
+[data-theme="uae"] {
+  /* Background Colors */
+  --bg-primary: var(--raw-white);
+  --bg-secondary: var(--raw-yellow-50);
+  --bg-tertiary: var(--raw-yellow-100);
+  
+  /* Text Colors */
+  --text-primary: var(--raw-gray-800);
+  --text-secondary: var(--raw-gray-600);
+  --text-tertiary: var(--raw-gray-500);
+  
+  /* Border Colors */
+  --border-color: var(--raw-orange-500);
+  --border-color-focus: var(--primary-blue);
+  
+  /* Form Colors */
+  --form-background: var(--raw-white);
+  --form-text-color: var(--raw-gray-800);
+  --form-border-color: var(--raw-orange-500);
+  --form-placeholder-color: var(--raw-gray-500);
+  
+  /* Accent Colors (Middle Eastern) */
+  --accent-green: var(--raw-orange-500);
+  --accent-green-light: var(--raw-orange-400);
+  --accent-green-dark: var(--raw-orange-600);
+  
+  /* Shadow Colors */
+  --shadow-color: rgba(245, 158, 11, 0.1);
+  
+  /* Theme Identifier */
+  --theme-current: 'uae';
+} 

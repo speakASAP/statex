@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototype Requirements Form - StatEx</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../frontend/src/styles/design-tokens.css">
+    <style>
+        /* Only component-specific styles that can't be handled by design tokens */
+        .stx-container {
+            max-width: 80vw;
+            width: 90vw;
+            margin: 0 auto;
+            padding: 2vw;
+            box-sizing: border-box;
+            min-width: 320px;
+            max-width: 1200px;
+        }
+        
+        body {
+            font-family: var(--stx-text-font-family);
+            line-height: var(--stx-text-line-height-normal);
+            color: var(--stx-color-text-primary);
+            background-color: var(--stx-color-surface-secondary);
+            margin: 0;
+            padding: 0;
+        }
+        
+
+
+        /* Media row layout for audio and file upload */
+        .stx-form__media-row {
+            display: flex;
+            gap: clamp(8px, 1.5vw, 24px);
+            align-items: stretch;
+        }
+        
+        .stx-form__media-field {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Audio recording section */
+        .stx-form__audio-section {
+            background: var(--stx-color-surface-secondary);
+            border-radius: clamp(8px, 1vw, 16px);
+            padding: clamp(16px, 2.5vw, 40px);
+            text-align: center;
+            border: 2px dashed var(--stx-color-border-secondary);
+            transition: all 0.2s ease;
+            height: 100%;
+            min-height: clamp(100px, 12vh, 160px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+        }
+
+        .stx-form__audio-section:hover {
+            border-color: var(--stx-color-border-focus);
+            background: var(--stx-color-surface-tertiary);
+        }
+
+        .stx-form__audio-btn {
+            background: var(--stx-color-action-primary);
+            color: var(--stx-color-text-inverse);
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: var(--stx-font-weight-medium);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .stx-form__audio-btn:hover {
+            background: var(--stx-color-action-primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .stx-form__audio-btn.recording {
+            background: var(--stx-color-status-error);
+            animation: stx-pulse 1.5s infinite;
+        }
+
+        .stx-form__recording-info {
+            margin-top: 12px;
+            color: var(--stx-color-text-tertiary);
+            font-size: 14px;
+        }
+
+        /* File upload section */
+        .stx-form__file-upload {
+            background: var(--stx-color-surface-secondary);
+            border: 2px dashed var(--stx-color-border-secondary);
+            border-radius: clamp(8px, 1vw, 16px);
+            padding: clamp(16px, 2.5vw, 40px);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            height: 100%;
+            min-height: clamp(100px, 12vh, 160px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .stx-form__file-upload:hover {
+            border-color: var(--stx-color-border-focus);
+            background: var(--stx-color-surface-tertiary);
+        }
+
+        .stx-form__file-upload.dragover {
+            border-color: var(--stx-color-border-focus);
+            background: var(--stx-color-surface-tertiary);
+            transform: scale(1.02);
+        }
+
+        .stx-form__file-input {
+            display: none;
+        }
+
+        .stx-form__file-list {
+            margin-top: 16px;
+        }
+
+        .stx-form__file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--stx-color-surface-primary);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--stx-color-border-primary);
+        }
+
+        .stx-form__file-remove {
+            background: var(--stx-color-status-error);
+            color: var(--stx-color-text-inverse);
+            border: none;
+            border-radius: 6px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Description textarea */
+        .stx-form__description-textarea {
+            width: 100%;
+            min-height: clamp(100px, 15vh, 150px);
+            padding: clamp(12px, 2vw, 20px);
+            border: 2px solid var(--stx-color-border-primary);
+            border-radius: clamp(8px, 1vw, 16px);
+            font-size: clamp(14px, 2vw, 18px);
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.2s ease;
+            box-sizing: border-box;
+            max-width: 100%;
+            background-color: var(--stx-form-input-bg);
+            color: var(--stx-form-input-text);
+        }
+
+        .stx-form__description-textarea:focus {
+            outline: none;
+            border-color: var(--stx-form-input-border-focus);
+        }
+
+        .stx-form__description-textarea::placeholder {
+            color: var(--stx-form-input-placeholder);
+        }
+
+        /* Submit button */
+        .stx-form__submit-btn {
+            width: 100%;
+            background: var(--raw-stx-green-active);
+            color: var(--stx-color-text-inverse);
+            border: none;
+            padding: clamp(14px, 2vw, 20px) clamp(24px, 4vw, 40px);
+            border-radius: clamp(8px, 1vw, 16px);
+            font-size: clamp(16px, 2.5vw, 22px);
+            font-weight: var(--stx-font-weight-semibold);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .stx-form__submit-btn:hover {
+            background: var(--raw-stx-green-active-hover);
+            transform: translateY(-1px);
+        }
+
+        .stx-form__submit-btn:disabled {
+            background: var(--stx-color-text-disabled);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Privacy note */
+        .stx-form__privacy-note {
+            margin-top: 16px;
+            padding: 16px;
+            background: var(--stx-color-surface-tertiary);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--stx-color-text-tertiary);
+            text-align: center;
+        }
+
+        /* Responsive design */
+        @media (max-width: 40rem) {
+            .stx-form__media-row {
+                flex-direction: column;
+                gap: clamp(12px, 2vw, 20px);
+            }
+
+            .stx-form__media-field {
+                flex: none;
+                width: 100%;
+            }
+
+            .stx-form__description-textarea {
+                min-height: clamp(120px, 15vh, 180px);
+            }
+        }
+
+        @media (max-width: 25rem) {
+            .stx-container {
+                width: 98vw;
+                padding: 1vw;
+                min-padding: 8px;
+            }
+
+            .stx-form__container {
+                padding: clamp(12px, 3vw, 24px);
+                border-radius: clamp(6px, 1.5vw, 12px);
+            }
+
+
+
+            .stx-form__input,
+            .stx-form__select {
+                padding: clamp(8px, 2vw, 14px);
+                font-size: clamp(14px, 3.5vw, 16px);
+            }
+
+            .stx-form__audio-btn {
+                padding: clamp(10px, 2.5vw, 20px);
+                font-size: clamp(12px, 3vw, 16px);
+            }
+
+            .stx-form__submit-btn {
+                padding: clamp(12px, 3vw, 24px);
+                font-size: clamp(14px, 3.5vw, 18px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stx-container">
+        <div class="stx-section-header">
+            <h1 class="stx-section-title">Get Your Prototype in 24 Hours</h1>
+            <p class="stx-section-subtitle">Tell us about your idea — we'll create a working prototype for free</p>
+        </div>
+
+            <div class="stx-form__container">
+                <form class="stx-form__form" id="prototypeForm">
+                    <!-- Main Description Section -->
+                    <div class="stx-form__section">
+                        <label class="stx-form__label">
+                            💡 Describe your idea <span class="stx-form__required">*</span>
+                        </label>
+                        <textarea class="stx-form__description-textarea" placeholder="Tell us about your idea in a way you explain it to your friend:
+                        • What do you want
+                        • What problem are you solving
+                        • How is this problem currently being solved
+                        • What do you want to automate or improve
+                        • What results do you expect
+                        • Any additional details..." required></textarea>
+                    </div>
+
+                    <!-- Media Row Section -->
+                    <div class="stx-form__section">
+                        <div class="stx-form__media-row">
+                            <div class="stx-form__media-field">
+                                <label class="stx-form__label">🎤 Tell us with your voice (optional)</label>
+                                <div class="stx-form__audio-section">
+                                    <button type="button" class="stx-form__audio-btn" onclick="toggleRecording(this)">
+                                        🎤 Record voice message
+                                    </button>
+                                    <div class="stx-form__recording-info" id="recordingInfo" style="display: none;">
+                                        ⏱️ Recording: <span id="recordingTime">00:00</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stx-form__media-field">
+                                <label class="stx-form__label">📎 Attach documents (optional)</label>
+                                <div class="stx-form__file-upload" onclick="document.getElementById('fileInput').click()">
+                                    <p>📁 Drag files here or click to select</p>
+                                    <p style="font-size: 14px; color: var(--stx-color-text-tertiary); margin-top: 8px;">
+                                        Presentations, diagrams, documents, images, video etc. 
+                                    </p>
+                                </div>
+                                <input type="file" id="fileInput" class="stx-form__file-input" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.png,.txt,.mp4,.mov,.avi">
+                                <div id="fileList" class="stx-form__file-list"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information Section -->
+                    <div class="stx-form__section">
+                        <div class="stx-form__field-group">
+                            <div class="stx-form__field stx-form__field--name">
+                                <label class="stx-form__label">
+                                    Your Name <span class="stx-form__required">*</span>
+                                </label>
+                                <input type="text" class="stx-form__input" placeholder="Your name" required>
+                            </div>
+                            <div class="stx-form__field stx-form__field--contact-type">
+                                <label class="stx-form__label">
+                                    Contact Method <span class="stx-form__required">*</span>
+                                </label>
+                                <select class="stx-form__select" id="contactType" onchange="updateContactPlaceholder()">
+                                    <option value="email">📧 Email</option>
+                                    <option value="linkedin">💼 LinkedIn</option>
+                                    <option value="whatsapp">📱 WhatsApp</option>
+                                    <option value="telegram">✈️ Telegram</option>
+                                </select>
+                            </div>
+                            <div class="stx-form__field stx-form__field--contact-value">
+                                <label class="stx-form__label">
+                                    Contact Details <span class="stx-form__required">*</span>
+                                </label>
+                                <input type="text" id="contactValue" class="stx-form__input" placeholder="your@email.com" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="stx-form__section">
+                        <button type="submit" class="stx-form__submit-btn">🚀 Get prototype in 24 hours</button>
+                    </div>
+
+                    <!-- Privacy Note -->
+                    <div class="stx-form__privacy-note">
+                        🔒 Your data is protected in accordance with GDPR. Confidentiality guaranteed.
+                    </div>
+                </form>
+            </div>
+    </div>
+
+    <script>
+        // Contact dropdown placeholder
+        function updateContactPlaceholder() {
+            const contactType = document.getElementById('contactType').value;
+            const contactValue = document.getElementById('contactValue');
+            
+            const placeholders = {
+                email: 'your@email.com',
+                linkedin: 'https://linkedin.com/in/your-profile',
+                whatsapp: '+1 234 567 8900',
+                telegram: '@your_telegram'
+            };
+            
+            contactValue.placeholder = placeholders[contactType];
+            contactValue.type = (contactType === 'email') ? 'email' : (contactType === 'whatsapp') ? 'tel' : 'text';
+        }
+
+        // Audio recording simulation
+        let recordingInterval;
+        let recordingTime = 0;
+        
+        function toggleRecording(button) {
+            const isRecording = button.classList.contains('recording');
+            const info = document.getElementById('recordingInfo');
+            const timeDisplay = document.getElementById('recordingTime');
+            
+            if (!isRecording) {
+                // Start recording
+                button.classList.add('recording');
+                button.innerHTML = '⏹️ Stop recording';
+                info.style.display = 'block';
+                recordingTime = 0;
+                
+                recordingInterval = setInterval(() => {
+                    recordingTime++;
+                    const minutes = Math.floor(recordingTime / 60).toString().padStart(2, '0');
+                    const seconds = (recordingTime % 60).toString().padStart(2, '0');
+                    timeDisplay.textContent = `${minutes}:${seconds}`;
+                }, 1000);
+            } else {
+                // Stop recording
+                button.classList.remove('recording');
+                button.innerHTML = '🎤 Re-record';
+                clearInterval(recordingInterval);
+                
+                // Show success state
+                setTimeout(() => {
+                    button.innerHTML = '✅ Recording ready';
+                    button.style.background = 'var(--raw-stx-green-active)';
+                }, 500);
+            }
+        }
+
+        // File upload handling
+        function setupFileUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const fileList = document.getElementById('fileList');
+            const uploadArea = fileInput.previousElementSibling;
+            
+            fileInput.addEventListener('change', function(e) {
+                handleFiles(e.target.files);
+            });
+            
+            // Drag and drop
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                handleFiles(e.dataTransfer.files);
+            });
+        }
+        
+        function handleFiles(files) {
+            const fileList = document.getElementById('fileList');
+            Array.from(files).forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'stx-form__file-item';
+                fileItem.innerHTML = `
+                    <span>📄 ${file.name} (${Math.round(file.size / 1024)}KB)</span>
+                    <button type="button" class="stx-form__file-remove" onclick="this.parentElement.remove()">Remove</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        // Form submission
+        function setupFormSubmission() {
+            document.getElementById('prototypeForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const submitBtn = this.querySelector('.stx-form__submit-btn');
+                const originalText = submitBtn.innerHTML;
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '⏳ Submitting...';
+                
+                // Simulate submission
+                setTimeout(() => {
+                    submitBtn.innerHTML = '✅ Submitted! Expect our call';
+                    submitBtn.style.background = 'var(--raw-stx-green-active)';
+                    
+                    setTimeout(() => {
+                        alert('Form submitted! This is a demo version, so data is not saved.');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.style.background = '';
+                    }, 2000);
+                }, 1500);
+            });
+        }
+
+        // Auto-save to localStorage
+        function setupAutoSave() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    localStorage.setItem(`form_${this.name || this.id}`, this.value);
+                });
+                
+                // Load saved value
+                const saved = localStorage.getItem(`form_${input.name || input.id}`);
+                if (saved) {
+                    input.value = saved;
+                }
+            });
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setupFileUpload();
+            setupFormSubmission();
+            setupAutoSave();
+        });
+    </script>
+</body>
+</html>

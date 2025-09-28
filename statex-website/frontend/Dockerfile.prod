@@ -1,0 +1,108 @@
+# Production Frontend Dockerfile - Optimized for reliability
+FROM node:23.11.0-slim
+
+# Set build arguments for cache busting and user UID
+ARG BUILD_DATE
+ARG PACKAGE_VERSION
+ARG USER_UID
+
+WORKDIR /app
+
+# Install essential packages with multiple fallback strategies
+RUN set -ex; \
+    # Try multiple package sources and use fallbacks
+    (apt-get update --fix-missing || \
+     (echo "deb http://deb.debian.org/debian bookworm main" > /etc/apt/sources.list && \
+      apt-get update --fix-missing)) && \
+    # Install packages with fallback
+    (apt-get install -y --no-install-recommends wget python3 make g++ pkg-config ca-certificates || \
+     (echo "deb http://deb.debian.org/debian bookworm-updates main" >> /etc/apt/sources.list && \
+      apt-get update && \
+      apt-get install -y --no-install-recommends wget python3 make g++ pkg-config ca-certificates)) && \
+    # Clean up
+    rm -rf /var/lib/apt/lists/* || true
+
+# Update npm to latest version with retry
+RUN npm install -g npm@11.5.2 || \
+    (sleep 5 && npm install -g npm@11.5.2) || \
+    (sleep 10 && npm install -g npm@11.5.2)
+
+# Copy package files first for better caching
+COPY package*.json ./
+
+# Copy the Docker-specific tsconfig FIRST to ensure it's used
+COPY tsconfig.docker.json ./tsconfig.json
+
+# Install production dependencies with multiple retry strategies
+RUN set -ex; \
+    # Configure npm for reliability
+    npm config set registry https://registry.npmjs.org/ && \
+    npm config set fetch-retries 5 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    # Try installation with multiple strategies
+    (npm install --omit=dev --omit=optional || \
+     (sleep 10 && npm install --omit=dev --omit=optional) || \
+     (sleep 20 && npm install --omit=dev --omit=optional) || \
+     (sleep 30 && npm install --omit=dev --omit=optional))
+
+# Copy only production source files (exclude development files)
+COPY src ./src
+COPY public ./public
+COPY next.config.js ./
+COPY postcss.config.js ./
+COPY tailwind.config.js ./
+COPY package.json ./
+COPY next-env.d.ts ./
+COPY tsconfig.docker.json ./tsconfig.json
+
+# Environment variables are passed via docker-compose
+# No need to copy .env files
+
+# Debug: List files to ensure everything is copied
+RUN echo "=== Root directory ===" && ls -la
+RUN echo "=== Source directory ===" && ls -la src/
+RUN echo "=== Lib directory ===" && ls -la src/lib/ || echo "❌ Lib directory not found!"
+RUN echo "=== Lib utils directory ===" && ls -la src/lib/utils/ || echo "❌ Lib utils directory not found!"
+RUN echo "=== Environment files ===" && ls -la .env* || echo "No env files found"
+RUN echo "=== TSConfig file ===" && ls -la tsconfig.json && echo "📋 TSConfig contents:" && cat tsconfig.json | head -10
+RUN echo "=== Package.json scripts ===" && cat package.json | grep -A 10 '"scripts"'
+RUN echo "=== Turbopack environment ===" && echo "NEXT_TURBO: $NEXT_TURBO" && echo "LIGHTNINGCSS_NATIVE: $LIGHTNINGCSS_NATIVE"
+
+# Set proper permissions before build
+RUN chown -R node:node /app
+
+# Switch to node user for build
+USER node
+
+# Force Next.js to use our Docker tsconfig by setting environment variable
+ENV TS_NODE_PROJECT=./tsconfig.json
+
+# Turbopack and LightningCSS optimizations
+ENV NEXT_TURBO=1
+ENV LIGHTNINGCSS_NATIVE=1
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+# Build application using Docker-specific tsconfig
+# Use build arguments to bust cache when source changes
+RUN echo "Building with Build Date: ${BUILD_DATE}, Package Version: ${PACKAGE_VERSION}" && npm run build
+
+# Switch back to root for permission fixes
+USER root
+
+# Fix permissions for .next directory and all build artifacts using USER_UID variable
+RUN chown -R ${USER_UID}:${USER_UID} /app/.next
+RUN chmod -R 755 /app/.next
+RUN chown -R ${USER_UID}:${USER_UID} /app
+RUN chmod -R 755 /app
+
+# Use UID from environment variable
+USER ${USER_UID}
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1
+
+# Ensure production command is used
+CMD ["npm", "start"]

@@ -156,4 +156,3 @@ After setup, you can create unlimited customer subdomains that work immediately:
 - `https://project-customer789.localhost:3000/offer`
 
 All with automatic SSL certificates and no manual configuration required!
-

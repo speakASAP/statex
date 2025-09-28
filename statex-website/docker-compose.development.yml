@@ -1,0 +1,29 @@
+services:
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "${FRONTEND_PORT:-${DEFAULT_FRONTEND_PORT:-3000}}:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8002/api
+      - NEXT_PUBLIC_BASE_URL=http://localhost:${FRONTEND_PORT:-${DEFAULT_FRONTEND_PORT:-3000}}
+      - NEXT_PUBLIC_NOTIFICATION_SERVICE_URL=http://localhost:8005
+      - NEXT_PUBLIC_USER_PORTAL_URL=http://localhost:8006
+      - NEXT_PUBLIC_AI_SERVICE_URL=http://localhost:8010
+    networks:
+      - statex_network
+    env_file:
+      - ./.env.development
+      - ./config/defaults.env
+      - ./docker.env
+
+networks:
+  statex_network:
+    external: true

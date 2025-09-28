@@ -1,0 +1,51 @@
+# Ultra-fast Development Frontend Dockerfile
+# OPTIMIZED FOR HYBRID DEVELOPMENT APPROACH
+# This Dockerfile is used with volume mounts for instant startup and hot reload
+# For production, use Dockerfile.prod instead
+
+FROM node:23.11.0-slim
+
+# Set build arguments
+ARG BUILD_DATE
+ARG PACKAGE_VERSION
+ARG USER_UID=1000
+
+WORKDIR /app
+
+# Install only essential packages (minimal set)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends wget ca-certificates && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get clean
+
+# Update npm (faster)
+RUN npm install -g npm@11.5.2
+
+# Copy package files first for better caching
+COPY package*.json ./
+
+# Install dependencies with optimizations
+RUN npm install --prefer-offline --no-audit --no-fund
+
+# Copy source code
+COPY . .
+
+# Set permissions in one command (much faster)
+RUN chown -R node:node /app
+
+# Switch to node user
+USER node
+
+# Development environment variables
+ENV NODE_ENV=development
+ENV NEXT_TURBO=1
+ENV LIGHTNINGCSS_NATIVE=1
+ENV NODE_OPTIONS="--max-old-space-size=2048"
+
+# Expose port
+EXPOSE 3000
+
+# Development command with hot reload
+# NOTE: This container is designed to work with volume mounts
+# The actual source code will be mounted from the host for instant hot reload
+CMD ["npm", "run", "dev"]

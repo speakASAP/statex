@@ -1,0 +1,335 @@
+/* ===== BULLETPROOF THEME TESTING UTILITIES ===== */
+/* Runtime utilities to validate theme switching and detect hardcoded values */
+
+/* THEME TESTING CLASSES */
+/* These classes help identify components that don't respond to theme changes */
+
+/* Test class: applies bright colors to detect hardcoded values */
+.stx-test-theme-detection {
+  --stx-color-surface-primary: #FF00FF !important; /* Bright magenta */
+  --stx-color-text-primary: #00FFFF !important;    /* Bright cyan */
+  --stx-color-action-primary: #FFFF00 !important;  /* Bright yellow */
+  --stx-color-border-primary: #FF0000 !important;  /* Bright red */
+}
+
+/* Test class: applies different colors for each theme */
+.stx-test-light-theme {
+  --test-indicator-color: #00FF00; /* Green for light */
+}
+
+.stx-test-dark-theme {
+  --test-indicator-color: #FF0000; /* Red for dark */
+}
+
+.stx-test-eu-theme {
+  --test-indicator-color: #0000FF; /* Blue for EU */
+}
+
+.stx-test-uae-theme {
+  --test-indicator-color: #FFA500; /* Orange for UAE */
+}
+
+/* Visual indicator for theme testing */
+.stx-theme-indicator {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--test-indicator-color, #999);
+  z-index: 10000;
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* HARDCODED VALUE DETECTION STYLES */
+/* These styles help identify components with hardcoded values */
+
+/* Override all semantic variables with test colors */
+.stx-test-hardcoded-detection {
+  /* Surface colors - bright test colors */
+  --stx-color-surface-primary: #FF1493 !important;    /* Deep pink */
+  --stx-color-surface-secondary: #00CED1 !important;  /* Dark turquoise */
+  --stx-color-surface-tertiary: #FFD700 !important;   /* Gold */
+  
+  /* Text colors - bright test colors */
+  --stx-color-text-primary: #FF4500 !important;       /* Orange red */
+  --stx-color-text-secondary: #9400D3 !important;     /* Violet */
+  --stx-color-text-tertiary: #228B22 !important;      /* Forest green */
+  
+  /* Action colors - bright test colors */
+  --stx-color-action-primary: #FF6347 !important;     /* Tomato */
+  --stx-color-action-secondary: #4682B4 !important;   /* Steel blue */
+  
+  /* Border colors - bright test colors */
+  --stx-color-border-primary: #DC143C !important;     /* Crimson */
+  --stx-color-border-secondary: #008B8B !important;   /* Dark cyan */
+  --stx-color-border-focus: #FF1493 !important;       /* Deep pink */
+}
+
+/* COMPONENT TESTING UTILITIES */
+
+/* Test all button variants */
+.stx-test-buttons .stx-button {
+  border: 3px dashed #FF0000 !important;
+  position: relative;
+}
+
+.stx-test-buttons .stx-button::after {
+  content: "TESTING";
+  position: absolute;
+  top: -20px;
+  left: 0;
+  font-size: 10px;
+  color: #FF0000;
+  background: #FFFF00;
+  padding: 2px 4px;
+}
+
+/* Test all text variants */
+.stx-test-text .stx-text {
+  outline: 2px solid #00FF00 !important;
+  position: relative;
+}
+
+/* Test all input variants */
+.stx-test-inputs .stx-input {
+  box-shadow: 0 0 0 3px #FF00FF !important;
+}
+
+/* Test all card variants */
+.stx-test-cards .stx-card {
+  border: 2px dotted #00FFFF !important;
+  background: rgba(255, 255, 0, 0.1) !important;
+}
+
+/* ANIMATION TESTING */
+
+/* Test theme transitions */
+.stx-test-transitions * {
+  transition: all 2s ease !important; /* Slow transitions for testing */
+}
+
+/* Highlight elements during theme change */
+@keyframes stx-test-theme-change {
+  0% { outline: 3px solid red; }
+  50% { outline: 3px solid yellow; }
+  100% { outline: none; }
+}
+
+.stx-test-theme-changing * {
+  animation: stx-test-theme-change 1s ease;
+}
+
+/* ACCESSIBILITY TESTING */
+
+/* High contrast testing */
+.stx-test-high-contrast {
+  filter: contrast(200%) !important;
+}
+
+/* Reduced motion testing */
+.stx-test-no-motion * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Focus testing */
+.stx-test-focus *:focus {
+  outline: 5px solid #FF0000 !important;
+  outline-offset: 3px !important;
+}
+
+/* RESPONSIVE TESTING */
+
+/* Mobile viewport testing */
+.stx-test-mobile {
+  max-width: 375px !important;
+  margin: 0 auto;
+  border: 2px solid #FF0000;
+}
+
+/* Tablet viewport testing */
+.stx-test-tablet {
+  max-width: 768px !important;
+  margin: 0 auto;
+  border: 2px solid #00FF00;
+}
+
+/* Desktop viewport testing */
+.stx-test-desktop {
+  max-width: 1200px !important;
+  margin: 0 auto;
+  border: 2px solid #0000FF;
+}
+
+/* DEBUGGING UTILITIES */
+
+/* Show all CSS variables being used */
+.stx-debug-variables::before {
+  content: "Theme: " attr(data-theme);
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 12px;
+  z-index: 10001;
+}
+
+/* Highlight all components using variables */
+.stx-debug-components [class*="stx-"] {
+  position: relative;
+}
+
+.stx-debug-components [class*="stx-"]::before {
+  content: attr(class);
+  position: absolute;
+  top: -20px;
+  left: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 2px;
+  white-space: nowrap;
+  z-index: 1000;
+}
+
+/* VALIDATION RESULT DISPLAY */
+
+/* Success state - all tests passed */
+.stx-validation-success {
+  position: fixed;
+  top: 50px;
+  right: 10px;
+  background: #00FF00;
+  color: #000;
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  z-index: 10002;
+}
+
+.stx-validation-success::before {
+  content: "✅ All Tests Passed";
+}
+
+/* Error state - tests failed */
+.stx-validation-error {
+  position: fixed;
+  top: 50px;
+  right: 10px;
+  background: #FF0000;
+  color: #FFF;
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  z-index: 10002;
+}
+
+.stx-validation-error::before {
+  content: "❌ Tests Failed";
+}
+
+/* Warning state - issues detected */
+.stx-validation-warning {
+  position: fixed;
+  top: 50px;
+  right: 10px;
+  background: #FFA500;
+  color: #000;
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  z-index: 10002;
+}
+
+.stx-validation-warning::before {
+  content: "⚠️ Issues Detected";
+}
+
+/* USAGE INSTRUCTIONS */
+/*
+TO USE THESE TESTING UTILITIES:
+
+1. THEME SWITCHING TEST:
+   - Add class "stx-test-theme-detection" to body
+   - Switch between themes
+   - Any component that doesn't change color has hardcoded values
+
+2. HARDCODED VALUE DETECTION:
+   - Add class "stx-test-hardcoded-detection" to body
+   - All components should show bright test colors
+   - Components with original colors have hardcoded values
+
+3. COMPONENT ISOLATION TEST:
+   - Add "stx-test-buttons", "stx-test-text", etc. to test specific components
+   - Visual indicators show which components are being tested
+
+4. TRANSITION TESTING:
+   - Add "stx-test-transitions" to slow down all transitions
+   - Add "stx-test-theme-changing" during theme switches
+
+5. ACCESSIBILITY TESTING:
+   - Add "stx-test-high-contrast" for contrast testing
+   - Add "stx-test-no-motion" for reduced motion testing
+   - Add "stx-test-focus" for focus state testing
+
+6. RESPONSIVE TESTING:
+   - Add "stx-test-mobile", "stx-test-tablet", or "stx-test-desktop"
+   - Visual borders show viewport constraints
+
+7. DEBUGGING:
+   - Add "stx-debug-variables" to show current theme
+   - Add "stx-debug-components" to highlight all STX components
+
+JAVASCRIPT HELPERS:
+See validation-rules.css for JavaScript functions to:
+- validateComponentStyles(element)
+- validateThemeCoverage(themeName)
+- scanForHardcodedValues()
+*/
+
+/* PRINT TESTING */
+@media print {
+  .stx-test-print * {
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* DEVELOPER TOOLS INTEGRATION */
+.stx-dev-tools {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  font-family: monospace;
+  font-size: 12px;
+  z-index: 10003;
+  max-width: 300px;
+}
+
+.stx-dev-tools-theme-info::before {
+  content: "Current Theme: " attr(data-current-theme);
+  display: block;
+}
+
+.stx-dev-tools-violations::before {
+  content: "Violations: " attr(data-violation-count);
+  display: block;
+  color: #FF6B6B;
+}
+
+.stx-dev-tools-tests::before {
+  content: "Tests: " attr(data-test-status);
+  display: block;
+  color: #4ECDC4;
+} 

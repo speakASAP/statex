@@ -1,0 +1,52 @@
+groups:
+  - name: ai-agents
+    rules:
+      # AI Agent Down Alert
+      - alert: AIAgentDown
+        expr: up{job=~"statex-.*-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "AI Agent {{ $labels.job }} is down"
+          description: "AI Agent {{ $labels.job }} has been down for more than 1 minute."
+
+      # AI Agent High Response Time
+      - alert: AIAgentHighResponseTime
+        expr: ai_agent_processing_duration_seconds{quantile="0.95"} > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "AI Agent {{ $labels.agent_name }} has high response time"
+          description: "AI Agent {{ $labels.agent_name }} 95th percentile response time is {{ $value }}s"
+
+      # AI Agent Low Success Rate
+      - alert: AIAgentLowSuccessRate
+        expr: ai_agent_success_rate < 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "AI Agent {{ $labels.agent_name }} has low success rate"
+          description: "AI Agent {{ $labels.agent_name }} success rate is {{ $value }}"
+
+      # AI Agent Queue Backlog
+      - alert: AIAgentQueueBacklog
+        expr: ai_agent_queue_size > 100
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "AI Agent {{ $labels.agent_name }} has queue backlog"
+          description: "AI Agent {{ $labels.agent_name }} queue size is {{ $value }}"
+
+      # AI Agent Processing Errors
+      - alert: AIAgentProcessingErrors
+        expr: rate(ai_agent_requests_total{status="error"}[5m]) > 0.1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "AI Agent {{ $labels.agent_name }} has high error rate"
+          description: "AI Agent {{ $labels.agent_name }} error rate is {{ $value }} errors per second"

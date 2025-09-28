@@ -1,0 +1,419 @@
+{
+  "systemValidation": {
+    "passed": false,
+    "score": 0,
+    "error": "Command failed: npm test -- --run src/test/multilingual-system.test.ts\n\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  src/test/multilingual-system.test.ts > Multilingual Translation System - Final Validation > Translation Completeness > should have complete content type translations\nAssertionError: services/ai-automation.md should be translated to cs: expected false to be true // Object.is equality\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- true\u001b[39m\n\u001b[31m+ false\u001b[39m\n\n ❯ src/test/multilingual-system.test.ts:90:77\n     88|           englishFiles.forEach(file => {\n     89|             expect(translatedFiles.includes(file), \n     90|               `${contentType}/${file} should be translated to ${langua…\n       |                                                                             ^\n     91|           });\n     92|         });\n ❯ src/test/multilingual-system.test.ts:88:24\n ❯ src/test/multilingual-system.test.ts:77:59\n ❯ src/test/multilingual-system.test.ts:67:21\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\nnpm error Lifecycle script `test` failed with error:\nnpm error code 1\nnpm error path /Users/sergiystashok/Documents/GitHub/statex/statex-website/frontend\nnpm error workspace statex-frontend@1.0.0\nnpm error location /Users/sergiystashok/Documents/GitHub/statex/statex-website/frontend\nnpm error command failed\nnpm error command sh -c vitest run --run src/test/multilingual-system.test.ts\n"
+  },
+  "performanceValidation": {
+    "passed": true,
+    "score": 100,
+    "details": {
+      "summary": {
+        "overallScore": 100,
+        "totalTests": 30,
+        "excellentTests": 30,
+        "goodTests": 0,
+        "needsImprovementTests": 0
+      },
+      "results": {
+        "contentLoading": {
+          "blog_en": {
+            "loadTime": 9,
+            "filesLoaded": 10,
+            "totalSize": 103846,
+            "avgTimePerFile": 1,
+            "status": "EXCELLENT"
+          },
+          "blog_cs": {
+            "loadTime": 10,
+            "filesLoaded": 10,
+            "totalSize": 81705,
+            "avgTimePerFile": 1,
+            "status": "EXCELLENT"
+          },
+          "blog_de": {
+            "loadTime": 11,
+            "filesLoaded": 10,
+            "totalSize": 92387,
+            "avgTimePerFile": 1,
+            "status": "EXCELLENT"
+          },
+          "blog_fr": {
+            "loadTime": 7,
+            "filesLoaded": 10,
+            "totalSize": 98916,
+            "avgTimePerFile": 1,
+            "status": "EXCELLENT"
+          },
+          "pages_en": {
+            "loadTime": 9,
+            "filesLoaded": 10,
+            "totalSize": 73676,
+            "avgTimePerFile": 1,
+            "status": "EXCELLENT"
+          },
+          "pages_cs": {
+            "loadTime": 6,
+            "filesLoaded": 10,
+            "totalSize": 39901,
+            "avgTimePerFile": 1,
+            "status": "EXCELLENT"
+          },
+          "pages_de": {
+            "loadTime": 8,
+            "filesLoaded": 10,
+            "totalSize": 30819,
+            "avgTimePerFile": 1,
+            "status": "EXCELLENT"
+          },
+          "pages_fr": {
+            "loadTime": 6,
+            "filesLoaded": 10,
+            "totalSize": 58689,
+            "avgTimePerFile": 1,
+            "status": "EXCELLENT"
+          }
+        },
+        "aiServing": {
+          "markdownProcessing": {
+            "processingTime": 9,
+            "filesProcessed": 11,
+            "totalMarkdownSize": 101470,
+            "avgProcessingTime": 1,
+            "throughput": 11268918,
+            "status": "EXCELLENT"
+          },
+          "routePerformance": {
+            "/ai/services/digital-transformation": {
+              "responseTime": 0,
+              "status": "EXCELLENT"
+            },
+            "/ai/solutions/cloud-migration": {
+              "responseTime": 0,
+              "status": "EXCELLENT"
+            },
+            "/ai/legal/privacy-policy": {
+              "responseTime": 0,
+              "status": "EXCELLENT"
+            },
+            "/cs/ai/sluzby/digitalni-transformace": {
+              "responseTime": 0,
+              "status": "EXCELLENT"
+            },
+            "/de/ai/services/digital-transformation": {
+              "responseTime": 0,
+              "status": "EXCELLENT"
+            },
+            "/fr/ai/services/transformation-numerique": {
+              "responseTime": 0,
+              "status": "EXCELLENT"
+            }
+          }
+        },
+        "languageSwitching": {
+          "en_to_cs": {
+            "switchTime": 0,
+            "status": "EXCELLENT"
+          },
+          "en_to_de": {
+            "switchTime": 0,
+            "status": "EXCELLENT"
+          },
+          "en_to_fr": {
+            "switchTime": 0,
+            "status": "EXCELLENT"
+          },
+          "cs_to_en": {
+            "switchTime": 0,
+            "status": "EXCELLENT"
+          },
+          "cs_to_de": {
+            "switchTime": 0,
+            "status": "EXCELLENT"
+          },
+          "cs_to_fr": {
+            "switchTime": 0,
+            "status": "EXCELLENT"
+          },
+          "de_to_en": {
+            "switchTime": 0,
+            "status": "EXCELLENT"
+          },
+          "de_to_cs": {
+            "switchTime": 0,
+            "status": "EXCELLENT"
+          },
+          "de_to_fr": {
+            "switchTime": 0,
+            "status": "EXCELLENT"
+          },
+          "fr_to_en": {
+            "switchTime": 0,
+            "status": "EXCELLENT"
+          },
+          "fr_to_cs": {
+            "switchTime": 0,
+            "status": "EXCELLENT"
+          },
+          "fr_to_de": {
+            "switchTime": 0,
+            "status": "EXCELLENT"
+          }
+        },
+        "seoMetrics": {
+          "metadataGeneration": {
+            "generationTime": 0,
+            "pagesProcessed": 12,
+            "avgTimePerPage": 0,
+            "status": "EXCELLENT"
+          },
+          "sitemapGeneration": {
+            "generationTime": 0,
+            "urlsGenerated": 160,
+            "avgTimePerUrl": 0,
+            "status": "EXCELLENT"
+          },
+          "contentAnalysis": {
+            "analysisTime": 24,
+            "filesAnalyzed": 37,
+            "totalWordCount": 36896,
+            "avgWordCount": 997,
+            "totalReadingTime": 203,
+            "avgAnalysisTime": 1,
+            "status": "EXCELLENT"
+          }
+        },
+        "overall": {}
+      },
+      "generatedAt": "2025-09-18T15:02:45.273Z"
+    }
+  },
+  "buildValidation": {
+    "passed": false,
+    "error": "Command failed: npm run build\n ⚠ Invalid next.config.js options detected: \n ⚠     Unrecognized key(s) in object: 'swcMinify'\n ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config\n ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.\n We detected multiple lockfiles and selected the directory of /Users/sergiystashok/Documents/GitHub/statex/statex-website/package-lock.json as the root directory.\n To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.\n   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.\n Detected additional lockfiles: \n   * /Users/sergiystashok/Documents/GitHub/statex/statex-website/frontend/package-lock.json\n\n ⚠ Webpack is configured while Turbopack is not, which may cause problems.\n ⚠ See instructions if you need to configure Turbopack:\n  https://nextjs.org/docs/app/api-reference/next-config-js/turbopack\n\n ⚠ Slow filesystem detected. The benchmark took 104ms. If /Users/sergiystashok/Documents/GitHub/statex/statex-website/frontend/.next is a network drive, consider moving it to a local folder. If you have an antivirus enabled, consider excluding your project directory.\n\n> Build error occurred\nError: Turbopack build failed with 6 errors:\n./frontend/src/app/ai/legal/[legal]/route.ts:2:1\nModule not found: Can't resolve '@/lib/content/ContentLoader'\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m \u001b[33mNextResponse\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'next/server'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mContentLoader\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'@/lib/content/ContentLoader'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mexport\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m \u001b[33mGET\u001b[39m(\n \u001b[90m 5 |\u001b[39m   request\u001b[33m:\u001b[39m \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m\u001b[0m\n\nImport map: aliased to relative './src/lib/content/ContentLoader' inside of [project]/frontend\n\n\nhttps://nextjs.org/docs/messages/module-not-found\n\n\n./frontend/src/app/ai/legal/[legal]/route.ts:2:1\nModule not found: Can't resolve '@/lib/content/ContentLoader'\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m \u001b[33mNextResponse\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'next/server'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mContentLoader\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'@/lib/content/ContentLoader'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mexport\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m \u001b[33mGET\u001b[39m(\n \u001b[90m 5 |\u001b[39m   request\u001b[33m:\u001b[39m \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m\u001b[0m\n\nImport map: aliased to relative './src/lib/content/ContentLoader' inside of [project]/frontend\n\n\nhttps://nextjs.org/docs/messages/module-not-found\n\n\n./frontend/src/app/ai/services/[service]/route.ts:2:1\nModule not found: Can't resolve '@/lib/content/ContentLoader'\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m \u001b[33mNextResponse\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'next/server'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mContentLoader\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'@/lib/content/ContentLoader'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mexport\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m \u001b[33mGET\u001b[39m(\n \u001b[90m 5 |\u001b[39m   request\u001b[33m:\u001b[39m \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m\u001b[0m\n\nImport map: aliased to relative './src/lib/content/ContentLoader' inside of [project]/frontend\n\n\nhttps://nextjs.org/docs/messages/module-not-found\n\n\n./frontend/src/app/ai/services/[service]/route.ts:2:1\nModule not found: Can't resolve '@/lib/content/ContentLoader'\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m \u001b[33mNextResponse\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'next/server'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mContentLoader\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'@/lib/content/ContentLoader'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mexport\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m \u001b[33mGET\u001b[39m(\n \u001b[90m 5 |\u001b[39m   request\u001b[33m:\u001b[39m \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m\u001b[0m\n\nImport map: aliased to relative './src/lib/content/ContentLoader' inside of [project]/frontend\n\n\nhttps://nextjs.org/docs/messages/module-not-found\n\n\n./frontend/src/app/ai/solutions/[solution]/route.ts:2:1\nModule not found: Can't resolve '@/lib/content/ContentLoader'\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m \u001b[33mNextResponse\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'next/server'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mContentLoader\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'@/lib/content/ContentLoader'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mexport\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m \u001b[33mGET\u001b[39m(\n \u001b[90m 5 |\u001b[39m   request\u001b[33m:\u001b[39m \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m\u001b[0m\n\nImport map: aliased to relative './src/lib/content/ContentLoader' inside of [project]/frontend\n\n\nhttps://nextjs.org/docs/messages/module-not-found\n\n\n./frontend/src/app/ai/solutions/[solution]/route.ts:2:1\nModule not found: Can't resolve '@/lib/content/ContentLoader'\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m \u001b[33mNextResponse\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'next/server'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mContentLoader\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'@/lib/content/ContentLoader'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mexport\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m \u001b[33mGET\u001b[39m(\n \u001b[90m 5 |\u001b[39m   request\u001b[33m:\u001b[39m \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m\u001b[0m\n\nImport map: aliased to relative './src/lib/content/ContentLoader' inside of [project]/frontend\n\n\nhttps://nextjs.org/docs/messages/module-not-found\n\n\n    at <unknown> (./frontend/src/app/ai/legal/[legal]/route.ts:2:1)\n    at <unknown> (https://nextjs.org/docs/messages/module-not-found)\n    at <unknown> (./frontend/src/app/ai/legal/[legal]/route.ts:2:1)\n    at <unknown> (https://nextjs.org/docs/messages/module-not-found)\n    at <unknown> (./frontend/src/app/ai/services/[service]/route.ts:2:1)\n    at <unknown> (https://nextjs.org/docs/messages/module-not-found)\n    at <unknown> (./frontend/src/app/ai/services/[service]/route.ts:2:1)\n    at <unknown> (https://nextjs.org/docs/messages/module-not-found)\n    at <unknown> (./frontend/src/app/ai/solutions/[solution]/route.ts:2:1)\n    at <unknown> (https://nextjs.org/docs/messages/module-not-found)\n    at <unknown> (./frontend/src/app/ai/solutions/[solution]/route.ts:2:1)\n    at <unknown> (https://nextjs.org/docs/messages/module-not-found)\nnpm error Lifecycle script `build` failed with error:\nnpm error code 1\nnpm error path /Users/sergiystashok/Documents/GitHub/statex/statex-website/frontend\nnpm error workspace statex-frontend@1.0.0\nnpm error location /Users/sergiystashok/Documents/GitHub/statex/statex-website/frontend\nnpm error command failed\nnpm error command sh -c next build --turbo\n"
+  },
+  "userAcceptanceTests": {
+    "passed": true,
+    "score": 100,
+    "details": {
+      "contentAccessibility": {
+        "passed": true,
+        "score": 120,
+        "message": "Content accessibility: 120%"
+      },
+      "languageSwitching": {
+        "passed": true,
+        "score": 100,
+        "message": "Language switching components: Complete"
+      },
+      "aiContentServing": {
+        "passed": true,
+        "score": 100,
+        "message": "AI content routes: 3/3 available"
+      },
+      "seoOptimization": {
+        "passed": true,
+        "score": 100,
+        "message": "SEO components: 100% complete"
+      },
+      "performanceUX": {
+        "passed": true,
+        "score": 100,
+        "message": "Performance optimizations: Implemented"
+      }
+    }
+  },
+  "deploymentReadiness": {
+    "score": 60,
+    "details": {
+      "summary": {
+        "totalChecks": 25,
+        "passed": 15,
+        "failed": 3,
+        "warnings": 7,
+        "successRate": 60,
+        "isReady": false
+      },
+      "checks": {
+        "build": {
+          "package_json_exists": {
+            "status": "PASS",
+            "message": "package.json exists",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:22.678Z"
+          },
+          "required_scripts": {
+            "status": "PASS",
+            "message": "All required scripts present",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:22.680Z"
+          },
+          "dependencies": {
+            "status": "PASS",
+            "message": "41 dependencies configured",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:22.680Z"
+          },
+          "typescript_config": {
+            "status": "PASS",
+            "message": "TypeScript configuration exists",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:22.680Z"
+          },
+          "typescript_strict": {
+            "status": "WARN",
+            "message": "TypeScript strict mode not enabled",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:22.680Z"
+          },
+          "nextjs_config": {
+            "status": "PASS",
+            "message": "Next.js configuration exists",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:22.681Z"
+          },
+          "nextjs_i18n": {
+            "status": "WARN",
+            "message": "Next.js i18n configuration not detected",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:22.681Z"
+          },
+          "production_build": {
+            "status": "FAIL",
+            "message": "Production build failed: Command failed: npm run build --silent\n ⚠ Invalid next.config.js options detected: \n ⚠     Unrecognized key(s) in object: 'swcMinify'\n ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config\n ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.\n We detected multiple lockfiles and selected the directory of /Users/sergiystashok/Documents/GitHub/statex/statex-website/package-lock.json as the root directory.\n To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.\n   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.\n Detected additional lockfiles: \n   * /Users/sergiystashok/Documents/GitHub/statex/statex-website/frontend/package-lock.json\n\n ⚠ Webpack is configured while Turbopack is not, which may cause problems.\n ⚠ See instructions if you need to configure Turbopack:\n  https://nextjs.org/docs/app/api-reference/next-config-js/turbopack\n\n ⚠ Slow filesystem detected. The benchmark took 121ms. If /Users/sergiystashok/Documents/GitHub/statex/statex-website/frontend/.next is a network drive, consider moving it to a local folder. If you have an antivirus enabled, consider excluding your project directory.\n\n> Build error occurred\nError: Turbopack build failed with 6 errors:\n./frontend/src/app/ai/legal/[legal]/route.ts:2:1\nModule not found: Can't resolve '@/lib/content/ContentLoader'\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m \u001b[33mNextResponse\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'next/server'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mContentLoader\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'@/lib/content/ContentLoader'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mexport\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m \u001b[33mGET\u001b[39m(\n \u001b[90m 5 |\u001b[39m   request\u001b[33m:\u001b[39m \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m\u001b[0m\n\nImport map: aliased to relative './src/lib/content/ContentLoader' inside of [project]/frontend\n\n\nhttps://nextjs.org/docs/messages/module-not-found\n\n\n./frontend/src/app/ai/legal/[legal]/route.ts:2:1\nModule not found: Can't resolve '@/lib/content/ContentLoader'\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m \u001b[33mNextResponse\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'next/server'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mContentLoader\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'@/lib/content/ContentLoader'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mexport\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m \u001b[33mGET\u001b[39m(\n \u001b[90m 5 |\u001b[39m   request\u001b[33m:\u001b[39m \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m\u001b[0m\n\nImport map: aliased to relative './src/lib/content/ContentLoader' inside of [project]/frontend\n\n\nhttps://nextjs.org/docs/messages/module-not-found\n\n\n./frontend/src/app/ai/services/[service]/route.ts:2:1\nModule not found: Can't resolve '@/lib/content/ContentLoader'\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m \u001b[33mNextResponse\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'next/server'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mContentLoader\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'@/lib/content/ContentLoader'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mexport\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m \u001b[33mGET\u001b[39m(\n \u001b[90m 5 |\u001b[39m   request\u001b[33m:\u001b[39m \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m\u001b[0m\n\nImport map: aliased to relative './src/lib/content/ContentLoader' inside of [project]/frontend\n\n\nhttps://nextjs.org/docs/messages/module-not-found\n\n\n./frontend/src/app/ai/services/[service]/route.ts:2:1\nModule not found: Can't resolve '@/lib/content/ContentLoader'\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m \u001b[33mNextResponse\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'next/server'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mContentLoader\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'@/lib/content/ContentLoader'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m   |\u001b[39m \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mexport\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m \u001b[33mGET\u001b[39m(\n \u001b[90m 5 |\u001b[39m   request\u001b[33m:\u001b[39m \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m\u001b[0m\n\nImport map: aliased to relative './src/lib/content/ContentLoader' inside of [project]/frontend\n\n\nhttps://nextjs.org/docs/messages/module-not-found\n\n\n./frontend/src/app/ai/solutions/[solution]/route.ts:2:1\nModule not found: Can't resolve '@/lib/content/ContentLoader'\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mNextRequest\u001b[39m\u001b[33m,\u001b[39m \u001b[33mNextResponse\u001b[39m } \u001b[36mfrom\u001b[39m \u001b[32m'next/server'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mimport\u001b[39m { \u001b[33mContentLoader\u001b[39m } \u001b[36mfrom\u001b[39m \u001b",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.520Z"
+          }
+        },
+        "environment": {
+          "env_file__env.production_missing": {
+            "status": "FAIL",
+            "message": "Environment file missing: .env.production",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.521Z"
+          },
+          "env_file__env.example_missing": {
+            "status": "WARN",
+            "message": "Environment file missing: .env.example",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.521Z"
+          },
+          "env_file__env": {
+            "status": "PASS",
+            "message": "Environment file exists: .env",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.521Z"
+          },
+          "required_env_vars": {
+            "status": "WARN",
+            "message": "Missing environment variables: NODE_ENV, NEXT_PUBLIC_SITE_URL, DATABASE_URL",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.521Z"
+          },
+          "database_schema": {
+            "status": "PASS",
+            "message": "Database schema exists",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.521Z"
+          }
+        },
+        "security": {
+          "https_config": {
+            "status": "WARN",
+            "message": "HTTPS configuration not detected",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.522Z"
+          },
+          "security_headers": {
+            "status": "WARN",
+            "message": "Limited security headers configured",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.522Z"
+          },
+          "env_security__env": {
+            "status": "PASS",
+            "message": "Sensitive data properly configured in .env",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.523Z"
+          }
+        },
+        "performance": {
+          "performance_validation": {
+            "status": "PASS",
+            "message": "Performance validation completed",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.585Z"
+          },
+          "bundle_size": {
+            "status": "PASS",
+            "message": "Bundle size acceptable: 1.84MB",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.587Z"
+          },
+          "lighthouse_score": {
+            "status": "PASS",
+            "message": "Estimated Lighthouse score: 92/100",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.587Z"
+          }
+        },
+        "monitoring": {
+          "error_tracking": {
+            "status": "WARN",
+            "message": "No error tracking detected",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.588Z"
+          },
+          "analytics_setup": {
+            "status": "PASS",
+            "message": "Analytics configuration detected",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.622Z"
+          },
+          "health_checks": {
+            "status": "PASS",
+            "message": "Health check endpoints detected",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.625Z"
+          }
+        },
+        "rollback": {
+          "version_control": {
+            "status": "FAIL",
+            "message": "No version control detected",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.627Z"
+          },
+          "backup_strategy": {
+            "status": "PASS",
+            "message": "Backup scripts found: backup_database.sh",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.629Z"
+          },
+          "deployment_scripts": {
+            "status": "PASS",
+            "message": "Deployment scripts found: deploy-with-logging.sh, deploy.sh, dev-deploy.sh",
+            "details": null,
+            "timestamp": "2025-09-18T15:03:53.630Z"
+          }
+        },
+        "overall": {
+          "passed": 15,
+          "failed": 3,
+          "warnings": 7
+        }
+      },
+      "generatedAt": "2025-09-18T15:03:53.631Z"
+    }
+  },
+  "overall": {
+    "passed": false,
+    "score": 52,
+    "issues": [
+      "System validation failed",
+      "Build validation failed",
+      "Deployment readiness check failed"
+    ],
+    "recommendations": []
+  }
+}

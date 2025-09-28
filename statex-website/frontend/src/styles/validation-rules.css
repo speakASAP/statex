@@ -1,0 +1,284 @@
+/* ===== BULLETPROOF CSS VALIDATION RULES ===== */
+/* These rules prevent hardcoded values and enforce the centralized system */
+
+/* FORBIDDEN: Any hardcoded color values in component files */
+/* This file serves as documentation of what NOT to do */
+
+/*
+VALIDATION RULES - NEVER USE THESE IN COMPONENTS:
+
+❌ FORBIDDEN: Hardcoded hex colors
+  color: #FFFFFF;
+  background-color: #000000;
+  border-color: #FF0000;
+
+❌ FORBIDDEN: Hardcoded rgb/rgba values
+  color: rgb(255, 255, 255);
+  background-color: rgba(0, 0, 0, 0.5);
+
+❌ FORBIDDEN: Hardcoded hsl/hsla values
+  color: hsl(0, 0%, 100%);
+  background-color: hsla(0, 0%, 0%, 0.5);
+
+❌ FORBIDDEN: Direct semantic variable usage in components
+  background-color: var(--stx-color-surface-primary);
+  color: var(--stx-color-text-primary);
+
+❌ FORBIDDEN: Raw value usage in components
+  color: var(--raw-blue-600);
+  background-color: var(--raw-white);
+
+❌ FORBIDDEN: Hardcoded spacing values
+  padding: 16px;
+  margin: 24px;
+  gap: 32px;
+
+❌ FORBIDDEN: Hardcoded font sizes
+  font-size: 16px;
+  font-size: 1.5rem;
+
+❌ FORBIDDEN: Hardcoded border radius
+  border-radius: 8px;
+  border-radius: 0.5rem;
+
+❌ FORBIDDEN: Hardcoded shadows
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+❌ FORBIDDEN: Hardcoded z-index values
+  z-index: 1000;
+  z-index: 999;
+
+✅ REQUIRED: Component-specific variables ONLY
+  background-color: var(--stx-button-bg-primary);
+  color: var(--stx-button-text-primary);
+  border-color: var(--stx-button-border-primary);
+  padding: var(--stx-button-padding);
+  border-radius: var(--stx-button-radius);
+  box-shadow: var(--stx-button-shadow);
+  z-index: var(--stx-modal-z-index);
+
+✅ REQUIRED: Use semantic transitions
+  transition: var(--stx-button-transition);
+
+✅ REQUIRED: Use semantic durations and easing
+  animation-duration: var(--stx-duration-normal);
+  animation-timing-function: var(--stx-ease-default);
+*/
+
+/* VALIDATION PATTERNS FOR LINTING */
+/* Use these patterns in CSS linters to catch violations */
+
+/*
+STYLELINT RULES TO ADD:
+
+rules:
+  "color-no-hex": true
+  "declaration-property-value-disallowed-list":
+    - "color": ["/^#/", "/^rgb/", "/^hsl/"]
+    - "background-color": ["/^#/", "/^rgb/", "/^hsl/"]
+    - "border-color": ["/^#/", "/^rgb/", "/^hsl/"]
+    - "padding": ["/^[0-9]/"]
+    - "margin": ["/^[0-9]/"]
+    - "font-size": ["/^[0-9]/"]
+    - "border-radius": ["/^[0-9]/"]
+    - "z-index": ["/^[0-9]/"]
+  "custom-property-pattern":
+    - "^stx-(button|text|input|card|modal|dropdown|tooltip|alert|section|grid|flex|stack|spacing|container)-"
+    - message: "Component CSS files must only use component-specific variables"
+  "function-disallowed-list":
+    - ["rgb", "rgba", "hsl", "hsla"]
+    - message: "Use CSS variables instead of color functions"
+*/
+
+/* RUNTIME VALIDATION UTILITIES */
+/* These can be used in development to detect violations */
+
+/*
+JAVASCRIPT VALIDATION FUNCTIONS:
+
+// Check for hardcoded values in computed styles
+function validateComponentStyles(element) {
+  const computed = getComputedStyle(element);
+  const violations = [];
+  
+  // Check for hardcoded colors
+  if (computed.backgroundColor && !computed.backgroundColor.includes('var(')) {
+    violations.push(`Hardcoded background-color: ${computed.backgroundColor}`);
+  }
+  
+  if (computed.color && !computed.color.includes('var(')) {
+    violations.push(`Hardcoded color: ${computed.color}`);
+  }
+  
+  return violations;
+}
+
+// Check for missing component variables
+function validateThemeCoverage(themeName) {
+  const requiredVariables = [
+    '--stx-button-bg-primary',
+    '--stx-button-text-primary',
+    '--stx-card-bg',
+    '--stx-input-bg',
+    // ... all component variables
+  ];
+  
+  const html = document.documentElement;
+  html.setAttribute('data-theme', themeName);
+  
+  const missing = requiredVariables.filter(variable => {
+    const value = getComputedStyle(html).getPropertyValue(variable);
+    return !value || value.trim() === '';
+  });
+  
+  return missing;
+}
+
+// Scan for hardcoded values in stylesheets
+function scanForHardcodedValues() {
+  const violations = [];
+  
+  for (const sheet of document.styleSheets) {
+    try {
+      for (const rule of sheet.cssRules) {
+        if (rule.style) {
+          for (const property of rule.style) {
+            const value = rule.style.getPropertyValue(property);
+            
+            // Check for hex colors
+            if (value.match(/#[0-9a-fA-F]{3,6}/)) {
+              violations.push({
+                selector: rule.selectorText,
+                property,
+                value,
+                type: 'hardcoded-hex-color'
+              });
+            }
+            
+            // Check for rgb/rgba
+            if (value.match(/rgba?\(/)) {
+              violations.push({
+                selector: rule.selectorText,
+                property,
+                value,
+                type: 'hardcoded-rgb-color'
+              });
+            }
+            
+            // Check for pixel values in spacing
+            if (['padding', 'margin', 'gap'].includes(property) && value.match(/\d+px/)) {
+              violations.push({
+                selector: rule.selectorText,
+                property,
+                value,
+                type: 'hardcoded-spacing'
+              });
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // Cross-origin stylesheets can't be accessed
+    }
+  }
+  
+  return violations;
+}
+*/
+
+/* BUILD-TIME VALIDATION SCRIPT TEMPLATE */
+/*
+const fs = require('fs');
+const path = require('path');
+
+function validateCSSFiles(directory) {
+  const violations = [];
+  
+  function scanFile(filePath) {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const lines = content.split('\n');
+    
+    lines.forEach((line, index) => {
+      // Check for hardcoded hex colors
+      if (line.match(/#[0-9a-fA-F]{3,6}/)) {
+        violations.push({
+          file: filePath,
+          line: index + 1,
+          content: line.trim(),
+          type: 'hardcoded-hex-color'
+        });
+      }
+      
+      // Check for rgb/rgba values
+      if (line.match(/rgba?\(/)) {
+        violations.push({
+          file: filePath,
+          line: index + 1,
+          content: line.trim(),
+          type: 'hardcoded-rgb-color'
+        });
+      }
+      
+      // Check for hardcoded pixel spacing
+      if (line.match(/:\s*\d+px/) && !line.includes('var(')) {
+        violations.push({
+          file: filePath,
+          line: index + 1,
+          content: line.trim(),
+          type: 'hardcoded-spacing'
+        });
+      }
+    });
+  }
+  
+  function walkDirectory(dir) {
+    const files = fs.readdirSync(dir);
+    
+    files.forEach(file => {
+      const filePath = path.join(dir, file);
+      const stat = fs.statSync(filePath);
+      
+      if (stat.isDirectory()) {
+        walkDirectory(filePath);
+      } else if (file.endsWith('.css')) {
+        scanFile(filePath);
+      }
+    });
+  }
+  
+  walkDirectory(directory);
+  return violations;
+}
+
+// Usage in build script
+const violations = validateCSSFiles('./src/components');
+if (violations.length > 0) {
+  console.error('CSS Validation Failures:');
+  violations.forEach(v => {
+    console.error(`${v.file}:${v.line} - ${v.type}: ${v.content}`);
+  });
+  process.exit(1);
+}
+*/
+
+/* DEVELOPMENT GUIDELINES SUMMARY */
+/*
+COMPONENT CSS FILES MUST:
+1. Import design-tokens.css: @import '../../styles/design-tokens.css';
+2. Use ONLY component-specific variables: var(--stx-component-property)
+3. Never use hardcoded colors, spacing, or other values
+4. Never reference raw values (--raw-*) or semantic variables (--stx-color-*)
+5. Always use component variables for consistency
+
+THEME FILES MUST:
+1. Override ALL semantic variables for complete coverage
+2. Never leave any semantic variable undefined
+3. Use only raw values (--raw-*) for consistency
+
+VALIDATION REQUIREMENTS:
+1. No hardcoded hex, rgb, hsl colors
+2. No hardcoded pixel spacing values
+3. No hardcoded z-index values
+4. No direct semantic variable usage in components
+5. All themes must have complete variable coverage
+*/ 

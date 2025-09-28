@@ -1,0 +1,90 @@
+services:
+  # Submission Service - FastAPI with hot reload
+  submission-service:
+    image: python:3.11-slim
+    container_name: statex_submission_dev
+    volumes:
+      - ./services/submission-service:/app
+      - ./shared:/app/shared
+      - ~/.cache/pip:/root/.cache/pip  # Cache pip packages
+    working_dir: /app
+    command: sh -c "apt-get update && apt-get install -y curl && pip install -r requirements.txt && uvicorn main:app --reload --host 0.0.0.0 --port 8000"
+    ports:
+      - "8002:8000"
+    environment:
+      - DATABASE_URL=postgresql://statex:statex_password@host.docker.internal:5432/statex
+      - REDIS_URL=redis://host.docker.internal:6379
+      - RABBITMQ_URL=amqp://statex:statex_password@host.docker.internal:5672
+      - S3_ENDPOINT=http://host.docker.internal:9000
+      - S3_ACCESS_KEY=statex
+      - S3_SECRET_KEY=statex_password
+      - AI_ORCHESTRATOR_URL=http://host.docker.internal:8010
+      - NOTIFICATION_SERVICE_URL=http://host.docker.internal:8005
+    networks:
+      - statex_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # User Portal Service
+  user-portal:
+    image: python:3.11-slim
+    container_name: statex_user_portal_dev
+    volumes:
+      - ./user-portal:/app
+      - ./shared:/app/shared
+      - ~/.cache/pip:/root/.cache/pip
+    working_dir: /app
+    command: sh -c "apt-get update && apt-get install -y curl && pip install -r requirements.txt && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+    ports:
+      - "8006:8000"
+    environment:
+      - DATABASE_URL=postgresql://statex:statex_password@host.docker.internal:5432/statex
+      - REDIS_URL=redis://host.docker.internal:6379
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-your-secret-key-here}
+      - JWT_ALGORITHM=HS256
+      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
+    networks:
+      - statex_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Content Service
+  content-service:
+    image: python:3.11-slim
+    container_name: statex_content_dev
+    volumes:
+      - ./content-service:/app
+      - ./shared:/app/shared
+      - ~/.cache/pip:/root/.cache/pip
+    working_dir: /app
+    command: sh -c "apt-get update && apt-get install -y curl && pip install -r requirements.txt && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+    ports:
+      - "8009:8000"
+    environment:
+      - DATABASE_URL=postgresql://statex:statex_password@host.docker.internal:5432/statex
+      - REDIS_URL=redis://host.docker.internal:6379
+      - ELASTICSEARCH_URL=http://host.docker.internal:9200
+      - S3_ENDPOINT=http://host.docker.internal:9000
+      - S3_ACCESS_KEY=statex
+      - S3_SECRET_KEY=statex_password
+    networks:
+      - statex_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  statex_network:
+    external: true
+

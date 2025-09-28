@@ -1,0 +1,33 @@
+/* European Theme Design Tokens */
+[data-theme="eu"] {
+  /* Background Colors */
+  --bg-primary: var(--raw-white);
+  --bg-secondary: var(--raw-gray-50);
+  --bg-tertiary: var(--raw-gray-100);
+  
+  /* Text Colors */
+  --text-primary: var(--raw-gray-800);
+  --text-secondary: var(--raw-gray-600);
+  --text-tertiary: var(--raw-gray-500);
+  
+  /* Border Colors */
+  --border-color: var(--raw-gray-200);
+  --border-color-focus: var(--primary-blue);
+  
+  /* Form Colors */
+  --form-background: var(--raw-white);
+  --form-text-color: var(--raw-gray-800);
+  --form-border-color: var(--raw-gray-200);
+  --form-placeholder-color: var(--raw-gray-500);
+  
+  /* Primary Colors (European Business) */
+  --primary-blue: var(--raw-blue-800);
+  --primary-blue-light: var(--raw-blue-500);
+  --primary-blue-dark: var(--raw-blue-900);
+  
+  /* Shadow Colors */
+  --shadow-color: var(--raw-bg-overlay-dark);
+  
+  /* Theme Identifier */
+  --theme-current: 'eu';
+} 

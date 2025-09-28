@@ -7,6 +7,7 @@ echo "============================================="
 REPOS=(
     "."
     "statex-ai"
+    "statex-dns-service"
     "statex-infrastructure" 
     "statex-monitoring"
     "statex-notification-service"

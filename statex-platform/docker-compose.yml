@@ -1,0 +1,55 @@
+# StateX Platform - Central Management System
+# This is the main orchestration service that coordinates all microservices
+# For full deployment with all services, use: docker compose -f docker-compose.full.yml up -d
+
+services:
+  # Platform Management Service - Central orchestration hub
+  # Note: This service is currently not implemented as a container
+  # The platform management is handled by the manage.sh script
+  # and orchestration is done through the script rather than a service
+  
+  # API Gateway - Central routing for all services
+  api-gateway:
+    image: nginx:alpine
+    ports:
+      - "8001:80"
+    volumes:
+      - ../statex-infrastructure/nginx/api-gateway.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - statex_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 2
+    restart: unless-stopped
+
+  # Prototype Service - Prototype management and subdomain routing
+  prototype-service:
+    build:
+      context: ./services/prototype-service
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - AI_ORCHESTRATOR_URL=http://ai-orchestrator:8010
+      - FRONTEND_URL=http://frontend:3000
+    networks:
+      - statex_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    depends_on:
+      - api-gateway
+
+  # Infrastructure services are provided by statex-infrastructure
+  # These are external dependencies that should be started first
+
+volumes: {}
+
+networks:
+  statex_network:
+    external: true

@@ -1,0 +1,162 @@
+services:
+  # AI Orchestrator - Central coordination service
+  ai-orchestrator:
+    build: ./services/ai-orchestrator
+    ports:
+      - "8010:8000"
+    environment:
+      - DATABASE_URL=postgresql://statex:statex_password@postgres:5432/statex
+      - REDIS_URL=redis://redis:6379
+      - NLP_SERVICE_URL=http://nlp-service:8000
+      - ASR_SERVICE_URL=http://asr-service:8000
+      - DOCUMENT_AI_URL=http://document-ai:8000
+      - PROTOTYPE_GENERATOR_URL=http://prototype-generator:8000
+      - TEMPLATE_REPOSITORY_URL=http://template-repository:8000
+      - FREE_AI_SERVICE_URL=http://free-ai-service:8000
+    # No dependencies - all services are independent
+    restart: unless-stopped
+    networks:
+      - statex_network
+
+  # NLP Service - Text analysis and generation
+  nlp-service:
+    build: ./services/nlp-service
+    ports:
+      - "8011:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - DATABASE_URL=postgresql://statex:statex_password@postgres:5432/statex
+      - REDIS_URL=redis://redis:6379
+    # No dependencies - all services are independent
+    restart: unless-stopped
+    networks:
+      - statex_network
+
+  # ASR Service - Speech-to-text conversion
+  asr-service:
+    build: ./services/asr-service
+    ports:
+      - "8012:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DATABASE_URL=postgresql://statex:statex_password@postgres:5432/statex
+      - REDIS_URL=redis://redis:6379
+      - FREE_AI_SERVICE_URL=http://free-ai-service:8000
+      - ASR_MODE=${ASR_MODE:-free}
+    # No dependencies - all services are independent
+    restart: unless-stopped
+    networks:
+      - statex_network
+
+  # Document AI Service - File analysis and processing
+  document-ai:
+    build: ./services/document-ai
+    ports:
+      - "8013:8000"
+    environment:
+      - DATABASE_URL=postgresql://statex:statex_password@postgres:5432/statex
+      - REDIS_URL=redis://redis:6379
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY}
+      - S3_SECRET_KEY=${S3_SECRET_KEY}
+    # No dependencies - all services are independent
+    restart: unless-stopped
+    networks:
+      - statex_network
+
+  # Prototype Generator Service - Website and app creation
+  prototype-generator:
+    build: ./services/prototype-generator
+    ports:
+      - "8014:8000"
+    environment:
+      - DATABASE_URL=postgresql://statex:statex_password@postgres:5432/statex
+      - REDIS_URL=redis://redis:6379
+      - TEMPLATE_REPOSITORY_URL=http://template-repository:8000
+      - DEPLOYMENT_URL=${DEPLOYMENT_URL}
+    depends_on:
+      - template-repository
+    restart: unless-stopped
+    networks:
+      - statex_network
+
+  # Template Repository Service - Template management
+  template-repository:
+    build: ./services/template-repository
+    ports:
+      - "8015:8000"
+    environment:
+      - DATABASE_URL=postgresql://statex:statex_password@postgres:5432/statex
+      - REDIS_URL=redis://redis:6379
+      - GIT_REPO_URL=${TEMPLATE_GIT_REPO}
+    # No dependencies - all services are independent
+    restart: unless-stopped
+    networks:
+      - statex_network
+
+  # Free AI Service - Free AI models (Ollama, Hugging Face, Mock)
+  free-ai-service:
+    build: ./services/free-ai-service
+    ports:
+      - "8016:8000"
+    environment:
+      - DATABASE_URL=postgresql://statex:statex_password@postgres:5432/statex
+      - REDIS_URL=redis://redis:6379
+      - OLLAMA_URL=http://ollama:11434
+      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
+      - AI_MODE=${AI_MODE:-free}
+      - DEBUG=${DEBUG:-true}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    # depends_on: ollama is managed by statex-infrastructure
+    restart: unless-stopped
+    networks:
+      - statex_network
+
+  # AI Workers - AI processing agents and workers
+  ai-workers:
+    build: ./services/ai-workers
+    ports:
+      - "8017:8000"
+    environment:
+      - DATABASE_URL=postgresql://statex:statex_password@postgres:5432/statex
+      - REDIS_URL=redis://redis:6379
+      - AI_ORCHESTRATOR_URL=http://ai-orchestrator:8000
+      - S3_ENDPOINT=http://minio:9000
+      - S3_ACCESS_KEY=statex
+      - S3_SECRET_KEY=statex_password
+    # depends_on: Infrastructure services are managed by statex-infrastructure
+    # and should be started first via manage.sh
+    restart: unless-stopped
+    networks:
+      - statex_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 2
+      start_period: 30s
+
+  # Ollama is now managed by statex-infrastructure
+
+  # Admin Panel - Human-in-the-middle interface (temporarily disabled)
+  # admin-panel:
+  #   build: ./admin-panel
+  #   ports:
+  #     - "8020:3000"
+  #   environment:
+  #     - NEXT_PUBLIC_API_URL=http://localhost:8010
+  #     - NEXT_PUBLIC_ADMIN_API_URL=http://localhost:8010
+  #   depends_on:
+  #     - ai-orchestrator
+  #   restart: unless-stopped
+  #   networks:
+  #     - statex-ai-network
+
+  # Database and Redis are provided by statex-infrastructure
+
+volumes: {}
+
+networks:
+  statex_network:
+    external: true

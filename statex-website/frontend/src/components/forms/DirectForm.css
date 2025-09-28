@@ -1,0 +1,190 @@
+/* Direct Form Styles */
+.stx-direct-form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: var(--stx-color-background-primary);
+  border-radius: var(--stx-border-radius-lg);
+  box-shadow: var(--stx-shadow-md);
+}
+
+.stx-form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.stx-form-title {
+  font-size: var(--stx-font-size-2xl);
+  font-weight: var(--stx-font-weight-bold);
+  color: var(--stx-color-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.stx-form-subtitle {
+  font-size: var(--stx-font-size-lg);
+  color: var(--stx-color-text-secondary);
+  margin: 0;
+}
+
+.stx-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.stx-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stx-form-label {
+  font-size: var(--stx-font-size-sm);
+  font-weight: var(--stx-font-weight-medium);
+  color: var(--stx-color-text-primary);
+}
+
+.stx-form-input,
+.stx-form-textarea {
+  padding: 0.75rem;
+  border: 1px solid var(--stx-color-border-primary);
+  border-radius: var(--stx-border-radius-md);
+  font-size: var(--stx-font-size-base);
+  color: var(--stx-color-text-primary);
+  background: var(--stx-color-background-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stx-form-input:focus,
+.stx-form-textarea:focus {
+  outline: none;
+  border-color: var(--stx-color-primary);
+  box-shadow: 0 0 0 3px var(--stx-color-primary-alpha);
+}
+
+.stx-form-textarea {
+  resize: vertical;
+  min-height: 120px;
+  font-family: inherit;
+}
+
+.stx-form-submit {
+  padding: 1rem 2rem;
+  background: var(--stx-color-primary);
+  color: var(--stx-color-text-on-primary);
+  border: none;
+  border-radius: var(--stx-border-radius-md);
+  font-size: var(--stx-font-size-lg);
+  font-weight: var(--stx-font-weight-semibold);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.stx-form-submit:hover:not(:disabled) {
+  background: var(--stx-color-primary-hover);
+  transform: translateY(-1px);
+}
+
+.stx-form-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.stx-form-submit:disabled {
+  background: var(--stx-color-background-disabled);
+  color: var(--stx-color-text-disabled);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.stx-form-success {
+  padding: 1rem;
+  background: var(--stx-color-success-light);
+  color: var(--stx-color-success);
+  border: 1px solid var(--stx-color-success);
+  border-radius: var(--stx-border-radius-md);
+  text-align: center;
+  font-weight: var(--stx-font-weight-medium);
+}
+
+.stx-form-error {
+  padding: 1rem;
+  background: var(--stx-color-error-light);
+  color: var(--stx-color-error);
+  border: 1px solid var(--stx-color-error);
+  border-radius: var(--stx-border-radius-md);
+  text-align: center;
+  font-weight: var(--stx-font-weight-medium);
+}
+
+.stx-form-privacy {
+  text-align: center;
+  font-size: var(--stx-font-size-sm);
+  color: var(--stx-color-text-tertiary);
+  margin-top: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .stx-direct-form {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+  
+  .stx-form-title {
+    font-size: var(--stx-font-size-xl);
+  }
+  
+  .stx-form-subtitle {
+    font-size: var(--stx-font-size-base);
+  }
+  
+  .stx-form-submit {
+    padding: 0.875rem 1.5rem;
+    font-size: var(--stx-font-size-base);
+  }
+}
+
+/* Dark Theme Support */
+[data-theme="dark"] .stx-direct-form {
+  background: var(--stx-color-background-secondary);
+  box-shadow: var(--stx-shadow-dark-md);
+}
+
+[data-theme="dark"] .stx-form-input,
+[data-theme="dark"] .stx-form-textarea {
+  background: var(--stx-color-background-primary);
+  border-color: var(--stx-color-border-secondary);
+}
+
+[data-theme="dark"] .stx-form-input:focus,
+[data-theme="dark"] .stx-form-textarea:focus {
+  border-color: var(--stx-color-primary);
+  box-shadow: 0 0 0 3px var(--stx-color-primary-alpha);
+}
+
+/* EU Theme Support */
+[data-theme="eu"] .stx-direct-form {
+  border: 2px solid var(--stx-color-eu-primary);
+}
+
+[data-theme="eu"] .stx-form-submit {
+  background: var(--stx-color-eu-primary);
+}
+
+[data-theme="eu"] .stx-form-submit:hover:not(:disabled) {
+  background: var(--stx-color-eu-primary-hover);
+}
+
+/* UAE Theme Support */
+[data-theme="uae"] .stx-direct-form {
+  border: 2px solid var(--stx-color-uae-primary);
+}
+
+[data-theme="uae"] .stx-form-submit {
+  background: var(--stx-color-uae-primary);
+}
+
+[data-theme="uae"] .stx-form-submit:hover:not(:disabled) {
+  background: var(--stx-color-uae-primary-hover);
+}
+
