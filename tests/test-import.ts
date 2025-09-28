@@ -1,5 +1,5 @@
 // Test file to verify ContentLoader import resolution
-import { ContentLoader, ContentType } from './statex-website/frontend/src/lib/content/ContentLoader';
+import { ContentLoader, ContentType } from '../statex-website/frontend/src/lib/content/ContentLoader';
 
 // Test instantiation
 const contentLoader = new ContentLoader();
