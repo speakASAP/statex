@@ -1,9 +1,11 @@
 const { v4: uuidv4 } = require('uuid');
 const { logger } = require('./logger');
+const { SSLIntegration } = require('./ssl-integration');
 
 class SubdomainManager {
   constructor(database) {
     this.db = database;
+    this.sslIntegration = new SSLIntegration();
   }
 
   async registerSubdomain({ subdomain, customerId, prototypeId, targetUrl, status = 'active', expiresAt, metadata = {} }) {
@@ -40,10 +42,27 @@ class SubdomainManager {
 
       const result = await this.db.run(sql, params);
       
+      // Generate SSL certificate for the subdomain
+      const environment = process.env.NODE_ENV === 'production' ? 'production' : 'development';
+      let sslInfo = null;
+      
+      try {
+        sslInfo = await this.sslIntegration.generateSubdomainCertificate(subdomain, environment);
+        logger.info(`SSL certificate generated for ${subdomain}`, { sslInfo });
+      } catch (sslError) {
+        logger.warn(`Failed to generate SSL certificate for ${subdomain}`, { 
+          error: sslError.message,
+          subdomain,
+          environment 
+        });
+        // Don't fail the subdomain registration if SSL generation fails
+      }
+      
       logger.info(`Subdomain registered: ${subdomain}`, { 
         customerId, 
         prototypeId, 
-        id: result.id 
+        id: result.id,
+        sslGenerated: !!sslInfo
       });
 
       return {
@@ -284,6 +303,104 @@ class SubdomainManager {
       return result.changes;
     } catch (error) {
       logger.error('Failed to cleanup expired subdomains', error);
+      throw error;
+    }
+  }
+
+  // SSL Management Methods
+
+  /**
+   * Get SSL certificate information for a subdomain
+   * @param {string} subdomain - The subdomain
+   * @param {string} environment - 'production' or 'development'
+   * @returns {Object|null} SSL certificate information
+   */
+  async getSSLInfo(subdomain, environment = 'development') {
+    try {
+      return this.sslIntegration.getCertificateInfo(subdomain, environment);
+    } catch (error) {
+      logger.error(`Failed to get SSL info for ${subdomain}`, { error: error.message });
+      throw error;
+    }
+  }
+
+  /**
+   * Regenerate SSL certificate for a subdomain
+   * @param {string} subdomain - The subdomain
+   * @param {string} environment - 'production' or 'development'
+   * @returns {Object} SSL certificate information
+   */
+  async regenerateSSL(subdomain, environment = 'development') {
+    try {
+      // Remove existing certificate
+      await this.sslIntegration.removeCertificate(subdomain, environment);
+      
+      // Generate new certificate
+      const sslInfo = await this.sslIntegration.generateSubdomainCertificate(subdomain, environment);
+      
+      logger.info(`SSL certificate regenerated for ${subdomain}`, { sslInfo });
+      return sslInfo;
+    } catch (error) {
+      logger.error(`Failed to regenerate SSL for ${subdomain}`, { error: error.message });
+      throw error;
+    }
+  }
+
+  /**
+   * Remove SSL certificate for a subdomain
+   * @param {string} subdomain - The subdomain
+   * @param {string} environment - 'production' or 'development'
+   * @returns {boolean} Success status
+   */
+  async removeSSL(subdomain, environment = 'development') {
+    try {
+      const success = await this.sslIntegration.removeCertificate(subdomain, environment);
+      
+      if (success) {
+        logger.info(`SSL certificate removed for ${subdomain}`);
+      }
+      
+      return success;
+    } catch (error) {
+      logger.error(`Failed to remove SSL for ${subdomain}`, { error: error.message });
+      throw error;
+    }
+  }
+
+  /**
+   * List all SSL certificates
+   * @param {string} environment - 'production' or 'development'
+   * @returns {Array} List of SSL certificates
+   */
+  async listSSLCertificates(environment = 'development') {
+    try {
+      return this.sslIntegration.listCertificates(environment);
+    } catch (error) {
+      logger.error('Failed to list SSL certificates', { error: error.message });
+      throw error;
+    }
+  }
+
+  /**
+   * Check SSL certificate status for a subdomain
+   * @param {string} subdomain - The subdomain
+   * @param {string} environment - 'production' or 'development'
+   * @returns {Object} SSL status information
+   */
+  async checkSSLStatus(subdomain, environment = 'development') {
+    try {
+      const exists = this.sslIntegration.certificateExists(subdomain, environment);
+      const info = exists ? this.sslIntegration.getCertificateInfo(subdomain, environment) : null;
+      
+      return {
+        subdomain,
+        environment,
+        exists,
+        info,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      logger.error(`Failed to check SSL status for ${subdomain}`, { error: error.message });
       throw error;
     }
   }

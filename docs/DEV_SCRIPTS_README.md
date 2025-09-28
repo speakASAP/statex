@@ -5,6 +5,7 @@ This directory contains scripts to start all StateX microservices in local devel
 ## 🚀 Quick Start
 
 ### Option 1: Start Essential Services (Recommended)
+
 ```bash
 # Start only the most essential services
 ./start-dev-essential.sh frontend    # Start frontend only
@@ -13,18 +14,21 @@ This directory contains scripts to start all StateX microservices in local devel
 ```
 
 ### Option 2: Start All Services in Parallel
+
 ```bash
 # Start all core services in parallel
 ./start-dev-parallel.sh start
 ```
 
 ### Option 3: Start All Services (Full Stack)
+
 ```bash
 # Start all microservices
 ./start-dev-all.sh start
 ```
 
 ### Stop All Services
+
 ```bash
 # Stop all services
 ./stop-dev-all.sh
@@ -33,46 +37,56 @@ This directory contains scripts to start all StateX microservices in local devel
 ## 📋 Available Scripts
 
 ### 1. `start-dev-essential.sh` - Essential Services
+
 **Purpose**: Start individual essential services for focused development
 
 **Usage**:
+
 ```bash
 ./start-dev-essential.sh [SERVICE]
 ```
 
 **Services**:
+
 - `frontend` - StateX Website Frontend (Next.js) on port 3000
 - `ai` - AI Orchestrator (Python/FastAPI) on port 8010
 - `platform` - Platform Management (Python/FastAPI) on port 8000
 
 **Example**:
+
 ```bash
 # Start only the frontend for UI development
 ./start-dev-essential.sh frontend
 ```
 
 ### 2. `start-dev-parallel.sh` - Parallel Startup
+
 **Purpose**: Start core services in parallel for maximum speed
 
 **Usage**:
+
 ```bash
 ./start-dev-parallel.sh start
 ```
 
 **Services Started**:
+
 - Frontend (Next.js) - Port 3000
 - Platform Management (Python/FastAPI) - Port 8000
 - AI Orchestrator (Python/FastAPI) - Port 8010
 
 ### 3. `start-dev-all.sh` - Full Stack
+
 **Purpose**: Start all microservices in development mode
 
 **Usage**:
+
 ```bash
 ./start-dev-all.sh start
 ```
 
 **All Services**:
+
 - Frontend (Next.js) - Port 3000
 - Platform Management (Python/FastAPI) - Port 8000
 - API Gateway (Python/FastAPI) - Port 8001
@@ -93,9 +107,11 @@ This directory contains scripts to start all StateX microservices in local devel
 - DNS Service (Node.js) - Port 8053
 
 ### 4. `stop-dev-all.sh` - Stop All Services
+
 **Purpose**: Stop all running development services
 
 **Usage**:
+
 ```bash
 ./stop-dev-all.sh
 ```
@@ -103,6 +119,7 @@ This directory contains scripts to start all StateX microservices in local devel
 ## 🏗️ Architecture
 
 ### Infrastructure Services (Docker)
+
 - PostgreSQL (Port 5432)
 - Redis (Port 6379)
 - RabbitMQ (Port 5672)
@@ -111,6 +128,7 @@ This directory contains scripts to start all StateX microservices in local devel
 - Nginx (Port 80)
 
 ### Application Services (Local Development)
+
 - **Frontend**: Next.js with hot reload
 - **Backend Services**: Python/FastAPI with auto-reload
 - **AI Services**: Python/FastAPI with auto-reload
@@ -118,6 +136,7 @@ This directory contains scripts to start all StateX microservices in local devel
 ## 🔧 Prerequisites
 
 ### Required Software
+
 - **Docker Desktop** - For infrastructure services
 - **Node.js 23.11.0+** - For frontend and DNS service
 - **Python 3.11+** - For backend services
@@ -125,7 +144,9 @@ This directory contains scripts to start all StateX microservices in local devel
 - **pip** - For Python package management
 
 ### Environment Setup
+
 The scripts automatically:
+
 - Create Python virtual environments
 - Install dependencies
 - Set up hot reload
@@ -133,7 +154,7 @@ The scripts automatically:
 
 ## 📁 Directory Structure
 
-```
+```text
 statex/
 ├── start-dev-essential.sh      # Essential services script
 ├── start-dev-parallel.sh       # Parallel startup script
@@ -153,6 +174,7 @@ statex/
 ## 🚀 Development Workflow
 
 ### 1. Start Infrastructure
+
 ```bash
 # Start Docker infrastructure services
 cd statex-infrastructure
@@ -161,6 +183,7 @@ cd ..
 ```
 
 ### 2. Start Application Services
+
 ```bash
 # Option A: Start essential services
 ./start-dev-essential.sh frontend
@@ -173,12 +196,14 @@ cd ..
 ```
 
 ### 3. Access Services
-- **Frontend**: http://localhost:3000
-- **Platform Management**: http://localhost:8000
-- **AI Orchestrator**: http://localhost:8010
-- **API Gateway**: http://localhost:8001
+
+- **Frontend**: <http://localhost:3000>
+- **Platform Management**: <http://localhost:8000>
+- **AI Orchestrator**: <http://localhost:8010>
+- **API Gateway**: <http://localhost:8001>
 
 ### 4. Stop Services
+
 ```bash
 # Stop all services
 ./stop-dev-all.sh
@@ -187,16 +212,19 @@ cd ..
 ## 🔍 Monitoring
 
 ### Service Status
+
 ```bash
 # Check which services are running
 ./start-dev-parallel.sh status
 ```
 
 ### Logs
+
 - **Service Logs**: `./logs/[service-name].log`
 - **Process IDs**: `./pids/[service-name].pid`
 
 ### Port Status
+
 ```bash
 # Check if ports are in use
 lsof -i :3000  # Frontend
@@ -207,15 +235,18 @@ lsof -i :8010  # AI Orchestrator
 ## 🛠️ Troubleshooting
 
 ### Port Already in Use
+
 The scripts automatically kill processes on required ports before starting services.
 
 ### Service Won't Start
+
 1. Check logs in `./logs/[service-name].log`
 2. Verify dependencies are installed
 3. Check if virtual environment exists
 4. Ensure Docker is running for infrastructure services
 
 ### Virtual Environment Issues
+
 ```bash
 # Recreate virtual environment
 rm -rf [service-directory]/venv
@@ -223,6 +254,7 @@ rm -rf [service-directory]/venv
 ```
 
 ### Node.js Issues
+
 ```bash
 # Reinstall dependencies
 cd statex-website/frontend
@@ -233,11 +265,13 @@ npm install
 ## 📊 Performance
 
 ### Startup Times
+
 - **Essential Services**: 10-15 seconds
 - **Parallel Startup**: 20-30 seconds
 - **Full Stack**: 60-90 seconds
 
 ### Hot Reload
+
 - **Frontend**: Instant (Next.js)
 - **Backend**: 1-2 seconds (FastAPI)
 - **AI Services**: 1-2 seconds (FastAPI)
@@ -245,26 +279,31 @@ npm install
 ## 🎯 Best Practices
 
 ### For Frontend Development
+
 ```bash
 ./start-dev-essential.sh frontend
 ```
 
 ### For Backend Development
+
 ```bash
 ./start-dev-essential.sh platform
 ```
 
 ### For AI Development
+
 ```bash
 ./start-dev-essential.sh ai
 ```
 
 ### For Full Stack Development
+
 ```bash
 ./start-dev-parallel.sh start
 ```
 
 ### For Testing All Services
+
 ```bash
 ./start-dev-all.sh start
 ```
@@ -272,6 +311,7 @@ npm install
 ## 🔄 Continuous Development
 
 The scripts are designed for continuous development with:
+
 - **Hot Reload**: Automatic restart on code changes
 - **Port Management**: Automatic port conflict resolution
 - **Process Management**: Automatic PID tracking

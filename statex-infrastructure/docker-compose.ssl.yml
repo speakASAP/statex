@@ -1,0 +1,177 @@
+# Unified SSL Certificate Management Services
+# Handles both production (*.statex.cz) and development (*.localhost) wildcard certificates
+
+services:
+  # Production SSL Certificate Management
+  ssl-production:
+    image: certbot/certbot:latest
+    container_name: ${VIRTUAL_HOST:-statex.cz}_ssl_prod
+    restart: unless-stopped
+    volumes:
+      - ./ssl/production:/etc/letsencrypt
+      - ./ssl/shared:/ssl
+      - ./config/cloudflare.ini:/cloudflare.ini:ro
+      - ./logs/ssl:/var/log/letsencrypt
+      - ./webroot:/var/www/html
+    environment:
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL:-admin@statex.cz}
+      - VIRTUAL_HOST=${VIRTUAL_HOST:-statex.cz}
+    entrypoint: []
+    command:
+      - sh
+      - -c
+      - |
+        echo "🔐 Production SSL Certificate Management"
+        echo "Domain: ${VIRTUAL_HOST:-statex.cz}"
+        echo "Email: ${LETSENCRYPT_EMAIL:-admin@statex.cz}"
+        
+        # Check if wildcard certificate exists
+        if [ ! -f "/etc/letsencrypt/live/${VIRTUAL_HOST:-statex.cz}/fullchain.pem" ]; then
+          echo "🔄 Requesting wildcard certificate for *.${VIRTUAL_HOST:-statex.cz}..."
+          certbot certonly \
+            --dns-cloudflare \
+            --dns-cloudflare-credentials /cloudflare.ini \
+            --email ${LETSENCRYPT_EMAIL:-admin@statex.cz} \
+            --agree-tos \
+            --no-eff-email \
+            -d ${VIRTUAL_HOST:-statex.cz} \
+            -d "*.${VIRTUAL_HOST:-statex.cz}" \
+            --config-dir /etc/letsencrypt \
+            --work-dir /etc/letsencrypt \
+            --logs-dir /var/log/letsencrypt
+        else
+          echo "✅ Wildcard certificate already exists"
+        fi
+        
+        # Copy certificates to shared location
+        if [ -f "/etc/letsencrypt/live/${VIRTUAL_HOST:-statex.cz}/fullchain.pem" ]; then
+          cp /etc/letsencrypt/live/${VIRTUAL_HOST:-statex.cz}/fullchain.pem /ssl/prod-fullchain.pem
+          cp /etc/letsencrypt/live/${VIRTUAL_HOST:-statex.cz}/privkey.pem /ssl/prod-privkey.pem
+          chmod 644 /ssl/prod-fullchain.pem
+          chmod 600 /ssl/prod-privkey.pem
+          echo "✅ Production certificates copied to shared location"
+        fi
+        
+        # Start renewal monitoring
+        echo "🔄 Starting certificate renewal monitoring..."
+        while true; do
+          sleep 12h
+          echo "🔄 Checking certificate renewal..."
+          certbot renew \
+            --dns-cloudflare \
+            --dns-cloudflare-credentials /cloudflare.ini \
+            --config-dir /etc/letsencrypt \
+            --work-dir /etc/letsencrypt \
+            --logs-dir /var/log/letsencrypt
+          
+          # Update shared certificates after renewal
+          if [ -f "/etc/letsencrypt/live/${VIRTUAL_HOST:-statex.cz}/fullchain.pem" ]; then
+            cp /etc/letsencrypt/live/${VIRTUAL_HOST:-statex.cz}/fullchain.pem /ssl/prod-fullchain.pem
+            cp /etc/letsencrypt/live/${VIRTUAL_HOST:-statex.cz}/privkey.pem /ssl/prod-privkey.pem
+            chmod 644 /ssl/prod-fullchain.pem
+            chmod 600 /ssl/prod-privkey.pem
+            echo "✅ Certificates updated after renewal"
+          fi
+        done
+    networks:
+      - statex_network
+    profiles:
+      - production
+
+  # Development SSL Certificate Management
+  ssl-development:
+    image: alpine:latest
+    container_name: ${VIRTUAL_HOST:-statex.cz}_ssl_dev
+    restart: unless-stopped
+    volumes:
+      - ./ssl/development:/ssl
+      - ./ssl/shared:/shared
+    command:
+      - sh
+      - -c
+      - |
+        echo "🛠️ Development SSL Certificate Management"
+        echo "Domain: localhost (wildcard *.localhost)"
+        
+        # Check if development certificates exist
+        if [ ! -f "/ssl/localhost/localhost-cert.pem" ]; then
+          echo "🔄 Generating development wildcard certificate..."
+          apk add --no-cache openssl
+          
+          # Generate private key
+          openssl genrsa -out /ssl/localhost/localhost-key.pem 2048
+          
+          # Generate certificate signing request
+          openssl req -new -key /ssl/localhost/localhost-key.pem \
+            -out /ssl/localhost/localhost.csr \
+            -subj "/C=CZ/ST=Prague/L=Prague/O=StateX/CN=localhost/CN=*.localhost"
+          
+          # Generate self-signed certificate
+          openssl x509 -req -in /ssl/localhost/localhost.csr \
+            -signkey /ssl/localhost/localhost-key.pem \
+            -out /ssl/localhost/localhost-cert.pem \
+            -days 365 \
+            -extensions v3_req \
+            -extfile <(echo "[v3_req]"; echo "subjectAltName=DNS:localhost,DNS:*.localhost")
+          
+          # Clean up CSR
+          rm /ssl/localhost/localhost.csr
+          
+          echo "✅ Development wildcard certificate generated"
+        else
+          echo "✅ Development wildcard certificate already exists"
+        fi
+        
+        # Copy to shared location
+        cp /ssl/localhost/localhost-cert.pem /shared/dev-fullchain.pem
+        cp /ssl/localhost/localhost-key.pem /shared/dev-privkey.pem
+        chmod 644 /shared/dev-fullchain.pem
+        chmod 600 /shared/dev-privkey.pem
+        
+        echo "✅ Development certificates copied to shared location"
+        
+        # Keep container running
+        while true; do
+          sleep 24h
+          echo "🔄 Development SSL container running..."
+        done
+    networks:
+      - statex_network
+    profiles:
+      - development
+
+  # Nginx SSL Proxy
+  nginx-ssl:
+    image: nginx:alpine
+    container_name: ${VIRTUAL_HOST:-statex.cz}_nginx_ssl
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/ssl.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl-templates:/etc/nginx/templates
+      - ./ssl/shared:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+      - ./webroot:/var/www/html
+    environment:
+      - VIRTUAL_HOST=${VIRTUAL_HOST:-statex.cz}
+      - DEVELOPMENT_MODE=${DEVELOPMENT_MODE:-false}
+    depends_on:
+      - ssl-production
+      - ssl-development
+    networks:
+      - statex_network
+
+volumes:
+  ssl_production:
+    driver: local
+  ssl_development:
+    driver: local
+  ssl_shared:
+    driver: local
+
+networks:
+  statex_network:
+    driver: bridge
+    external: true

@@ -55,8 +55,8 @@ start_service_bg() {
     # Change to working directory and start service
     cd "$working_dir"
     
-    # Start service in background
-    nohup $start_command > "$log_file" 2>&1 &
+    # Start service in background using bash to handle source command
+    nohup bash -c "$start_command" > "$log_file" 2>&1 &
     local pid=$!
     
     # Save PID
@@ -158,7 +158,7 @@ start_all_services() {
         pip install -r requirements.txt
         cd ../../..
     fi
-    start_service_bg "ai-orchestrator" "source venv/bin/activate && python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000" "statex-ai/services/ai-orchestrator" "8010" &
+    start_service_bg "ai-orchestrator" "source venv/bin/activate && python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8010" "statex-ai/services/ai-orchestrator" "8010" &
     pids+=($!)
     
     # Wait for all background processes to start

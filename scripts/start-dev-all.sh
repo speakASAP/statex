@@ -66,8 +66,8 @@ start_service() {
     # Change to working directory and start service
     cd "$working_dir"
     
-    # Start service in background
-    nohup $start_command > "$log_file" 2>&1 &
+    # Start service in background using bash to handle source command
+    nohup bash -c "$start_command" > "$log_file" 2>&1 &
     local pid=$!
     
     # Save PID
