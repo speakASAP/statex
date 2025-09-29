@@ -1,0 +1,315 @@
+version: 2
+updates:
+  # Grouped NPM dependencies - All Node.js services in one PR
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 1
+    reviewers:
+      - "Sergej"
+    assignees:
+      - "Sergej"
+    labels:
+      - "dependencies"
+      - "auto-update"
+      - "npm"
+      - "grouped"
+    groups:
+      npm-dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "react"
+          - "react-dom"
+          - "next"
+          - "@types/react"
+          - "@types/react-dom"
+
+  # Frontend dependencies (separate for critical React updates)
+  - package-ecosystem: "npm"
+    directory: "/statex-website/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 1
+    reviewers:
+      - "Sergej"
+    assignees:
+      - "Sergej"
+    labels:
+      - "dependencies"
+      - "auto-update"
+      - "frontend"
+      - "react"
+    groups:
+      react-dependencies:
+        patterns:
+          - "react*"
+          - "next*"
+          - "@types/react*"
+          - "@types/node"
+      frontend-other:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "react*"
+          - "next*"
+          - "@types/react*"
+          - "@types/node"
+
+  # Backend dependencies
+  - package-ecosystem: "npm"
+    directory: "/statex-website/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 1
+    reviewers:
+      - "Sergej"
+    assignees:
+      - "Sergej"
+    labels:
+      - "dependencies"
+      - "auto-update"
+      - "backend"
+    groups:
+      backend-dependencies:
+        patterns:
+          - "*"
+
+  # DNS Service dependencies
+  - package-ecosystem: "npm"
+    directory: "/statex-dns-service"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 1
+    reviewers:
+      - "Sergej"
+    assignees:
+      - "Sergej"
+    labels:
+      - "dependencies"
+      - "auto-update"
+      - "dns-service"
+    groups:
+      dns-dependencies:
+        patterns:
+          - "*"
+
+  # AI Admin Panel dependencies
+  - package-ecosystem: "npm"
+    directory: "/statex-ai/admin-panel"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 1
+    reviewers:
+      - "Sergej"
+    assignees:
+      - "Sergej"
+    labels:
+      - "dependencies"
+      - "auto-update"
+      - "ai-admin-panel"
+    groups:
+      admin-panel-dependencies:
+        patterns:
+          - "*"
+
+  # Grouped AI Services - All AI Python services in one PR
+  - package-ecosystem: "pip"
+    directory: "/statex-ai/services/ai-orchestrator"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 1
+    reviewers:
+      - "Sergej"
+    assignees:
+      - "Sergej"
+    labels:
+      - "dependencies"
+      - "auto-update"
+      - "ai-services"
+      - "grouped"
+    groups:
+      ai-dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "tensorflow"
+          - "torch"
+          - "transformers"
+          - "openai"
+      ai-ml-dependencies:
+        patterns:
+          - "tensorflow*"
+          - "torch*"
+          - "transformers*"
+          - "openai*"
+          - "scikit-learn*"
+          - "numpy*"
+          - "pandas*"
+
+  # Grouped Platform Services - All platform Python services in one PR
+  - package-ecosystem: "pip"
+    directory: "/statex-platform"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 1
+    reviewers:
+      - "Sergej"
+    assignees:
+      - "Sergej"
+    labels:
+      - "dependencies"
+      - "auto-update"
+      - "platform"
+      - "grouped"
+    groups:
+      platform-dependencies:
+        patterns:
+          - "*"
+
+  # Grouped Website Services - All website Python services in one PR
+  - package-ecosystem: "pip"
+    directory: "/statex-website"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 1
+    reviewers:
+      - "Sergej"
+    assignees:
+      - "Sergej"
+    labels:
+      - "dependencies"
+      - "auto-update"
+      - "website"
+      - "grouped"
+    groups:
+      website-dependencies:
+        patterns:
+          - "*"
+
+  # Grouped Notification Service
+  - package-ecosystem: "pip"
+    directory: "/statex-notification-service"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 1
+    reviewers:
+      - "Sergej"
+    assignees:
+      - "Sergej"
+    labels:
+      - "dependencies"
+      - "auto-update"
+      - "notification-service"
+      - "grouped"
+    groups:
+      notification-dependencies:
+        patterns:
+          - "*"
+
+  # Grouped Monitoring Services - All monitoring Python services in one PR
+  - package-ecosystem: "pip"
+    directory: "/statex-monitoring/logging-service"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 1
+    reviewers:
+      - "Sergej"
+    assignees:
+      - "Sergej"
+    labels:
+      - "dependencies"
+      - "auto-update"
+      - "monitoring"
+      - "grouped"
+    groups:
+      monitoring-dependencies:
+        patterns:
+          - "*"
+
+  # Grouped Test Suite
+  - package-ecosystem: "pip"
+    directory: "/tests"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 1
+    reviewers:
+      - "Sergej"
+    assignees:
+      - "Sergej"
+    labels:
+      - "dependencies"
+      - "auto-update"
+      - "tests"
+      - "grouped"
+    groups:
+      test-dependencies:
+        patterns:
+          - "*"
+
+  # Grouped GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 1
+    reviewers:
+      - "Sergej"
+    assignees:
+      - "Sergej"
+    labels:
+      - "dependencies"
+      - "auto-update"
+      - "github-actions"
+      - "grouped"
+    groups:
+      github-actions-dependencies:
+        patterns:
+          - "*"
+
+  # Grouped Docker dependencies
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 1
+    reviewers:
+      - "Sergej"
+    assignees:
+      - "Sergej"
+    labels:
+      - "dependencies"
+      - "auto-update"
+      - "docker"
+      - "grouped"
+    groups:
+      docker-dependencies:
+        patterns:
+          - "*"
