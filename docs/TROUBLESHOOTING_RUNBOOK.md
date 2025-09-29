@@ -654,7 +654,7 @@ docker-compose restart prometheus
 docker exec statex_prometheus cat /etc/prometheus/prometheus.yml
 
 # Verify service metrics endpoints are accessible
-docker exec statex_prometheus wget -qO- http://ai-orchestrator:8010/metrics
+docker exec statex_prometheus wget -qO- ${AI_ORCHESTRATOR_URL:-http://ai-orchestrator:8010}/metrics
 ```
 
 ### Grafana Dashboard Issues

@@ -137,12 +137,14 @@ sequenceDiagram
 **Location:** `statex-website/frontend/src/app/contact/page.tsx`
 
 **Responsibilities:**
+
 - Capture user input (text, voice, files)
 - Validate form data before submission
 - Provide real-time feedback during processing
 - Handle file uploads and voice recordings
 
 **Key Interfaces:**
+
 ```typescript
 interface ContactFormData {
   name: string;
@@ -169,12 +171,14 @@ interface FormSubmissionResponse {
 **Port:** 8002
 
 **Responsibilities:**
+
 - Receive and validate form submissions
 - Store files in MinIO object storage
 - Forward requests to AI Orchestrator
 - Track submission status and progress
 
 **Key Interfaces:**
+
 ```python
 class SubmissionRequest(BaseModel):
     user_email: str
@@ -198,6 +202,7 @@ class SubmissionResponse(BaseModel):
 **Port:** 8010
 
 **Responsibilities:**
+
 - Coordinate multi-agent workflows
 - Manage agent task distribution
 - Aggregate results from multiple agents
@@ -205,6 +210,7 @@ class SubmissionResponse(BaseModel):
 - Interface with workflow engines
 
 **Key Interfaces:**
+
 ```python
 class MultiAgentRequest(BaseModel):
     submission_id: str
@@ -235,12 +241,14 @@ class WorkflowResult(BaseModel):
 ### 4. Workflow Engine Integration
 
 **Framework Options:**
+
 - **LangChain:** For agent coordination and LLM integration
 - **CrewAI:** For multi-agent collaboration
 - **LlamaIndex:** For document processing and RAG
 - **AutoGen:** For conversational multi-agent systems
 
 **Implementation:**
+
 ```python
 class WorkflowEngine:
     def __init__(self, framework: str = "langchain"):
@@ -260,13 +268,16 @@ class WorkflowEngine:
 ### 5. AI Agent Services
 
 #### NLP Service (Port 8011)
+
 **Responsibilities:**
+
 - Business requirement analysis
 - Market research and insights
 - Technology recommendation
 - Risk assessment
 
 **Free AI Integration:**
+
 ```python
 class NLPAgent:
     def __init__(self):
@@ -282,12 +293,15 @@ class NLPAgent:
 ```
 
 #### ASR Service (Port 8012)
+
 **Responsibilities:**
+
 - Speech-to-text conversion
 - Voice content analysis
 - Audio quality assessment
 
 **Free AI Integration:**
+
 ```python
 class ASRAgent:
     def __init__(self):
@@ -303,13 +317,16 @@ class ASRAgent:
 ```
 
 #### Document AI Service (Port 8013)
+
 **Responsibilities:**
+
 - Document content extraction
 - OCR processing
 - File format analysis
 - Content summarization
 
 **Free Tools Integration:**
+
 ```python
 class DocumentAgent:
     def __init__(self):
@@ -327,12 +344,14 @@ class DocumentAgent:
 ### 6. Free AI Service (Port 8016)
 
 **Responsibilities:**
+
 - Manage local AI models (Ollama)
 - Interface with free AI APIs
 - Provide cost-effective AI processing
 - Handle model switching and fallbacks
 
 **Model Management:**
+
 ```python
 class FreeAIService:
     def __init__(self):

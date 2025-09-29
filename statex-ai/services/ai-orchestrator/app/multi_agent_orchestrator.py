@@ -118,10 +118,8 @@ class NLPAgent(AgentInterface):
                     )
         
         try:
-            # Execute with error handling and recovery
-            return await error_recovery_manager.handle_error(
-                Exception("Placeholder"), context, nlp_operation
-            )
+            # Execute the operation directly
+            return await nlp_operation()
         except Exception as e:
             # If all recovery attempts fail, return failed result
             return AgentResult(
@@ -185,10 +183,8 @@ class ASRAgent(AgentInterface):
                     )
         
         try:
-            # Execute with error handling and recovery
-            return await error_recovery_manager.handle_error(
-                Exception("Placeholder"), context, asr_operation
-            )
+            # Execute the operation directly
+            return await asr_operation()
         except Exception as e:
             # If all recovery attempts fail, return failed result
             return AgentResult(

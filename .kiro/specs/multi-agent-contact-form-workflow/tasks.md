@@ -5,7 +5,7 @@
   - Verify infrastructure services (PostgreSQL, Redis, RabbitMQ, MinIO) are running
   - Verify AI services (AI Orchestrator, NLP, ASR, Document AI, Free AI) are accessible
   - Verify notification service is configured for Telegram integration
-  - Test contact form accessibility at http://localhost:3000/contact
+  - Test contact form accessibility at <http://localhost:3000/contact>
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7_
 
 - [x] 2. Configure free AI services for development
@@ -98,7 +98,7 @@
 
 - [x] 6. Enhance contact form functionality
 - [x] 6.1 Verify and test contact form components
-  - Test form accessibility at http://localhost:3000/contact
+  - Test form accessibility at <http://localhost:3000/contact>
   - Verify text input, voice recording, and file upload functionality
   - Test form validation and error handling
   - Ensure proper integration with Submission Service

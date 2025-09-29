@@ -216,7 +216,7 @@ services:
       - GRAFANA_URL=http://host.docker.internal:3000
       - LOKI_URL=http://host.docker.internal:3100
       - JAEGER_URL=http://host.docker.internal:16686
-      - AI_SERVICES_URL=http://host.docker.internal:8010
+      - AI_SERVICES_URL=${AI_ORCHESTRATOR_URL:-http://ai-orchestrator:8000}
       - NOTIFICATION_SERVICE_URL=http://host.docker.internal:8005
       - PLATFORM_URL=http://host.docker.internal:8000
       - DATABASE_URL=postgresql://statex:statex_password@host.docker.internal:5432/statex

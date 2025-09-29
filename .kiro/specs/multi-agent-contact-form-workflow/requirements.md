@@ -12,11 +12,11 @@ The workflow integrates multiple AI frameworks (LangChain, CrewAI, LlamaIndex, A
 
 **User Story:** As a developer, I want to quickly set up the complete StateX development environment, so that I can test the contact form workflow with all services running locally.
 
-#### Acceptance Criteria
+#### Acceptance Criteria 1
 
 1. WHEN I run the development setup THEN all required services SHALL start within 2-3 minutes
-2. WHEN services are started THEN the frontend SHALL be accessible at http://localhost:3000
-3. WHEN services are started THEN the contact form SHALL be accessible at http://localhost:3000/contact
+2. WHEN services are started THEN the frontend SHALL be accessible at <http://localhost:3000>
+3. WHEN services are started THEN the contact form SHALL be accessible at <http://localhost:3000/contact>
 4. WHEN I check service health THEN all infrastructure services (PostgreSQL, Redis, RabbitMQ, MinIO) SHALL be running
 5. WHEN I check service health THEN all AI services (AI Orchestrator, NLP, ASR, Document AI, Free AI) SHALL be running
 6. WHEN I check service health THEN the notification service SHALL be running and configured for Telegram
@@ -26,7 +26,7 @@ The workflow integrates multiple AI frameworks (LangChain, CrewAI, LlamaIndex, A
 
 **User Story:** As a system architect, I want to implement a multi-agent orchestration framework using industry-standard tools, so that different AI agents can process user submissions in parallel and coordinate their results.
 
-#### Acceptance Criteria
+#### Acceptance Criteria 2
 
 1. WHEN the system receives a user submission THEN it SHALL route the request to the AI Orchestrator service
 2. WHEN the AI Orchestrator processes a request THEN it SHALL distribute tasks to specialized AI agents based on content type
@@ -41,7 +41,7 @@ The workflow integrates multiple AI frameworks (LangChain, CrewAI, LlamaIndex, A
 
 **User Story:** As a business analyst, I want the system to use real free local AI services for analysis, so that customers receive accurate and valuable business insights rather than mock responses. All AI services for development should be free and not require paid API keys.
 
-#### Acceptance Criteria
+#### Acceptance Criteria 3
 
 1. WHEN processing text content THEN the system SHALL prioritize free local AI (Ollama, Hugging Face) and only use paid services (OpenAI GPT-4, Anthropic Claude) as fallback
 2. WHEN processing voice content THEN the system SHALL use free speech-to-text services or OpenAI Whisper with free tier limits
@@ -56,9 +56,9 @@ The workflow integrates multiple AI frameworks (LangChain, CrewAI, LlamaIndex, A
 
 **User Story:** As a potential customer, I want to submit my business requirements through a comprehensive contact form, so that I can receive personalized business solutions and offers.
 
-#### Acceptance Criteria
+#### Acceptance Criteria 4
 
-1. WHEN I visit http://localhost:3000/contact THEN I SHALL see a contact form with text input, voice recording, and file upload capabilities
+1. WHEN I visit <http://localhost:3000/contact> THEN I SHALL see a contact form with text input, voice recording, and file upload capabilities
 2. WHEN I enter text description THEN the form SHALL accept detailed business requirements and project descriptions
 3. WHEN I record voice messages THEN the form SHALL capture audio and prepare it for AI analysis
 4. WHEN I upload files THEN the form SHALL accept documents, images, and other relevant business materials
@@ -70,7 +70,7 @@ The workflow integrates multiple AI frameworks (LangChain, CrewAI, LlamaIndex, A
 
 **User Story:** As a workflow designer, I want to implement sophisticated agent coordination using proven orchestration frameworks, so that the system can handle complex business analysis workflows efficiently.
 
-#### Acceptance Criteria
+#### Acceptance Criteria 5
 
 1. WHEN implementing agent coordination THEN the system SHALL use one or more of: LangChain, CrewAI, LlamaIndex, AutoGen
 2. WHEN implementing workflow management THEN the system SHALL use one or more of: Airflow, Prefect, Dagster
@@ -84,7 +84,7 @@ The workflow integrates multiple AI frameworks (LangChain, CrewAI, LlamaIndex, A
 
 **User Story:** As a customer, I want to receive a comprehensive business offer based on my submitted requirements, so that I can make informed decisions about my project.
 
-#### Acceptance Criteria
+#### Acceptance Criteria 6
 
 1. WHEN AI analysis completes THEN the system SHALL generate a detailed business requirements summary
 2. WHEN requirements are analyzed THEN the system SHALL identify project scope, timeline, and budget estimates
@@ -100,7 +100,7 @@ The workflow integrates multiple AI frameworks (LangChain, CrewAI, LlamaIndex, A
 
 **User Story:** As a business owner, I want to receive AI-generated business offers through Telegram, so that I can quickly review and respond to customer inquiries.
 
-#### Acceptance Criteria
+#### Acceptance Criteria 7
 
 1. WHEN AI analysis completes THEN the system SHALL send formatted results to the configured Telegram channel
 2. WHEN notifications are sent THEN they SHALL include customer contact information and submission details
@@ -114,7 +114,7 @@ The workflow integrates multiple AI frameworks (LangChain, CrewAI, LlamaIndex, A
 
 **User Story:** As a quality assurance engineer, I want comprehensive testing capabilities, so that I can validate the entire workflow from form submission to notification delivery.
 
-#### Acceptance Criteria
+#### Acceptance Criteria 8
 
 1. WHEN I run the test suite THEN it SHALL validate all service health endpoints
 2. WHEN I test form submission THEN it SHALL verify data reaches the AI Orchestrator correctly
@@ -128,7 +128,7 @@ The workflow integrates multiple AI frameworks (LangChain, CrewAI, LlamaIndex, A
 
 **User Story:** As a system administrator, I want the multi-agent system to perform efficiently under load, so that customer submissions are processed quickly and reliably.
 
-#### Acceptance Criteria
+#### Acceptance Criteria 9
 
 1. WHEN processing single submissions THEN the complete workflow SHALL complete within 30-60 seconds
 2. WHEN multiple submissions are received THEN the system SHALL process them concurrently without degradation
@@ -142,7 +142,7 @@ The workflow integrates multiple AI frameworks (LangChain, CrewAI, LlamaIndex, A
 
 **User Story:** As a system operator, I want robust error handling throughout the workflow, so that temporary failures don't result in lost customer submissions.
 
-#### Acceptance Criteria
+#### Acceptance Criteria 10
 
 1. WHEN AI services are temporarily unavailable THEN the system SHALL queue requests for retry
 2. WHEN network connectivity issues occur THEN the system SHALL implement exponential backoff retry logic

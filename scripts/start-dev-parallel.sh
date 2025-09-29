@@ -170,7 +170,7 @@ start_all_services() {
     local services=(
         "frontend:3000"
         "platform-management:8000"
-        "ai-orchestrator:8010"
+        "${AI_ORCHESTRATOR_HOST:-host.docker.internal}:${AI_ORCHESTRATOR_PORT:-8010}"
     )
     
     for service_info in "${services[@]}"; do

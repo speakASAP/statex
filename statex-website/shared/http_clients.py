@@ -52,7 +52,7 @@ class AIServiceClient(BaseServiceClient):
     """Client for communicating with StateX AI services"""
     
     def __init__(self):
-        ai_base_url = os.getenv("AI_SERVICES_BASE_URL", "http://ai-orchestrator:8010")
+        ai_base_url = os.getenv("AI_SERVICES_BASE_URL", os.getenv("AI_ORCHESTRATOR_URL", "http://ai-orchestrator:8000"))
         super().__init__(ai_base_url)
     
     async def process_submission(self, submission_data: Dict[str, Any]) -> Dict[str, Any]:

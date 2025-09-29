@@ -1,14 +1,9 @@
-# **Statex** 
+# **Statex Terms of Reference**
 
-# Terms of Reference
+**Main goal:** Visitors should trust us and **place a request/order through the website**. This is the only Call to Action. Not a single lead should be missed.
 
-# **Goal:**
+## 🔗 Related Internal Documentation
 
-Main goal: Visitors should trust us and **place a request/order through the website**. This is the only Call to Action. Not a single lead should be missed.
-
-## 🔗 Related Documentation
-
-### Internal Documentation Links
 - [AI Agents Ecosystem](../development/ai-agents.md) - Comprehensive AI agents documentation
 - [AI Implementation Master Plan](../development/ai-implementation-master-plan.md) - Overall AI strategy
 - [Design Concept](../design/design-concept.md) - Visual design and UX guidelines
@@ -18,7 +13,7 @@ Main goal: Visitors should trust us and **place a request/order through the webs
 - [Development Plan](../../development-plan.md) - Complete website development plan
 - [Technology Stack](../development/technology.md) - Technology decisions and justifications
 
-# 
+## Details
 
 We are a team of professionals at [statex](http://statex.cz) who use AI to implement even complex projects.
 
@@ -30,7 +25,7 @@ We implement turnkey solutions for your needs.
 
 AI services for business: We create services that help businesses implement AI, such as consulting or automation tools.
 
-We can implement your task in real-time.   
+We can implement your task in real-time.
 Need to develop a system that will listen to voice messages from users, collect files they upload and text that the person writes in the text field.
 
 The idea: *"show me the fast result"*. For this, visitors will only need to dictate their terms of reference, attach useful files with the terms of reference, dictate details with their voice, describe it in text and send them to us. The site should encourage the person to describe their situation in great detail and extract as much information as possible about what they need. We need to make sure that the person sends us as much information about themselves as possible.
@@ -54,7 +49,7 @@ Site priorities:
 
 We work in the international market with primary focus on the European Union and UAE. Our international team serves businesses across EU countries with multilingual support and localized solutions. Our team speaks English, German, French, Italian, Spanish, Dutch, Czech, Polish, Russian, Arabic and other languages.
 
-The website should instill confidence in the visitor that: 
+The website should instill confidence in the visitor that:
 
 1. We care about customers even after the project is completed.  
 2. We really achieve goals, and we really help people with the automation of their current business for years.  
@@ -63,24 +58,24 @@ The website should instill confidence in the visitor that:
 
 Our summary:
 
-* Modern IT company website with focus on automation and AI solutions  
-* International team serving the EU market  
-* Services: web development, automation, AI integration, system modernization  
-* Target markets: EU primarily, with international capabilities  
-* Languages: English, German, French, Italian, Spanish, Dutch, Czech, Polish, Russian, other EU languages and Arabic
-* Key differentiator: Real-time prototype creation  
-* Free support for small changes, paid support starting from 9.9 Euro/month  
-* Custom software development  
-* Web development & e-shops  
-* Automation and optimization of business processes  
-* Service and application integration  
-* Artificial intelligence (AI) implementation  
-* Digitization and transformation of outdated solutions  
-* Documentation management systems (DMS) creation  
-* Project management systems (PMS) creation  
-* CRM creation  
-* Workflow design  
-* Business intelligence and numerical analysis
+- Modern IT company website with focus on automation and AI solutions  
+- International team serving the EU market  
+- Services: web development, automation, AI integration, system modernization  
+- Target markets: EU primarily, with international capabilities  
+- Languages: English, German, French, Italian, Spanish, Dutch, Czech, Polish, Russian, other EU languages and Arabic
+- Key differentiator: Real-time prototype creation  
+- Free support for small changes, paid support starting from 9.9 Euro/month  
+- Custom software development  
+- Web development & e-shops  
+- Automation and optimization of business processes  
+- Service and application integration  
+- Artificial intelligence (AI) implementation  
+- Digitization and transformation of outdated solutions  
+- Documentation management systems (DMS) creation  
+- Project management systems (PMS) creation  
+- CRM creation  
+- Workflow design  
+- Business intelligence and numerical analysis
 
 ⚙️ What We Can Do
 

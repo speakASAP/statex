@@ -18,8 +18,9 @@ services:
       - S3_ENDPOINT=http://host.docker.internal:9000
       - S3_ACCESS_KEY=statex
       - S3_SECRET_KEY=statex_password
-      - AI_ORCHESTRATOR_URL=http://host.docker.internal:8010
-      - NOTIFICATION_SERVICE_URL=http://host.docker.internal:8005
+      - AI_ORCHESTRATOR_URL=${AI_ORCHESTRATOR_URL:-http://ai-orchestrator:8000}
+      - NOTIFICATION_SERVICE_URL=${NOTIFICATION_SERVICE_URL:-http://notification-service:8005}
+      - AI_SERVICES_BASE_URL=${AI_SERVICES_BASE_URL:-http://ai-orchestrator:8000}
     networks:
       - statex_network
     healthcheck:

@@ -180,7 +180,7 @@ start_platform_services() {
 # Function to start StateX AI services
 start_ai_services() {
     local services=(
-        "ai-orchestrator:8010:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+        "${AI_ORCHESTRATOR_HOST:-host.docker.internal}:${AI_ORCHESTRATOR_PORT:-8010}:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
         "nlp-service:8011:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
         "asr-service:8012:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
         "document-ai:8013:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
@@ -330,7 +330,7 @@ show_status() {
         "monitoring-service:8007"
         "logging-service:8008"
         "content-service:8009"
-        "ai-orchestrator:8010"
+        "${AI_ORCHESTRATOR_HOST:-host.docker.internal}:${AI_ORCHESTRATOR_PORT:-8010}"
         "nlp-service:8011"
         "asr-service:8012"
         "document-ai:8013"

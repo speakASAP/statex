@@ -123,7 +123,7 @@ show_status() {
         "monitoring-service:8007"
         "logging-service:8008"
         "content-service:8009"
-        "ai-orchestrator:8010"
+        "${AI_ORCHESTRATOR_HOST:-host.docker.internal}:${AI_ORCHESTRATOR_PORT:-8010}"
         "nlp-service:8011"
         "asr-service:8012"
         "document-ai:8013"

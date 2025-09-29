@@ -182,6 +182,35 @@ async def health_check():
         "multi_agent_system": system_health
     }
 
+@app.get("/metrics")
+async def metrics():
+    """Metrics endpoint for monitoring"""
+    try:
+        system_health = agent_coordinator.get_system_health_summary()
+        metrics_data = agent_coordinator.get_agent_metrics()
+        
+        return {
+            "service": "ai-orchestrator",
+            "timestamp": datetime.now().isoformat(),
+            "version": "2.0.0",
+            "multi_agent_system": system_health,
+            "agent_metrics": {
+                agent_type: {
+                    "agent_name": metric.agent_name,
+                    "health_status": metric.health_status.value,
+                    "total_tasks": metric.total_tasks,
+                    "success_rate": (metric.successful_tasks / metric.total_tasks * 100) if metric.total_tasks > 0 else 0,
+                    "avg_processing_time": metric.avg_processing_time,
+                    "last_activity": metric.last_activity.isoformat() if metric.last_activity else None
+                } for agent_type, metric in metrics_data.items()
+            },
+            "total_submissions": len(submissions_db),
+            "total_workflows": len(workflows_db)
+        }
+    except Exception as e:
+        logger.error(f"Metrics collection failed: {e}")
+        raise HTTPException(status_code=500, detail="Metrics unavailable")
+
 @app.post("/api/multi-agent/process", response_model=Dict[str, Any])
 async def process_multi_agent_request(request: MultiAgentRequest, background_tasks: BackgroundTasks):
     """Process request through multi-agent workflow system"""

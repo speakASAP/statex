@@ -110,7 +110,7 @@ LOKI_URL = os.getenv("LOKI_URL", "http://loki:3100")
 JAEGER_URL = os.getenv("JAEGER_URL", "http://jaeger:16686")
 
 # Service URLs
-AI_SERVICES_URL = os.getenv("AI_SERVICES_URL", "http://host.docker.internal:8010")
+AI_SERVICES_URL = os.getenv("AI_SERVICES_URL", os.getenv("AI_ORCHESTRATOR_URL", "http://ai-orchestrator:8000"))
 NOTIFICATION_SERVICE_URL = os.getenv("NOTIFICATION_SERVICE_URL", "http://host.docker.internal:8005")
 PLATFORM_URL = os.getenv("PLATFORM_URL", "http://host.docker.internal:8000")
 

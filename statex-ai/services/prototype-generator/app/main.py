@@ -112,6 +112,27 @@ async def health_check():
         "version": "1.0.0"
     }
 
+@app.get("/metrics")
+async def metrics():
+    """Metrics endpoint for monitoring"""
+    try:
+        queue_stats = queue_manager.get_stats()
+        return {
+            "service": "prototype-generator",
+            "timestamp": datetime.now().isoformat(),
+            "version": "1.0.0",
+            "queue_stats": queue_stats,
+            "worker_running": worker is not None and worker.running if worker else False
+        }
+    except Exception as e:
+        logger.error(f"Metrics collection failed: {e}")
+        return {
+            "service": "prototype-generator",
+            "timestamp": datetime.now().isoformat(),
+            "version": "1.0.0",
+            "error": "Metrics unavailable"
+        }
+
 @app.get("/debug/redis")
 async def debug_redis():
     """Debug Redis connection."""

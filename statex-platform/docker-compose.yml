@@ -32,7 +32,7 @@ services:
     ports:
       - "8003:8003"
     environment:
-      - AI_ORCHESTRATOR_URL=http://ai-orchestrator:8010
+      - AI_ORCHESTRATOR_URL=${AI_ORCHESTRATOR_URL:-http://ai-orchestrator:8000}
       - FRONTEND_URL=http://frontend:3000
     networks:
       - statex_network
