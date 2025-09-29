@@ -17,7 +17,7 @@ NC='\033[0m' # No Color
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="$SCRIPT_DIR/../logs"
-PID_DIR="$SCRIPT_DIR/pids"
+PID_DIR="$SCRIPT_DIR/../pids"
 
 # Create necessary directories
 mkdir -p "$LOG_DIR" "$PID_DIR"

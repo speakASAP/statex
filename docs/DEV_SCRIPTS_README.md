@@ -156,14 +156,12 @@ The scripts automatically:
 
 ```text
 statex/
-├── start-dev-essential.sh      # Essential services script
-├── start-dev-parallel.sh       # Parallel startup script
-├── start-dev-all.sh           # Full stack script
-├── stop-dev-all.sh            # Stop all services script
+├── scripts/start-dev-essential.sh      # Essential services script
+├── scripts/start-dev-parallel.sh       # Parallel startup script
+├── scripts/start-dev-all.sh           # Full stack script
+├── scripts/stop-dev-all.sh            # Stop all services script
 ├── logs/                      # Service logs
 ├── pids/                      # Process IDs
-├── statex-website/
-│   └── frontend/              # Next.js frontend
 ├── statex-platform/           # Platform services
 ├── statex-ai/                 # AI services
 ├── statex-notification-service/
