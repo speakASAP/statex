@@ -10,20 +10,20 @@
     "build": "echo 'No build step required for Node.js'"
   },
   "dependencies": {
-    "express": "^4.18.2",
+    "express": "^5.1.0",
     "cors": "^2.8.5",
-    "helmet": "^7.1.0",
-    "dotenv": "^16.4.1",
+    "helmet": "^8.1.0",
+    "dotenv": "^17.2.2",
     "dns2": "^2.0.2",
     "sqlite3": "^5.1.6",
-    "uuid": "^9.0.1",
+    "uuid": "^13.0.0",
     "winston": "^3.11.0",
-    "joi": "^17.11.0"
+    "joi": "^18.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.2",
-    "jest": "^29.7.0",
-    "supertest": "^6.3.3"
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4"
   },
   "keywords": [
     "dns",
