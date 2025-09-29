@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG_DIR="$SCRIPT_DIR/logs"
+LOG_DIR="$SCRIPT_DIR/../logs"
 PID_DIR="$SCRIPT_DIR/pids"
 
 print_header() {
