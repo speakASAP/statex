@@ -4,12 +4,23 @@ Direct Telegram Test Script
 Tests Telegram Bot API directly without going through the notification service
 """
 
+import os
 import requests
 import json
+from dotenv import load_dotenv
 
-# Telegram Configuration
-TELEGRAM_BOT_TOKEN = "8224681541:AAGHItxcuN2ifbXrSgJmGNwywup6J7AMsK0"
-TELEGRAM_CHAT_ID = "694579866"
+# Load environment variables from .env file
+load_dotenv()
+
+# Telegram Configuration from environment variables
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+
+# Validate required environment variables
+if not TELEGRAM_BOT_TOKEN:
+    raise ValueError("TELEGRAM_BOT_TOKEN environment variable is required")
+if not TELEGRAM_CHAT_ID:
+    raise ValueError("TELEGRAM_CHAT_ID environment variable is required")
 
 def send_telegram_message(message):
     """Send message directly to Telegram"""
