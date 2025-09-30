@@ -11,7 +11,7 @@ export const env = {
   BASE_URL: process.env['NEXT_PUBLIC_BASE_URL'] || 
     (process.env.NODE_ENV === 'production' 
       ? 'https://statex.cz' 
-      : `http://localhost:${process.env.NEXT_PUBLIC_FRONTEND_PORT || '3000'}`),
+      : `http://localhost:${process.env['FRONTEND_PORT'] || '3000'}`),
   
   // Environment
   NODE_ENV: process.env.NODE_ENV || 'development',
@@ -80,7 +80,15 @@ export const getPrototypeUrl = (prototypeId: string, path?: string): string => {
   if (env.NODE_ENV === 'production') {
     return `https://project-${prototypeId}.statex.cz${basePath}`;
   } else {
-    return `http://project-${prototypeId}.localhost:3000${basePath}`;
+    // Use the current port from the environment or detect from window location
+    let port = process.env['FRONTEND_PORT'] || '3000';
+    
+    // If running in browser, detect the current port
+    if (typeof window !== 'undefined' && window.location.port) {
+      port = window.location.port;
+    }
+    
+    return `http://project-${prototypeId}.localhost:${port}${basePath}`;
   }
 };
 
@@ -100,4 +108,4 @@ export const DNS_SERVICE_URL = process.env['NEXT_PUBLIC_DNS_SERVICE_URL'] ||
     ? 'https://dns.statex.cz' 
     : 'http://localhost:8053');
 
-console.log('API_URL:', process.env.NEXT_PUBLIC_API_URL);
+console.log('API_URL:', process.env['NEXT_PUBLIC_API_URL']);

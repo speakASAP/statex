@@ -518,7 +518,7 @@ source .env
 
 ### Most Used Commands
 
-**Ultra-Fast Development (Recommended)**
+#### Ultra-Fast Development (Recommended)
 
 ```bash
 # Ultra-fast startup
@@ -537,7 +537,7 @@ source .env
 ./dev-manage.sh fix
 ```
 
-**Traditional Make Commands**
+#### Traditional Make Commands
 
 ```bash
 # Start development
@@ -556,7 +556,7 @@ make stop
 make deploy-prod DOMAIN=api.statex.cz WEB_DOMAIN=statex.cz
 ```
 
-### Emergency Commands
+#### Emergency Commands
 
 ```bash
 # Stop all services immediately

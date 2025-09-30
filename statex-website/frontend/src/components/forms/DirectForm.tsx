@@ -23,8 +23,8 @@ export function DirectForm({
   const [submitMessage, setSubmitMessage] = useState('');
 
   // Get notification service URL from environment
-  const notificationServiceUrl = process.env.NEXT_PUBLIC_NOTIFICATION_SERVICE_URL || `http://localhost:${process.env.NEXT_PUBLIC_FRONTEND_PORT || '3000'}`;
-  const apiKey = process.env.NEXT_PUBLIC_NOTIFICATION_SERVICE_API_KEY || 'dev-notification-api-key';
+  const notificationServiceUrl = process.env['NEXT_PUBLIC_NOTIFICATION_SERVICE_URL'] || `http://localhost:${process.env['FRONTEND_PORT'] || '3000'}`;
+  const apiKey = process.env['NEXT_PUBLIC_NOTIFICATION_SERVICE_API_KEY'] || 'dev-notification-api-key';
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

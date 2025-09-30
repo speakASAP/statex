@@ -7,6 +7,7 @@ export function middleware(request: NextRequest) {
   
   // Check if this is a prototype subdomain
   // Support both formats: proto_XXXXX and YYYYMMDD_HHMMSS_XXXXX
+  // Also support different ports (3000, 3003, etc.)
   const prototypeMatch = hostname.match(/^project-([a-zA-Z0-9_-]+)\.localhost$/);
   
   if (prototypeMatch) {
