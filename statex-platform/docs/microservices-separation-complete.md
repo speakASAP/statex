@@ -3,9 +3,11 @@
 ## ✅ What We've Accomplished
 
 ### 1. Infrastructure Repository (`statex-infrastructure`)
+
 **Location**: `/Users/sergiystashok/Documents/GitHub/statex-infrastructure/`
 
 **Components Moved**:
+
 - ✅ `nginx/` - Nginx configurations
 - ✅ `letsencrypt/` - SSL certificates
 - ✅ `ssl/` - SSL scripts
@@ -14,6 +16,7 @@
 - ✅ Infrastructure scripts
 
 **New Components Created**:
+
 - ✅ `docker-compose.yml` - Infrastructure services
 - ✅ `nginx/statex-reverse-proxy.conf.template` - Updated nginx config
 - ✅ `scripts/deploy.sh` - Deployment script
@@ -21,20 +24,24 @@
 - ✅ `README.md` - Documentation
 
 **Services**:
+
 - Nginx reverse proxy (ports 80, 443)
 - Let's Encrypt certificate management
 - SSL certificate storage
 
 ### 2. Platform Repository (`statex-platform`)
+
 **Location**: `/Users/sergiystashok/Documents/GitHub/statex-platform/`
 
 **Updates Made**:
+
 - ✅ Added `website-frontend` service to docker-compose.yml
 - ✅ Updated Makefile with website port (3000)
 - ✅ Created `scripts/deploy-full-stack.sh`
 - ✅ Added `deploy-full-stack` command to Makefile
 
 **Services**:
+
 - All microservices (7 services)
 - API Gateway
 - Website frontend (port 3000)
@@ -42,9 +49,11 @@
 - Monitoring (Prometheus, Grafana)
 
 ### 3. Website Repository (`statex-website`)
+
 **Location**: `/Users/sergiystashok/Documents/GitHub/statex-website/`
 
 **Status**: Ready for cleanup
+
 - Frontend application remains
 - Backend can be integrated into platform
 - Infrastructure components moved out
@@ -52,7 +61,8 @@
 ## 🏗️ Architecture Overview
 
 ### Service Routing
-```
+
+```text
 Internet → statex-infrastructure (Nginx + SSL)
     ├── statex.cz → statex-platform (website-frontend:${FRONTEND_PORT:-3000})
     ├── api.statex.cz → statex-platform (api-gateway:80)
@@ -60,7 +70,8 @@ Internet → statex-infrastructure (Nginx + SSL)
 ```
 
 ### Network Architecture
-```
+
+```text
 statex_network (external)
 ├── statex-infrastructure/
 │   ├── nginx (reverse proxy)
@@ -77,6 +88,7 @@ statex_network (external)
 ## 🚀 Deployment Commands
 
 ### Individual Deployments
+
 ```bash
 # Deploy infrastructure only
 cd statex-infrastructure
@@ -92,6 +104,7 @@ docker compose up -d
 ```
 
 ### Full Stack Deployment
+
 ```bash
 # Deploy everything
 cd statex-platform
@@ -101,20 +114,24 @@ make deploy-full-stack
 ## 📊 Service URLs
 
 ### Development
-- **Website**: http://localhost:${FRONTEND_PORT:-3000}
-- **API Gateway**: http://localhost
-- **Microservices**: http://localhost:8001-8007
-- **Monitoring**: http://localhost:9090, http://localhost:${FRONTEND_PORT:-3000}
+
+- **Website**: <http://localhost:${FRONTEND_PORT:-3000}>
+- **API Gateway**: <http://localhost>
+- **Microservices**: <http://localhost:8000-8017>
+- **Monitoring**: <http://localhost:9090>, <http://localhost:${FRONTEND_PORT:-3000}>
 
 ### Production
-- **Website**: https://statex.cz
-- **API**: https://api.statex.cz
-- **WWW**: https://www.statex.cz (redirects)
+
+- **Website**: <https://statex.cz>
+- **API**: <https://api.statex.cz>
+- **WWW**: <https://www.statex.cz> (redirects)
 
 ## 🔧 Next Steps
 
 ### 1. Clean Up Website Repository
+
 Remove from `statex-website`:
+
 - `nginx/` directory
 - `letsencrypt/` directory
 - `ssl/` directory
@@ -124,6 +141,7 @@ Remove from `statex-website`:
 - `backend/` directory (integrate into platform)
 
 ### 2. Test Integration
+
 ```bash
 # Test full stack deployment
 cd statex-platform
@@ -135,6 +153,7 @@ make health-check-detailed
 ```
 
 ### 3. Production Deployment
+
 ```bash
 # Deploy to production
 cd statex-platform
@@ -144,7 +163,8 @@ make deploy-full-stack
 ## 📁 Final Repository Structure
 
 ### statex-infrastructure/
-```
+
+```text
 ├── nginx/
 ├── letsencrypt/
 ├── ssl/
@@ -157,7 +177,8 @@ make deploy-full-stack
 ```
 
 ### statex-platform/
-```
+
+```text
 ├── services/ (7 microservices)
 ├── web/nginx/ (API Gateway)
 ├── infrastructure/
@@ -169,7 +190,8 @@ make deploy-full-stack
 ```
 
 ### statex-website/
-```
+
+```text
 ├── frontend/ (Next.js app)
 ├── docker-compose.yml
 └── README.md

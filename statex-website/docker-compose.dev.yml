@@ -2,15 +2,15 @@ services:
   # Submission Service - FastAPI with hot reload
   submission-service:
     image: python:3.11-slim
-    container_name: statex_submission_dev
+    container_name: ${SUBMISSION_SERVICE_CONTAINER_NAME:-statex_submission_dev}
     volumes:
       - ./services/submission-service:/app
       - ./shared:/app/shared
       - ~/.cache/pip:/root/.cache/pip  # Cache pip packages
     working_dir: /app
-    command: sh -c "apt-get update && apt-get install -y curl && pip install -r requirements.txt && uvicorn main:app --reload --host 0.0.0.0 --port 8000"
+    command: sh -c "apt-get update && apt-get install -y curl && pip install -r requirements.txt && uvicorn main:app --reload --host 0.0.0.0 --port ${SUBMISSION_SERVICE_INTERNAL_PORT:-8000}"
     ports:
-      - "8002:8000"
+      - "${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}:${SUBMISSION_SERVICE_INTERNAL_PORT:-8000}"
     environment:
       - DATABASE_URL=postgresql://statex:statex_password@host.docker.internal:5432/statex
       - REDIS_URL=redis://host.docker.internal:6379
@@ -24,7 +24,7 @@ services:
     networks:
       - statex_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:${SUBMISSION_SERVICE_INTERNAL_PORT:-8000}/health"]
       interval: 20s
       timeout: 10s
       retries: 3
@@ -33,15 +33,15 @@ services:
   # User Portal Service
   user-portal:
     image: python:3.11-slim
-    container_name: statex_user_portal_dev
+    container_name: ${USER_PORTAL_CONTAINER_NAME:-statex_user_portal_dev}
     volumes:
       - ./user-portal:/app
       - ./shared:/app/shared
       - ~/.cache/pip:/root/.cache/pip
     working_dir: /app
-    command: sh -c "apt-get update && apt-get install -y curl && pip install -r requirements.txt && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+    command: sh -c "apt-get update && apt-get install -y curl && pip install -r requirements.txt && uvicorn app.main:app --reload --host 0.0.0.0 --port ${USER_PORTAL_INTERNAL_PORT:-8000}"
     ports:
-      - "8006:8000"
+      - "${USER_PORTAL_EXTERNAL_PORT:-8006}:${USER_PORTAL_INTERNAL_PORT:-8000}"
     environment:
       - DATABASE_URL=postgresql://statex:statex_password@host.docker.internal:5432/statex
       - REDIS_URL=redis://host.docker.internal:6379
@@ -51,7 +51,7 @@ services:
     networks:
       - statex_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:${SUBMISSION_SERVICE_INTERNAL_PORT:-8000}/health"]
       interval: 20s
       timeout: 10s
       retries: 3
@@ -60,15 +60,15 @@ services:
   # Content Service
   content-service:
     image: python:3.11-slim
-    container_name: statex_content_dev
+    container_name: ${CONTENT_SERVICE_CONTAINER_NAME:-statex_content_dev}
     volumes:
       - ./content-service:/app
       - ./shared:/app/shared
       - ~/.cache/pip:/root/.cache/pip
     working_dir: /app
-    command: sh -c "apt-get update && apt-get install -y curl && pip install -r requirements.txt && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+    command: sh -c "apt-get update && apt-get install -y curl && pip install -r requirements.txt && uvicorn app.main:app --reload --host 0.0.0.0 --port ${CONTENT_SERVICE_INTERNAL_PORT:-8000}"
     ports:
-      - "8009:8000"
+      - "${CONTENT_SERVICE_EXTERNAL_PORT:-8009}:${CONTENT_SERVICE_INTERNAL_PORT:-8000}"
     environment:
       - DATABASE_URL=postgresql://statex:statex_password@host.docker.internal:5432/statex
       - REDIS_URL=redis://host.docker.internal:6379
@@ -79,7 +79,7 @@ services:
     networks:
       - statex_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:${SUBMISSION_SERVICE_INTERNAL_PORT:-8000}/health"]
       interval: 20s
       timeout: 10s
       retries: 3

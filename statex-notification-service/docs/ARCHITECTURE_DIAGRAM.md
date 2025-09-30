@@ -2,7 +2,7 @@
 
 ## 🏗️ **Current Architecture Overview**
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                           StateX Microservices Ecosystem                        │
 └─────────────────────────────────────────────────────────────────────────────────┘
@@ -12,7 +12,7 @@
 │                                                                                 │
 │  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐             │
 │  │   User Portal   │    │  Submission     │    │  AI Orchestrator│             │
-│  │   (Port 8006)   │    │  Service        │    │   (Port 8003)   │             │
+│  │   (Port 8006)   │    │  Service        │    │   (Port 8000)   │             │
 │  │                 │    │  (Port 8002)    │    │                 │             │
 │  └─────────────────┘    └─────────────────┘    └─────────────────┘             │
 │           │                       │                       │                    │
@@ -74,7 +74,7 @@
 
 ## 🔄 **Communication Flow**
 
-```
+```text
 User Request
      │
      ▼
@@ -110,7 +110,7 @@ User Request
 
 ## 📁 **Repository Structure**
 
-```
+```text
 statex/
 ├── statex-platform/              # 🏢 Main orchestration platform
 │   ├── docker-compose.yml        # All services together
@@ -146,6 +146,7 @@ statex/
 ## 🚀 **Development Workflow**
 
 ### **1. Individual Service Development**
+
 ```bash
 # Work on notification service independently
 cd statex-notification-service
@@ -162,6 +163,7 @@ npm run dev
 ```
 
 ### **2. Platform Integration**
+
 ```bash
 # Run all services together for integration testing
 cd statex-platform
@@ -169,6 +171,7 @@ docker compose up --build
 ```
 
 ### **3. Complete Workflow Test**
+
 ```bash
 # Test the complete user journey
 cd statex-notification-service
@@ -178,21 +181,25 @@ python3 test_workflow_simple.py --demo
 ## 🎯 **Key Benefits**
 
 ### **✅ Independence**
+
 - Services can be developed and updated separately
 - No conflicts between development teams
 - Faster iteration cycles
 
 ### **✅ Orchestration**
+
 - Platform manages all services together
 - Centralized configuration and monitoring
 - Easy deployment and scaling
 
 ### **✅ Flexibility**
+
 - Mix of standalone and platform services
 - Technology diversity per service
 - Gradual migration capabilities
 
 ### **✅ Scalability**
+
 - Scale services independently
 - Resource optimization per service
 - Load balancing and failover
@@ -232,4 +239,3 @@ python3 test_workflow_simple.py --demo
 ---
 
 This architecture provides the perfect balance between **independence** and **orchestration**, enabling rapid development while maintaining system coherence and reliability.
-

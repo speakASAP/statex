@@ -19,6 +19,7 @@ This document provides a comprehensive guide to all available commands for the S
 > **🚀 NEW**: Ultra-fast development script for maximum development speed. See [Ultra-Fast Development Script](ultra-fast-development-script.md) for complete documentation.
 
 ### Quick Commands
+
 ```bash
 # Ultra-fast startup (only starts missing services)
 ./dev-manage.sh start --fast
@@ -37,6 +38,7 @@ This document provides a comprehensive guide to all available commands for the S
 ```
 
 ### Development Mode Commands
+
 ```bash
 # Development-optimized startup
 ./dev-manage.sh dev-start
@@ -49,6 +51,7 @@ This document provides a comprehensive guide to all available commands for the S
 ```
 
 ### Performance Features
+
 - **85% faster startup** when all services are running
 - **60% faster status checking** with parallel processing
 - **8x faster port checks** through parallel execution
@@ -58,6 +61,7 @@ This document provides a comprehensive guide to all available commands for the S
 ## Make Commands
 
 ### Environment Setup
+
 ```bash
 # Initial setup (creates venv, installs dependencies, generates SSL certs)
 make setup
@@ -70,6 +74,7 @@ make clean
 ```
 
 ### Development
+
 ```bash
 # Start all services in development mode
 make dev
@@ -91,6 +96,7 @@ make health-check
 ```
 
 ### Testing and Quality
+
 ```bash
 # Run all tests
 make test
@@ -106,6 +112,7 @@ make quality
 ```
 
 ### Logging and Monitoring
+
 ```bash
 # View logs for all services
 make logs
@@ -121,6 +128,7 @@ make logs-follow SERVICE=api-gateway
 ```
 
 ### Database Operations
+
 ```bash
 # Connect to PostgreSQL
 make db-connect
@@ -136,6 +144,7 @@ make db-restore BACKUP_FILE=backup.sql
 ```
 
 ### Service-Specific Commands
+
 ```bash
 # Restart specific service
 make restart-service SERVICE=submission-service
@@ -151,6 +160,7 @@ make shell SERVICE=user-portal
 ```
 
 ### Production Deployment
+
 ```bash
 # Deploy to production (both web and app servers)
 make deploy-prod DOMAIN=api.statex.cz WEB_DOMAIN=statex.cz
@@ -165,6 +175,7 @@ make deploy-app DOMAIN=api.statex.cz
 ## Docker Commands
 
 ### Basic Docker Operations
+
 ```bash
 # View running containers
 docker ps
@@ -186,6 +197,7 @@ docker exec -it <container_name> /bin/bash
 ```
 
 ### Docker Compose Commands
+
 ```bash
 # Start services in background
 docker compose up -d
@@ -213,6 +225,7 @@ docker compose up -d --scale submission-service=3
 ```
 
 ### Image Management
+
 ```bash
 # List all images
 docker images
@@ -233,6 +246,7 @@ docker compose pull
 ## Service Management
 
 ### Individual Service Control
+
 ```bash
 # Start specific service
 docker compose up -d submission-service
@@ -248,15 +262,16 @@ docker compose rm -f submission-service
 ```
 
 ### Service Health Monitoring
+
 ```bash
 # Check if service is healthy
-curl http://localhost:8002/health
+curl http://localhost:${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}/health
 
 # Check service readiness
-curl http://localhost:8002/health/ready
+curl http://localhost:${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}/health/ready
 
 # Check all service health endpoints
-for port in 8001 8002 8003 8004 8005 8006 8007; do
+for port in 8001 8002 8005 8006 8007 8008 8009 8010 8011 8012 8013 8014 8015 8016 8017; do
   echo "Service on port $port:"
   curl -s http://localhost:$port/health || echo "Service not responding"
   echo
@@ -266,45 +281,50 @@ done
 ## Health Checks
 
 ### Service Health Endpoints
-- **API Gateway**: http://localhost/health
-- **User Portal**: http://localhost:8001/health
-- **Submission Service**: http://localhost:8002/health
-- **AI Orchestrator**: http://localhost:8003/health
-- **AI Workers**: http://localhost:8004/health
-- **Notification Service**: http://localhost:8005/health
-- **Content Service**: http://localhost:8006/health
-- **Logging Service**: http://localhost:8007/health
+
+- **API Gateway**: <http://localhost/health>
+- **User Portal**: <http://localhost:${USER_PORTAL_EXTERNAL_PORT:-8001}/health>
+- **Submission Service**: <http://localhost:${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}/health>
+- **AI Orchestrator**: <http://localhost:${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010}/health>
+- **AI Workers**: <http://localhost:${AI_WORKERS_EXTERNAL_PORT:-8017}/health>
+- **Notification Service**: <http://localhost:${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005}/health>
+- **Content Service**: <http://localhost:${CONTENT_SERVICE_EXTERNAL_PORT:-8006}/health>
+- **Logging Service**: <http://localhost:${LOGGING_SERVICE_EXTERNAL_PORT:-8007}/health>
 
 ### Infrastructure Health
+
 - **PostgreSQL**: `docker exec statex-platform-postgres-1 pg_isready`
 - **Redis**: `docker exec statex-platform-redis-1 redis-cli ping`
-- **RabbitMQ**: http://localhost:15672 (admin/admin)
-- **MinIO**: http://localhost:9001 (minioadmin/minioadmin)
-- **Elasticsearch**: http://localhost:9200/_cluster/health
-- **Prometheus**: http://localhost:9090/targets
-- **Grafana**: http://localhost:${GRAFANA_PORT:-3000} (admin/admin)
+- **RabbitMQ**: <http://localhost:${RABBITMQ_MANAGEMENT_EXTERNAL_PORT:-15672}> (admin/admin)
+- **MinIO**: <http://localhost:${MINIO_CONSOLE_EXTERNAL_PORT:-9001}> (minioadmin/minioadmin)
+- **Elasticsearch**: <http://localhost:${ELASTICSEARCH_EXTERNAL_PORT:-9200}/_cluster/health>
+- **Prometheus**: <http://localhost:${PROMETHEUS_EXTERNAL_PORT:-9090}/targets>
+- **Grafana**: <http://localhost:${GRAFANA_PORT:-3000}> (admin/admin)
 
 ## Logging and Monitoring
 
 ### Prometheus Metrics
+
 ```bash
 # View all targets
-curl http://localhost:9090/api/v1/targets
+curl http://localhost:${PROMETHEUS_EXTERNAL_PORT:-9090}/api/v1/targets
 
 # Query specific metric
-curl "http://localhost:9090/api/v1/query?query=up"
+curl "http://localhost:${PROMETHEUS_EXTERNAL_PORT:-9090}/api/v1/query?query=up"
 
 # View service discovery
-curl http://localhost:9090/api/v1/targets
+curl http://localhost:${PROMETHEUS_EXTERNAL_PORT:-9090}/api/v1/targets
 ```
 
 ### Grafana Access
-- **URL**: http://localhost:${GRAFANA_PORT:-3000}
+
+- **URL**: <http://localhost:${GRAFANA_PORT:-3000}>
 - **Username**: admin
 - **Password**: admin
 - **Default Dashboards**: Available after first login
 
 ### Log Aggregation
+
 ```bash
 # View logs from all services
 docker compose logs
@@ -322,6 +342,7 @@ docker compose logs | grep ERROR
 ## Database Operations
 
 ### PostgreSQL Commands
+
 ```bash
 # Connect to database
 docker exec -it statex-platform-postgres-1 psql -U statex -d statex
@@ -340,6 +361,7 @@ docker exec statex-platform-postgres-1 psql -U statex -d statex -c "\dt"
 ```
 
 ### Redis Commands
+
 ```bash
 # Connect to Redis CLI
 docker exec -it statex-platform-redis-1 redis-cli
@@ -356,6 +378,7 @@ docker exec statex-platform-redis-1 redis-cli info
 ### Common Issues
 
 #### Services Not Starting
+
 ```bash
 # Check container logs
 docker compose logs <service_name>
@@ -368,6 +391,7 @@ docker compose restart <service_name>
 ```
 
 #### Database Connection Issues
+
 ```bash
 # Check if PostgreSQL is running
 docker exec statex-platform-postgres-1 pg_isready
@@ -381,6 +405,7 @@ docker compose up -d postgres
 ```
 
 #### Memory Issues
+
 ```bash
 # Check Docker resource usage
 docker stats
@@ -393,6 +418,7 @@ df -h
 ```
 
 ### Debugging Commands
+
 ```bash
 # Check service configuration
 docker compose config
@@ -410,6 +436,7 @@ docker compose exec submission-service env
 ## Production Deployment
 
 ### Pre-deployment Checklist
+
 ```bash
 # Run all tests
 make test
@@ -425,6 +452,7 @@ make status
 ```
 
 ### Deployment Commands
+
 ```bash
 # Deploy to production
 ./scripts/production-deploy.sh both api.statex.cz statex.cz
@@ -437,6 +465,7 @@ make status
 ```
 
 ### Post-deployment Verification
+
 ```bash
 # Check production health
 curl https://api.statex.cz/health
@@ -451,6 +480,7 @@ ssh user@server "docker compose logs -f"
 ## Environment Variables
 
 ### Required Environment Variables
+
 ```bash
 # Database
 POSTGRES_DB=statex
@@ -472,6 +502,7 @@ OPENAI_API_KEY=your_openai_key
 ```
 
 ### Setting Environment Variables
+
 ```bash
 # Copy example environment file
 cp env.example .env
@@ -488,6 +519,7 @@ source .env
 ### Most Used Commands
 
 **Ultra-Fast Development (Recommended)**
+
 ```bash
 # Ultra-fast startup
 ./dev-manage.sh start --fast
@@ -506,6 +538,7 @@ source .env
 ```
 
 **Traditional Make Commands**
+
 ```bash
 # Start development
 make dev
@@ -524,6 +557,7 @@ make deploy-prod DOMAIN=api.statex.cz WEB_DOMAIN=statex.cz
 ```
 
 ### Emergency Commands
+
 ```bash
 # Stop all services immediately
 docker compose down

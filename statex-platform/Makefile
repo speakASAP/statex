@@ -119,13 +119,13 @@ status:
 	@docker compose ps
 	@echo ""
 	@echo "Service health:"
-	@curl -s http://localhost:8001/health || echo "User Portal: DOWN"
-	@curl -s http://localhost:8002/health || echo "Submission Service: DOWN"
-	@curl -s http://localhost:8003/health || echo "AI Orchestrator: DOWN"
-	@curl -s http://localhost:8004/health || echo "AI Workers: DOWN"
-	@curl -s http://localhost:8005/health || echo "Notification Service: DOWN"
-	@curl -s http://localhost:8006/health || echo "Content Service: DOWN"
-	@curl -s http://localhost:8007/health || echo "Logging Service: DOWN"
+	@curl -s http://localhost:${API_GATEWAY_EXTERNAL_PORT:-8001}/health || echo "API Gateway: DOWN"
+	@curl -s http://localhost:${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}/health || echo "Submission Service: DOWN"
+	@curl -s http://localhost:${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010}/health || echo "AI Orchestrator: DOWN"
+	@curl -s http://localhost:${AI_WORKERS_EXTERNAL_PORT:-8017}/health || echo "AI Workers: DOWN"
+	@curl -s http://localhost:${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005}/health || echo "Notification Service: DOWN"
+	@curl -s http://localhost:${CONTENT_SERVICE_EXTERNAL_PORT:-8006}/health || echo "Content Service: DOWN"
+	@curl -s http://localhost:${LOGGING_SERVICE_EXTERNAL_PORT:-8007}/health || echo "Logging Service: DOWN"
 
 logs:
 	@echo "Viewing service logs..."
@@ -185,10 +185,10 @@ shell-db:
 # Monitoring
 monitor:
 	@echo "Opening monitoring dashboards..."
-	@echo "Prometheus: http://localhost:9090"
-	@echo "Grafana: http://localhost:3000 (admin/admin)"
-	@open http://localhost:9090 || true
-	@open http://localhost:3000 || true
+	@echo "Prometheus: http://localhost:${PROMETHEUS_EXTERNAL_PORT:-9090}"
+	@echo "Grafana: http://localhost:${GRAFANA_EXTERNAL_PORT:-3000} (admin/admin)"
+	@open http://localhost:${PROMETHEUS_EXTERNAL_PORT:-9090} || true
+	@open http://localhost:${GRAFANA_EXTERNAL_PORT:-3000} || true
 
 # Service Management - Use ./manage.sh instead
 stop:
@@ -280,7 +280,7 @@ health-check-detailed:
 	@echo "=========================================="
 	@echo "Service Health Status:"
 	@echo "=========================================="
-	@for port in 8001 8002 8003 8004 8005 8006 8007; do \
+	@for port in 8001 8002 8005 8006 8007 8008 8009 8010 8011 8012 8013 8014 8015 8016 8017; do \
 		echo -n "Port $$port: "; \
 		curl -s http://localhost:$$port/health | jq -r '.status // "DOWN"' 2>/dev/null || echo "DOWN"; \
 	done
@@ -289,11 +289,11 @@ health-check-detailed:
 	@echo "=========================================="
 	@echo -n "PostgreSQL: "; docker compose exec postgres pg_isready -U statex >/dev/null 2>&1 && echo "UP" || echo "DOWN"
 	@echo -n "Redis: "; docker compose exec redis redis-cli ping >/dev/null 2>&1 && echo "UP" || echo "DOWN"
-	@echo -n "RabbitMQ: "; curl -s http://localhost:15672/api/overview >/dev/null 2>&1 && echo "UP" || echo "DOWN"
-	@echo -n "MinIO: "; curl -s http://localhost:9000/minio/health/live >/dev/null 2>&1 && echo "UP" || echo "DOWN"
-	@echo -n "Elasticsearch: "; curl -s http://localhost:9200/_cluster/health >/dev/null 2>&1 && echo "UP" || echo "DOWN"
-	@echo -n "Prometheus: "; curl -s http://localhost:9090/-/healthy >/dev/null 2>&1 && echo "UP" || echo "DOWN"
-	@echo -n "Grafana: "; curl -s http://localhost:3000/api/health >/dev/null 2>&1 && echo "UP" || echo "DOWN"
+	@echo -n "RabbitMQ: "; curl -s http://localhost:${RABBITMQ_MANAGEMENT_EXTERNAL_PORT:-15672}/api/overview >/dev/null 2>&1 && echo "UP" || echo "DOWN"
+	@echo -n "MinIO: "; curl -s http://localhost:${MINIO_EXTERNAL_PORT:-9000}/minio/health/live >/dev/null 2>&1 && echo "UP" || echo "DOWN"
+	@echo -n "Elasticsearch: "; curl -s http://localhost:${ELASTICSEARCH_EXTERNAL_PORT:-9200}/_cluster/health >/dev/null 2>&1 && echo "UP" || echo "DOWN"
+	@echo -n "Prometheus: "; curl -s http://localhost:${PROMETHEUS_EXTERNAL_PORT:-9090}/-/healthy >/dev/null 2>&1 && echo "UP" || echo "DOWN"
+	@echo -n "Grafana: "; curl -s http://localhost:${GRAFANA_EXTERNAL_PORT:-3002}/api/health >/dev/null 2>&1 && echo "UP" || echo "DOWN"
 
 # Resource Monitoring
 resources:
@@ -354,17 +354,17 @@ ports:
 	@echo "Service ports:"
 	@echo "Website: http://localhost:$${FRONTEND_PORT:-3000}"
 	@echo "API Gateway: http://localhost (80, 443)"
-	@echo "User Portal: http://localhost:8001"
-	@echo "Submission Service: http://localhost:8002"
-	@echo "AI Orchestrator: http://localhost:8003"
-	@echo "AI Workers: http://localhost:8004"
-	@echo "Notification Service: http://localhost:8005"
-	@echo "Content Service: http://localhost:8006"
-	@echo "Logging Service: http://localhost:8007"
-	@echo "Prometheus: http://localhost:9090"
-	@echo "Grafana: http://localhost:3000"
-	@echo "PostgreSQL: localhost:5432"
-	@echo "Redis: localhost:6379"
-	@echo "RabbitMQ: localhost:15672 (Management UI)"
-	@echo "MinIO: localhost:9000-9001"
-	@echo "Elasticsearch: localhost:9200"
+	@echo "API Gateway: http://localhost:${API_GATEWAY_EXTERNAL_PORT:-8001}"
+	@echo "Submission Service: http://localhost:${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}"
+	@echo "AI Orchestrator: http://localhost:${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010}"
+	@echo "AI Workers: http://localhost:${AI_WORKERS_EXTERNAL_PORT:-8017}"
+	@echo "Notification Service: http://localhost:${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005}"
+	@echo "Content Service: http://localhost:${CONTENT_SERVICE_EXTERNAL_PORT:-8006}"
+	@echo "Logging Service: http://localhost:${LOGGING_SERVICE_EXTERNAL_PORT:-8007}"
+	@echo "Prometheus: http://localhost:${PROMETHEUS_EXTERNAL_PORT:-9090}"
+	@echo "Grafana: http://localhost:${GRAFANA_EXTERNAL_PORT:-3002}"
+	@echo "PostgreSQL: localhost:${POSTGRES_EXTERNAL_PORT:-5432}"
+	@echo "Redis: localhost:${REDIS_EXTERNAL_PORT:-6379}"
+	@echo "RabbitMQ: localhost:${RABBITMQ_MANAGEMENT_EXTERNAL_PORT:-15672} (Management UI)"
+	@echo "MinIO: localhost:${MINIO_EXTERNAL_PORT:-9000}-${MINIO_CONSOLE_EXTERNAL_PORT:-9001}"
+	@echo "Elasticsearch: localhost:${ELASTICSEARCH_EXTERNAL_PORT:-9200}"

@@ -25,14 +25,6 @@
 
 ### **1.3 Update Prototype URLs to Use Working Service**
 
-- **File**: `statex-website/frontend/src/components/forms/ProcessingFeedback.tsx`
-- **File**: `statex-website/frontend/src/components/sections/FormSection.tsx`
-- **Action**: Change prototype URLs to use the working prototype service
-- **Implementation**:
-  - Change from `http://project-proto_${projectId}.localhost:3000`
-  - To `http://localhost:8003/prototype/${projectId}`
-  - Update all prototype-related URLs (view, plan, offer)
-
 ## **Phase 2: Prototype Generation System Fix (Priority: HIGH)**
 
 ### **2.1 Diagnose AI Orchestrator Integration**

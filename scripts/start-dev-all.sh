@@ -131,7 +131,7 @@ start_infrastructure() {
 start_website_frontend() {
     local service_name="statex-website-frontend"
     local working_dir="$SCRIPT_DIR/statex-website/frontend"
-    local port="3000"
+    local port="${FRONTEND_EXTERNAL_PORT:-3000}"
     
     if check_port $port; then
         kill_port $port
@@ -151,8 +151,8 @@ start_website_frontend() {
 # Function to start StateX Platform services
 start_platform_services() {
     local services=(
-        "platform-management:8000:python -m uvicorn services.platform-management.main:app --reload --host 0.0.0.0 --port 8000"
-        "api-gateway:8001:python -m uvicorn shared.http_clients:app --reload --host 0.0.0.0 --port 8001"
+        "platform-management:${PLATFORM_MANAGEMENT_EXTERNAL_PORT:-8000}:python -m uvicorn services.platform-management.main:app --reload --host 0.0.0.0 --port ${PLATFORM_MANAGEMENT_INTERNAL_PORT:-8000}"
+        "api-gateway:${API_GATEWAY_EXTERNAL_PORT:-8001}:python -m uvicorn shared.http_clients:app --reload --host 0.0.0.0 --port ${API_GATEWAY_INTERNAL_PORT:-80}"
     )
     
     for service_info in "${services[@]}"; do
@@ -180,14 +180,14 @@ start_platform_services() {
 # Function to start StateX AI services
 start_ai_services() {
     local services=(
-        "${AI_ORCHESTRATOR_HOST:-host.docker.internal}:${AI_ORCHESTRATOR_PORT:-8010}:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
-        "nlp-service:8011:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
-        "asr-service:8012:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
-        "document-ai:8013:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
-        "prototype-generator:8014:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
-        "template-repository:8015:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
-        "free-ai-service:8016:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
-        "ai-workers:8017:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+        "ai-orchestrator:${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010}:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${AI_ORCHESTRATOR_INTERNAL_PORT:-8000}"
+        "nlp-service:${NLP_SERVICE_EXTERNAL_PORT:-8011}:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${NLP_SERVICE_INTERNAL_PORT:-8000}"
+        "asr-service:${ASR_SERVICE_EXTERNAL_PORT:-8012}:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${ASR_SERVICE_INTERNAL_PORT:-8000}"
+        "document-ai:${DOCUMENT_AI_EXTERNAL_PORT:-8013}:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${DOCUMENT_AI_INTERNAL_PORT:-8000}"
+        "prototype-generator:${PROTOTYPE_GENERATOR_EXTERNAL_PORT:-8014}:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${PROTOTYPE_GENERATOR_INTERNAL_PORT:-8000}"
+        "template-repository:${TEMPLATE_REPOSITORY_EXTERNAL_PORT:-8015}:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${TEMPLATE_REPOSITORY_INTERNAL_PORT:-8000}"
+        "free-ai-service:${FREE_AI_SERVICE_EXTERNAL_PORT:-8016}:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${FREE_AI_SERVICE_INTERNAL_PORT:-8000}"
+        "ai-workers:${AI_WORKERS_EXTERNAL_PORT:-8017}:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${AI_WORKERS_INTERNAL_PORT:-8000}"
     )
     
     for service_info in "${services[@]}"; do
@@ -215,9 +215,9 @@ start_ai_services() {
 # Function to start StateX Website Backend services
 start_website_services() {
     local services=(
-        "submission-service:8002:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
-        "user-portal:8006:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
-        "content-service:8009:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+        "submission-service:${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${SUBMISSION_SERVICE_INTERNAL_PORT:-8000}"
+        "user-portal:${USER_PORTAL_EXTERNAL_PORT:-8006}:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${USER_PORTAL_INTERNAL_PORT:-8000}"
+        "content-service:${CONTENT_SERVICE_EXTERNAL_PORT:-8009}:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${CONTENT_SERVICE_INTERNAL_PORT:-8000}"
     )
     
     for service_info in "${services[@]}"; do
@@ -246,7 +246,7 @@ start_website_services() {
 start_notification_service() {
     local service_name="notification-service"
     local working_dir="$SCRIPT_DIR/statex-notification-service"
-    local port="8005"
+    local port="${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005}"
     
     if check_port $port; then
         kill_port $port
@@ -262,14 +262,14 @@ start_notification_service() {
         cd "$SCRIPT_DIR"
     fi
     
-    start_service "$service_name" "source venv/bin/activate && python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000" "$working_dir" "$port"
+    start_service "$service_name" "source venv/bin/activate && python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${NOTIFICATION_SERVICE_INTERNAL_PORT:-8000}" "$working_dir" "$port"
 }
 
 # Function to start StateX DNS Service
 start_dns_service() {
     local service_name="dns-service"
     local working_dir="$SCRIPT_DIR/statex-dns-service"
-    local port="8053"
+    local port="${DNS_SERVICE_EXTERNAL_PORT:-8053}"
     
     if check_port $port; then
         kill_port $port
@@ -289,8 +289,8 @@ start_dns_service() {
 # Function to start StateX Monitoring services
 start_monitoring_services() {
     local services=(
-        "monitoring-service:8007:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
-        "logging-service:8008:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+        "monitoring-service:${MONITORING_SERVICE_EXTERNAL_PORT:-8007}:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${MONITORING_SERVICE_INTERNAL_PORT:-8000}"
+        "logging-service:${LOGGING_SERVICE_EXTERNAL_PORT:-8008}:python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${LOGGING_SERVICE_INTERNAL_PORT:-8000}"
     )
     
     for service_info in "${services[@]}"; do
@@ -321,24 +321,24 @@ show_status() {
     echo ""
     
     local services=(
-        "statex-website-frontend:3000"
-        "platform-management:8000"
-        "api-gateway:8001"
-        "submission-service:8002"
-        "notification-service:8005"
-        "user-portal:8006"
-        "monitoring-service:8007"
-        "logging-service:8008"
-        "content-service:8009"
-        "${AI_ORCHESTRATOR_HOST:-host.docker.internal}:${AI_ORCHESTRATOR_PORT:-8010}"
-        "nlp-service:8011"
-        "asr-service:8012"
-        "document-ai:8013"
-        "prototype-generator:8014"
-        "template-repository:8015"
-        "free-ai-service:8016"
-        "ai-workers:8017"
-        "dns-service:8053"
+        "statex-website-frontend:${FRONTEND_EXTERNAL_PORT:-3000}"
+        "platform-management:${PLATFORM_MANAGEMENT_EXTERNAL_PORT:-8000}"
+        "api-gateway:${API_GATEWAY_EXTERNAL_PORT:-8001}"
+        "submission-service:${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}"
+        "notification-service:${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005}"
+        "user-portal:${USER_PORTAL_EXTERNAL_PORT:-8006}"
+        "monitoring-service:${MONITORING_SERVICE_EXTERNAL_PORT:-8007}"
+        "logging-service:${LOGGING_SERVICE_EXTERNAL_PORT:-8008}"
+        "content-service:${CONTENT_SERVICE_EXTERNAL_PORT:-8009}"
+        "ai-orchestrator:${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010}"
+        "nlp-service:${NLP_SERVICE_EXTERNAL_PORT:-8011}"
+        "asr-service:${ASR_SERVICE_EXTERNAL_PORT:-8012}"
+        "document-ai:${DOCUMENT_AI_EXTERNAL_PORT:-8013}"
+        "prototype-generator:${PROTOTYPE_GENERATOR_EXTERNAL_PORT:-8014}"
+        "template-repository:${TEMPLATE_REPOSITORY_EXTERNAL_PORT:-8015}"
+        "free-ai-service:${FREE_AI_SERVICE_EXTERNAL_PORT:-8016}"
+        "ai-workers:${AI_WORKERS_EXTERNAL_PORT:-8017}"
+        "dns-service:${DNS_SERVICE_EXTERNAL_PORT:-8053}"
     )
     
     for service_info in "${services[@]}"; do
@@ -406,14 +406,14 @@ main() {
             show_status
             echo ""
             print_status "Access URLs:"
-            echo "  🌐 Website Frontend:     http://localhost:3000"
-            echo "  🔗 API Gateway:          http://localhost:8001"
-            echo "  📝 Submission Service:   http://localhost:8002"
-            echo "  📧 Notification Service: http://localhost:8005"
-            echo "  👤 User Portal:          http://localhost:8006"
-            echo "  📊 Monitoring Service:   http://localhost:8007"
-            echo "  📋 Logging Service:      http://localhost:8008"
-            echo "  🤖 AI Orchestrator:      http://localhost:8010"
+            echo "  🌐 Website Frontend:     http://localhost:${FRONTEND_EXTERNAL_PORT:-3000}"
+            echo "  🔗 API Gateway:          http://localhost:${API_GATEWAY_EXTERNAL_PORT:-8001}"
+            echo "  📝 Submission Service:   http://localhost:${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}"
+            echo "  📧 Notification Service: http://localhost:${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005}"
+            echo "  👤 User Portal:          http://localhost:${USER_PORTAL_EXTERNAL_PORT:-8006}"
+            echo "  📊 Monitoring Service:   http://localhost:${MONITORING_SERVICE_EXTERNAL_PORT:-8007}"
+            echo "  📋 Logging Service:      http://localhost:${LOGGING_SERVICE_EXTERNAL_PORT:-8008}"
+            echo "  🤖 AI Orchestrator:      http://localhost:${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010}"
             echo ""
             print_status "Logs are available in: $LOG_DIR"
             print_status "PIDs are stored in: $PID_DIR"

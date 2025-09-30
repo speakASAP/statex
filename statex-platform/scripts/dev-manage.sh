@@ -175,7 +175,7 @@ fast_check_port() {
     
     # Skip port check for services that don't have HTTP endpoints
     case "$port" in
-        "5432"|"6379"|"5672"|"9000"|"9200"|"9100"|"8081"|"9115")
+        "${POSTGRES_EXTERNAL_PORT:-5432}"|"${REDIS_EXTERNAL_PORT:-6379}"|"${RABBITMQ_EXTERNAL_PORT:-5672}"|"${MINIO_EXTERNAL_PORT:-9000}"|"${ELASTICSEARCH_EXTERNAL_PORT:-9200}"|"${NODE_EXPORTER_EXTERNAL_PORT:-9100}"|"${CADVISOR_EXTERNAL_PORT:-8081}"|"${BLACKBOX_EXPORTER_EXTERNAL_PORT:-9115}")
             # These are database/cache ports, check if container is running instead
             echo "open"
             return
@@ -206,7 +206,7 @@ fast_check_health() {
     
     # Special simplified health check for frontend
     if [[ "$service_name" == "frontend" ]]; then
-        local response=$(curl -s --connect-timeout 3 --max-time 3 http://localhost:3000/api/health 2>/dev/null)
+        local response=$(curl -s --connect-timeout 3 --max-time 3 http://localhost:${FRONTEND_EXTERNAL_PORT:-3000}/api/health 2>/dev/null)
         if echo "$response" | grep -q '"status":"healthy"'; then
             echo "healthy"
         else
@@ -227,15 +227,15 @@ fast_check_health() {
             case "$service_name" in
                 "postgres")
                     # Use pg_isready for PostgreSQL health check
-                    docker exec statex_postgres_dev pg_isready -U statex -d statex >/dev/null 2>&1 && echo "healthy" || echo "unhealthy"
+                    docker exec ${POSTGRES_CONTAINER_NAME:-statex_postgres_dev} pg_isready -U statex -d statex >/dev/null 2>&1 && echo "healthy" || echo "unhealthy"
                     ;;
                 "redis")
                     # Use redis-cli for Redis health check
-                    docker exec statex_redis_dev redis-cli ping >/dev/null 2>&1 && echo "healthy" || echo "unhealthy"
+                    docker exec ${REDIS_CONTAINER_NAME:-statex_redis_dev} redis-cli ping >/dev/null 2>&1 && echo "healthy" || echo "unhealthy"
                     ;;
                 "rabbitmq")
                     # Use rabbitmq-diagnostics for RabbitMQ health check
-                    docker exec statex_rabbitmq_dev rabbitmq-diagnostics ping >/dev/null 2>&1 && echo "healthy" || echo "unhealthy"
+                    docker exec ${RABBITMQ_CONTAINER_NAME:-statex_rabbitmq_dev} rabbitmq-diagnostics ping >/dev/null 2>&1 && echo "healthy" || echo "unhealthy"
                     ;;
                 *)
                     # Standard HTTP health endpoint
@@ -456,46 +456,46 @@ create_service_registry() {
 # Format: SERVICE_NAME|PORT|HEALTH_ENDPOINT|DEPENDENCIES|DOCKER_COMPOSE_FILE|CATEGORY|DESCRIPTION
 
 # Infrastructure Services
-postgres|5432|/health|none|../statex-infrastructure/docker-compose.dev.yml|infrastructure|PostgreSQL Database
-redis|6379|/health|none|../statex-infrastructure/docker-compose.dev.yml|infrastructure|Redis Cache
-rabbitmq|5672|/health|none|../statex-infrastructure/docker-compose.dev.yml|infrastructure|RabbitMQ Message Queue
-minio|9000|/minio/health/live|none|../statex-infrastructure/docker-compose.dev.yml|infrastructure|MinIO Object Storage
-elasticsearch|9200|/_cluster/health|none|../statex-infrastructure/docker-compose.dev.yml|infrastructure|Elasticsearch Search Engine
-nginx|80|/health|postgres,redis,rabbitmq,minio|../statex-infrastructure/docker-compose.dev.yml|infrastructure|Nginx Reverse Proxy
+postgres|${POSTGRES_EXTERNAL_PORT:-5432}|/health|none|../statex-infrastructure/docker-compose.dev.yml|infrastructure|PostgreSQL Database
+redis|${REDIS_EXTERNAL_PORT:-6379}|/health|none|../statex-infrastructure/docker-compose.dev.yml|infrastructure|Redis Cache
+rabbitmq|${RABBITMQ_EXTERNAL_PORT:-5672}|/health|none|../statex-infrastructure/docker-compose.dev.yml|infrastructure|RabbitMQ Message Queue
+minio|${MINIO_EXTERNAL_PORT:-9000}|/minio/health/live|none|../statex-infrastructure/docker-compose.dev.yml|infrastructure|MinIO Object Storage
+elasticsearch|${ELASTICSEARCH_EXTERNAL_PORT:-9200}|/_cluster/health|none|../statex-infrastructure/docker-compose.dev.yml|infrastructure|Elasticsearch Search Engine
+nginx|${NGINX_EXTERNAL_PORT:-80}|/health|postgres,redis,rabbitmq,minio|../statex-infrastructure/docker-compose.dev.yml|infrastructure|Nginx Reverse Proxy
 
 # Platform Services
-api-gateway|8001|/health|nginx|docker-compose.dev.yml|platform|API Gateway
-platform-management|8000|/health|postgres,redis,rabbitmq|docker-compose.dev.yml|platform|Platform Management Service
+api-gateway|${API_GATEWAY_EXTERNAL_PORT:-8001}|/health|nginx|docker-compose.dev.yml|platform|API Gateway
+platform-management|${PLATFORM_MANAGEMENT_EXTERNAL_PORT:-8000}|/health|postgres,redis,rabbitmq|docker-compose.dev.yml|platform|Platform Management Service
 
 # AI Services
-ai-orchestrator|8010|/health|postgres,redis,rabbitmq|../statex-ai/docker-compose.dev.yml|ai|AI Orchestrator
-nlp-service|8011|/health|ai-orchestrator|../statex-ai/docker-compose.dev.yml|ai|NLP Service
-asr-service|8012|/health|ai-orchestrator|../statex-ai/docker-compose.dev.yml|ai|ASR Service
-document-ai|8013|/health|ai-orchestrator|../statex-ai/docker-compose.dev.yml|ai|Document AI Service
-prototype-generator|8014|/health|ai-orchestrator|../statex-ai/docker-compose.dev.yml|ai|Prototype Generator
-template-repository|8015|/health|ai-orchestrator|../statex-ai/docker-compose.dev.yml|ai|Template Repository
-free-ai-service|8016|/health|ai-orchestrator|../statex-ai/docker-compose.dev.yml|ai|Free AI Service
-ai-workers|8017|/health|ai-orchestrator|../statex-ai/docker-compose.dev.yml|ai|AI Workers
+ai-orchestrator|${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010}|/health|postgres,redis,rabbitmq|../statex-ai/docker-compose.dev.yml|ai|AI Orchestrator
+nlp-service|${NLP_SERVICE_EXTERNAL_PORT:-8011}|/health|ai-orchestrator|../statex-ai/docker-compose.dev.yml|ai|NLP Service
+asr-service|${ASR_SERVICE_EXTERNAL_PORT:-8012}|/health|ai-orchestrator|../statex-ai/docker-compose.dev.yml|ai|ASR Service
+document-ai|${DOCUMENT_AI_EXTERNAL_PORT:-8013}|/health|ai-orchestrator|../statex-ai/docker-compose.dev.yml|ai|Document AI Service
+prototype-generator|${PROTOTYPE_GENERATOR_EXTERNAL_PORT:-8014}|/health|ai-orchestrator|../statex-ai/docker-compose.dev.yml|ai|Prototype Generator
+template-repository|${TEMPLATE_REPOSITORY_EXTERNAL_PORT:-8015}|/health|ai-orchestrator|../statex-ai/docker-compose.dev.yml|ai|Template Repository
+free-ai-service|${FREE_AI_SERVICE_EXTERNAL_PORT:-8016}|/health|ai-orchestrator|../statex-ai/docker-compose.dev.yml|ai|Free AI Service
+ai-workers|${AI_WORKERS_EXTERNAL_PORT:-8017}|/health|ai-orchestrator|../statex-ai/docker-compose.dev.yml|ai|AI Workers
 
 # Website Services
-submission-service|8002|/health|postgres,redis,rabbitmq,minio|../statex-website/docker-compose.dev.yml|website|Submission Service
-user-portal|8006|/health|postgres,redis|../statex-website/docker-compose.dev.yml|website|User Portal
-content-service|8009|/health|postgres,redis,elasticsearch,minio|../statex-website/docker-compose.dev.yml|website|Content Service
+submission-service|${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}|/health|postgres,redis,rabbitmq,minio|../statex-website/docker-compose.dev.yml|website|Submission Service
+user-portal|${USER_PORTAL_EXTERNAL_PORT:-8006}|/health|postgres,redis|../statex-website/docker-compose.dev.yml|website|User Portal
+content-service|${CONTENT_SERVICE_EXTERNAL_PORT:-8009}|/health|postgres,redis,elasticsearch,minio|../statex-website/docker-compose.dev.yml|website|Content Service
 
 # Notification Service
-notification-service|8005|/health|postgres,redis,rabbitmq|../statex-notification-service/docker-compose.dev.yml|notification|Notification Service
+notification-service|${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005}|/health|postgres,redis,rabbitmq|../statex-notification-service/docker-compose.dev.yml|notification|Notification Service
 
 # Monitoring Services
-prometheus|9090|/-/healthy|none|../statex-monitoring/docker-compose.dev.yml|monitoring|Prometheus Metrics
-grafana|3002|/api/health|prometheus|../statex-monitoring/docker-compose.dev.yml|monitoring|Grafana Dashboards
-loki|3100|/ready|none|../statex-monitoring/docker-compose.dev.yml|monitoring|Loki Log Aggregation
-jaeger|16686|/health|none|../statex-monitoring/docker-compose.dev.yml|monitoring|Jaeger Tracing
-alertmanager|9093|/-/healthy|prometheus|../statex-monitoring/docker-compose.dev.yml|monitoring|AlertManager
-node-exporter|9100|/metrics|none|../statex-monitoring/docker-compose.dev.yml|monitoring|Node Exporter
-cadvisor|8081|/healthz|none|../statex-monitoring/docker-compose.dev.yml|monitoring|cAdvisor
-blackbox-exporter|9115|/metrics|none|../statex-monitoring/docker-compose.dev.yml|monitoring|Blackbox Exporter
-statex-monitoring-service|8007|/health|prometheus,grafana,loki,jaeger|../statex-monitoring/docker-compose.dev.yml|monitoring|StateX Monitoring Service
-logging-service|8008|/health|loki|../statex-monitoring/docker-compose.dev.yml|monitoring|Logging Service
+prometheus|${PROMETHEUS_EXTERNAL_PORT:-9090}|/-/healthy|none|../statex-monitoring/docker-compose.dev.yml|monitoring|Prometheus Metrics
+grafana|${GRAFANA_EXTERNAL_PORT:-3002}|/api/health|prometheus|../statex-monitoring/docker-compose.dev.yml|monitoring|Grafana Dashboards
+loki|${LOKI_EXTERNAL_PORT:-3100}|/ready|none|../statex-monitoring/docker-compose.dev.yml|monitoring|Loki Log Aggregation
+jaeger|${JAEGER_EXTERNAL_PORT:-16686}|/health|none|../statex-monitoring/docker-compose.dev.yml|monitoring|Jaeger Tracing
+alertmanager|${ALERTMANAGER_EXTERNAL_PORT:-9093}|/-/healthy|prometheus|../statex-monitoring/docker-compose.dev.yml|monitoring|AlertManager
+node-exporter|${NODE_EXPORTER_EXTERNAL_PORT:-9100}|/metrics|none|../statex-monitoring/docker-compose.dev.yml|monitoring|Node Exporter
+cadvisor|${CADVISOR_EXTERNAL_PORT:-8081}|/healthz|none|../statex-monitoring/docker-compose.dev.yml|monitoring|cAdvisor
+blackbox-exporter|${BLACKBOX_EXPORTER_EXTERNAL_PORT:-9115}|/metrics|none|../statex-monitoring/docker-compose.dev.yml|monitoring|Blackbox Exporter
+statex-monitoring-service|${MONITORING_SERVICE_EXTERNAL_PORT:-8007}|/health|prometheus,grafana,loki,jaeger|../statex-monitoring/docker-compose.dev.yml|monitoring|StateX Monitoring Service
+logging-service|${LOGGING_SERVICE_EXTERNAL_PORT:-8008}|/health|loki|../statex-monitoring/docker-compose.dev.yml|monitoring|Logging Service
 EOF
 }
 
@@ -545,7 +545,7 @@ kill_port_process() {
 }
 
 check_and_free_ports() {
-    local ports=("3000" "8000" "8001" "8002" "8005" "8006" "8007" "8008" "8009" "8010" "8011" "8012" "8013" "8014" "8015" "8016" "8017" "9090" "3002" "3100" "16686" "9093" "9100" "8081" "9115")
+    local ports=("${FRONTEND_EXTERNAL_PORT:-3000}" "${PLATFORM_MANAGEMENT_EXTERNAL_PORT:-8000}" "${API_GATEWAY_EXTERNAL_PORT:-8001}" "${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}" "${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005}" "${USER_PORTAL_EXTERNAL_PORT:-8006}" "${MONITORING_SERVICE_EXTERNAL_PORT:-8007}" "${LOGGING_SERVICE_EXTERNAL_PORT:-8008}" "${CONTENT_SERVICE_EXTERNAL_PORT:-8009}" "${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010}" "${NLP_SERVICE_EXTERNAL_PORT:-8011}" "${ASR_SERVICE_EXTERNAL_PORT:-8012}" "${DOCUMENT_AI_EXTERNAL_PORT:-8013}" "${PROTOTYPE_GENERATOR_EXTERNAL_PORT:-8014}" "${TEMPLATE_REPOSITORY_EXTERNAL_PORT:-8015}" "${FREE_AI_SERVICE_EXTERNAL_PORT:-8016}" "${AI_WORKERS_EXTERNAL_PORT:-8017}" "${PROMETHEUS_EXTERNAL_PORT:-9090}" "${GRAFANA_EXTERNAL_PORT:-3002}" "${LOKI_EXTERNAL_PORT:-3100}" "${JAEGER_EXTERNAL_PORT:-16686}" "${ALERTMANAGER_EXTERNAL_PORT:-9093}" "${NODE_EXPORTER_EXTERNAL_PORT:-9100}" "${CADVISOR_EXTERNAL_PORT:-8081}" "${BLACKBOX_EXPORTER_EXTERNAL_PORT:-9115}")
     
     print_status "Checking for port conflicts..."
     for port in "${ports[@]}"; do
@@ -710,36 +710,36 @@ check_container_status() {
     # Map service names to actual container names
     local container_name=""
     case "$service_name" in
-        "api-gateway") container_name="statex_api_gateway_dev" ;;
-        "platform-management") container_name="statex_platform_management_dev" ;;
-        "ai-orchestrator") container_name="statex_ai_orchestrator_dev" ;;
-        "nlp-service") container_name="statex_nlp_dev" ;;
-        "asr-service") container_name="statex_asr_dev" ;;
-        "document-ai") container_name="statex_document_ai_dev" ;;
-        "prototype-generator") container_name="statex_prototype_generator_dev" ;;
-        "template-repository") container_name="statex_template_repo_dev" ;;
-        "free-ai-service") container_name="statex_free_ai_dev" ;;
-        "ai-workers") container_name="statex_ai_workers_dev" ;;
-        "submission-service") container_name="statex_submission_dev" ;;
-        "user-portal") container_name="statex_user_portal_dev" ;;
-        "content-service") container_name="statex_content_dev" ;;
-        "notification-service") container_name="statex_notification_dev" ;;
-        "statex-monitoring-service") container_name="statex_monitoring_service_dev" ;;
-        "logging-service") container_name="statex_logging_service_dev" ;;
-        "node-exporter") container_name="statex_node_exporter_dev" ;;
-        "blackbox-exporter") container_name="statex_blackbox_dev" ;;
-        "prometheus") container_name="statex_prometheus_dev" ;;
-        "grafana") container_name="statex_grafana_dev" ;;
-        "loki") container_name="statex_loki_dev" ;;
-        "jaeger") container_name="statex_jaeger_dev" ;;
-        "alertmanager") container_name="statex_alertmanager_dev" ;;
-        "cadvisor") container_name="statex_cadvisor_dev" ;;
-        "postgres") container_name="statex_postgres_dev" ;;
-        "redis") container_name="statex_redis_dev" ;;
-        "rabbitmq") container_name="statex_rabbitmq_dev" ;;
-        "minio") container_name="statex_minio_dev" ;;
-        "elasticsearch") container_name="statex_elasticsearch_dev" ;;
-        "nginx") container_name="statex_nginx_dev" ;;
+        "api-gateway") container_name="${API_GATEWAY_CONTAINER_NAME:-statex_api_gateway_dev}" ;;
+        "platform-management") container_name="${PLATFORM_MANAGEMENT_CONTAINER_NAME:-statex_platform_management_dev}" ;;
+        "ai-orchestrator") container_name="${AI_ORCHESTRATOR_CONTAINER_NAME:-statex_ai_orchestrator_dev}" ;;
+        "nlp-service") container_name="${NLP_SERVICE_CONTAINER_NAME:-statex_nlp_dev}" ;;
+        "asr-service") container_name="${ASR_SERVICE_CONTAINER_NAME:-statex_asr_dev}" ;;
+        "document-ai") container_name="${DOCUMENT_AI_CONTAINER_NAME:-statex_document_ai_dev}" ;;
+        "prototype-generator") container_name="${PROTOTYPE_GENERATOR_CONTAINER_NAME:-statex_prototype_generator_dev}" ;;
+        "template-repository") container_name="${TEMPLATE_REPOSITORY_CONTAINER_NAME:-statex_template_repo_dev}" ;;
+        "free-ai-service") container_name="${FREE_AI_SERVICE_CONTAINER_NAME:-statex_free_ai_dev}" ;;
+        "ai-workers") container_name="${AI_WORKERS_CONTAINER_NAME:-statex_ai_workers_dev}" ;;
+        "submission-service") container_name="${SUBMISSION_SERVICE_CONTAINER_NAME:-statex_submission_dev}" ;;
+        "user-portal") container_name="${USER_PORTAL_CONTAINER_NAME:-statex_user_portal_dev}" ;;
+        "content-service") container_name="${CONTENT_SERVICE_CONTAINER_NAME:-statex_content_dev}" ;;
+        "notification-service") container_name="${NOTIFICATION_SERVICE_CONTAINER_NAME:-statex_notification_dev}" ;;
+        "statex-monitoring-service") container_name="${MONITORING_SERVICE_CONTAINER_NAME:-statex_monitoring_service_dev}" ;;
+        "logging-service") container_name="${LOGGING_SERVICE_CONTAINER_NAME:-statex_logging_service_dev}" ;;
+        "node-exporter") container_name="${NODE_EXPORTER_CONTAINER_NAME:-statex_node_exporter_dev}" ;;
+        "blackbox-exporter") container_name="${BLACKBOX_EXPORTER_CONTAINER_NAME:-statex_blackbox_dev}" ;;
+        "prometheus") container_name="${PROMETHEUS_CONTAINER_NAME:-statex_prometheus_dev}" ;;
+        "grafana") container_name="${GRAFANA_CONTAINER_NAME:-statex_grafana_dev}" ;;
+        "loki") container_name="${LOKI_CONTAINER_NAME:-statex_loki_dev}" ;;
+        "jaeger") container_name="${JAEGER_CONTAINER_NAME:-statex_jaeger_dev}" ;;
+        "alertmanager") container_name="${ALERTMANAGER_CONTAINER_NAME:-statex_alertmanager_dev}" ;;
+        "cadvisor") container_name="${CADVISOR_CONTAINER_NAME:-statex_cadvisor_dev}" ;;
+        "postgres") container_name="${POSTGRES_CONTAINER_NAME:-statex_postgres_dev}" ;;
+        "redis") container_name="${REDIS_CONTAINER_NAME:-statex_redis_dev}" ;;
+        "rabbitmq") container_name="${RABBITMQ_CONTAINER_NAME:-statex_rabbitmq_dev}" ;;
+        "minio") container_name="${MINIO_CONTAINER_NAME:-statex_minio_dev}" ;;
+        "elasticsearch") container_name="${ELASTICSEARCH_CONTAINER_NAME:-statex_elasticsearch_dev}" ;;
+        "nginx") container_name="${NGINX_CONTAINER_NAME:-statex_nginx_dev}" ;;
         *) container_name="statex_${service_name}_dev" ;;
     esac
     
@@ -1171,16 +1171,16 @@ start_ultra_fast() {
     
     # Show access URLs
     print_status "Access URLs:"
-    echo "  🌐 Website Frontend:     http://localhost:3000"
-    echo "  🔗 API Gateway:          http://localhost:8001"
-    echo "  📝 Submission Service:   http://localhost:8002"
-    echo "  📧 Notification Service: http://localhost:8005"
-    echo "  👤 User Portal:          http://localhost:8006"
-    echo "  📊 Monitoring Service:   http://localhost:8007"
-    echo "  📋 Logging Service:      http://localhost:8008"
-    echo "  🤖 AI Orchestrator:      http://localhost:8010"
-    echo "  📈 Grafana:              http://localhost:3002"
-    echo "  🔍 Prometheus:           http://localhost:9090"
+    echo "  🌐 Website Frontend:     http://localhost:${FRONTEND_EXTERNAL_PORT:-3000}"
+    echo "  🔗 API Gateway:          http://localhost:${API_GATEWAY_EXTERNAL_PORT:-8001}"
+    echo "  📝 Submission Service:   http://localhost:${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}"
+    echo "  📧 Notification Service: http://localhost:${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005}"
+    echo "  👤 User Portal:          http://localhost:${USER_PORTAL_EXTERNAL_PORT:-8006}"
+    echo "  📊 Monitoring Service:   http://localhost:${MONITORING_SERVICE_EXTERNAL_PORT:-8007}"
+    echo "  📋 Logging Service:      http://localhost:${LOGGING_SERVICE_EXTERNAL_PORT:-8008}"
+    echo "  🤖 AI Orchestrator:      http://localhost:${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010}"
+    echo "  📈 Grafana:              http://localhost:${GRAFANA_EXTERNAL_PORT:-3002}"
+    echo "  🔍 Prometheus:           http://localhost:${PROMETHEUS_EXTERNAL_PORT:-9090}"
     echo ""
     
     if [[ $healthy_count -lt $total_services ]]; then
@@ -1590,16 +1590,16 @@ start_ultra_fast_enhanced() {
     
     # Show access URLs
     print_status "Access URLs:"
-    echo "  🌐 Website Frontend:     http://localhost:3000"
-    echo "  🔗 API Gateway:          http://localhost:8001"
-    echo "  📝 Submission Service:   http://localhost:8002"
-    echo "  📧 Notification Service: http://localhost:8005"
-    echo "  👤 User Portal:          http://localhost:8006"
-    echo "  📊 Monitoring Service:   http://localhost:8007"
-    echo "  📋 Logging Service:      http://localhost:8008"
-    echo "  🤖 AI Orchestrator:      http://localhost:8010"
-    echo "  📈 Grafana:              http://localhost:3002"
-    echo "  🔍 Prometheus:           http://localhost:9090"
+    echo "  🌐 Website Frontend:     http://localhost:${FRONTEND_EXTERNAL_PORT:-3000}"
+    echo "  🔗 API Gateway:          http://localhost:${API_GATEWAY_EXTERNAL_PORT:-8001}"
+    echo "  📝 Submission Service:   http://localhost:${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}"
+    echo "  📧 Notification Service: http://localhost:${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005}"
+    echo "  👤 User Portal:          http://localhost:${USER_PORTAL_EXTERNAL_PORT:-8006}"
+    echo "  📊 Monitoring Service:   http://localhost:${MONITORING_SERVICE_EXTERNAL_PORT:-8007}"
+    echo "  📋 Logging Service:      http://localhost:${LOGGING_SERVICE_EXTERNAL_PORT:-8008}"
+    echo "  🤖 AI Orchestrator:      http://localhost:${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010}"
+    echo "  📈 Grafana:              http://localhost:${GRAFANA_EXTERNAL_PORT:-3002}"
+    echo "  🔍 Prometheus:           http://localhost:${PROMETHEUS_EXTERNAL_PORT:-9090}"
     echo ""
     
     if [[ $healthy_count -lt $total_services ]]; then
@@ -1698,7 +1698,7 @@ start_frontend() {
     fi
     
     print_status "Starting frontend with npm run dev..."
-    print_status "Frontend will be available at: http://localhost:3000"
+    print_status "Frontend will be available at: http://localhost:${FRONTEND_EXTERNAL_PORT:-3000}"
     print_status "Press Ctrl+C to stop the frontend"
     echo ""
     

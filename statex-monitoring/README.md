@@ -57,11 +57,11 @@ docker compose up -d
 
 ### **Access Monitoring Interfaces**
 
-- **Grafana**: <http://localhost:3002> (admin/statex123)
-- **Prometheus**: <http://localhost:9090>
-- **Jaeger**: <http://localhost:16686>
-- **Loki**: <http://localhost:3100>
-- **StateX Monitoring API**: <http://localhost:8007>
+- **Grafana**: <http://localhost:${GRAFANA_EXTERNAL_PORT:-3002}> (admin/statex123)
+- **Prometheus**: <http://localhost:${PROMETHEUS_EXTERNAL_PORT:-9090}>
+- **Jaeger**: <http://localhost:${JAEGER_EXTERNAL_PORT:-16686}>
+- **Loki**: <http://localhost:${LOKI_UI_EXTERNAL_PORT:-3100}>
+- **StateX Monitoring API**: <http://localhost:${MONITORING_SERVICE_EXTERNAL_PORT:-8007}>
 
 ## 📊 **Monitoring Components**
 
@@ -383,7 +383,7 @@ kubectl apply -f k8s/
 4. Add alerting rules
 5. Test and deploy
 
-### **Custom Dashboards**
+### **Custom Monitoring Dashboards**
 
 1. Create dashboard JSON
 2. Add to `grafana/dashboards/`

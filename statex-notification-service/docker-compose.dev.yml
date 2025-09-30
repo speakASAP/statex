@@ -2,14 +2,14 @@ services:
   # Notification Service - Multi-channel communication hub
   notification-service:
     image: python:3.11-slim
-    container_name: statex_notification_dev
+    container_name: ${NOTIFICATION_SERVICE_CONTAINER_NAME:-statex_notification_dev}
     volumes:
       - .:/app
       - ~/.cache/pip:/root/.cache/pip
     working_dir: /app
-    command: sh -c "apt-get update && apt-get install -y curl && pip install -r requirements.txt && uvicorn app.main:app --reload --host 0.0.0.0 --port 8005"
+    command: sh -c "apt-get update && apt-get install -y curl && pip install -r requirements.txt && uvicorn app.main:app --reload --host 0.0.0.0 --port ${NOTIFICATION_SERVICE_INTERNAL_PORT:-8005}"
     ports:
-      - "8005:8005"
+      - "${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005}:${NOTIFICATION_SERVICE_INTERNAL_PORT:-8005}"
     environment:
       # Email Configuration
       - SMTP_SERVER=${SMTP_SERVER:-smtp.gmail.com}
@@ -46,7 +46,7 @@ services:
     networks:
       - statex_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:${NOTIFICATION_SERVICE_INTERNAL_PORT:-8005}/health"]
       interval: 20s
       timeout: 10s
       retries: 3

@@ -121,8 +121,8 @@ statex-platform/
 
 1. **User Portal** (Port 8001): Django-based user management and authentication
 2. **Submission Service** (Port 8002): FastAPI-based form submission and file handling
-3. **AI Orchestrator** (Port 8003): AI workflow management and job distribution
-4. **AI Workers** (Port 8004): AI processing and analysis workers
+3. **AI Orchestrator** (Port 8010): AI workflow management and job distribution
+4. **AI Workers** (Port 8017): AI processing and analysis workers
 5. **Notification Service** (Port 8005): Multi-channel notification delivery
 6. **Content Service** (Port 8006): Content management and static site generation
 7. **Logging Service** (Port 8007): Centralized logging and audit trails

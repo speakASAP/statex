@@ -146,7 +146,7 @@ start_all_services() {
         pip install -r requirements.txt
         cd ..
     fi
-    start_service_bg "platform-management" "source venv/bin/activate && python -m uvicorn services.platform-management.main:app --reload --host 0.0.0.0 --port 8000" "statex-platform" "8000" &
+    start_service_bg "platform-management" "source venv/bin/activate && python -m uvicorn services.platform-management.main:app --reload --host 0.0.0.0 --port ${PLATFORM_MANAGEMENT_INTERNAL_PORT:-8000}" "statex-platform" "${PLATFORM_MANAGEMENT_EXTERNAL_PORT:-8000}" &
     pids+=($!)
     
     # AI Orchestrator
@@ -169,7 +169,7 @@ start_all_services() {
     print_status "Service Status:"
     local services=(
         "frontend:3000"
-        "platform-management:8000"
+        "platform-management:${PLATFORM_MANAGEMENT_EXTERNAL_PORT:-8000}"
         "${AI_ORCHESTRATOR_HOST:-host.docker.internal}:${AI_ORCHESTRATOR_PORT:-8010}"
     )
     
@@ -186,9 +186,9 @@ start_all_services() {
     print_success "Core services started!"
     echo ""
     print_status "Access URLs:"
-    echo "  🌐 Website Frontend:     http://localhost:3000"
-    echo "  🔗 Platform Management:  http://localhost:8000"
-    echo "  🤖 AI Orchestrator:      http://localhost:8010"
+    echo "  🌐 Website Frontend:     http://localhost:${FRONTEND_EXTERNAL_PORT:-3000}"
+    echo "  🔗 Platform Management:  http://localhost:${PLATFORM_MANAGEMENT_EXTERNAL_PORT:-8000}"
+    echo "  🤖 AI Orchestrator:      http://localhost:${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010}"
     echo ""
     print_status "Logs are available in: $LOG_DIR"
     print_status "PIDs are stored in: $PID_DIR"

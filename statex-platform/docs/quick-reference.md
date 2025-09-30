@@ -3,6 +3,7 @@
 ## 🚀 Most Used Commands
 
 ### Development
+
 ```bash
 # Start everything
 make dev
@@ -21,6 +22,7 @@ make restart
 ```
 
 ### Service Management
+
 ```bash
 # View logs for specific service
 make logs-service SERVICE=submission-service
@@ -36,6 +38,7 @@ make shell SERVICE=user-portal
 ```
 
 ### Health & Monitoring
+
 ```bash
 # Quick health check
 make health-check
@@ -51,6 +54,7 @@ make resources
 ```
 
 ### Database
+
 ```bash
 # Connect to database
 make db-connect
@@ -63,6 +67,7 @@ make db-restore BACKUP_FILE=backup.sql
 ```
 
 ### Production Deployment
+
 ```bash
 # Deploy everything
 make deploy-prod DOMAIN=api.statex.cz WEB_DOMAIN=statex.cz
@@ -78,26 +83,26 @@ make deploy-app DOMAIN=api.statex.cz
 
 | Service | URL | Port |
 |---------|-----|------|
-| API Gateway | http://localhost | 80, 443 |
-| User Portal | http://localhost:8001 | 8001 |
-| Submission Service | http://localhost:8002 | 8002 |
-| AI Orchestrator | http://localhost:8003 | 8003 |
-| AI Workers | http://localhost:8004 | 8004 |
-| Notification Service | http://localhost:8005 | 8005 |
-| Content Service | http://localhost:8006 | 8006 |
-| Logging Service | http://localhost:8007 | 8007 |
-| Prometheus | http://localhost:9090 | 9090 |
-| Grafana | http://localhost:${GRAFANA_PORT:-3000} | ${GRAFANA_PORT:-3000} |
+| API Gateway | <http://localhost> | 80, 443 |
+| User Portal | <http://localhost:${USER_PORTAL_EXTERNAL_PORT:-8001}> | ${USER_PORTAL_EXTERNAL_PORT:-8001} |
+| Submission Service | <http://localhost:${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}> | ${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002} |
+| AI Orchestrator | <http://localhost:${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010}> | ${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010} |
+| AI Workers | <http://localhost:${AI_WORKERS_EXTERNAL_PORT:-8017}> | ${AI_WORKERS_EXTERNAL_PORT:-8017} |
+| Notification Service | <http://localhost:${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005}> | ${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005} |
+| Content Service | <http://localhost:${CONTENT_SERVICE_EXTERNAL_PORT:-8006}> | ${CONTENT_SERVICE_EXTERNAL_PORT:-8006} |
+| Logging Service | <http://localhost:${LOGGING_SERVICE_EXTERNAL_PORT:-8007}> | ${LOGGING_SERVICE_EXTERNAL_PORT:-8007} |
+| Prometheus | <http://localhost:${PROMETHEUS_EXTERNAL_PORT:-9090}> | ${PROMETHEUS_EXTERNAL_PORT:-9090} |
+| Grafana | <http://localhost:${GRAFANA_PORT:-3000}> | ${GRAFANA_PORT:-3000} |
 
 ## 🗄️ Infrastructure URLs
 
 | Service | URL | Credentials |
 |---------|-----|-------------|
-| PostgreSQL | localhost:5432 | statex/statex |
-| Redis | localhost:6379 | - |
-| RabbitMQ | http://localhost:15672 | admin/admin |
-| MinIO | http://localhost:9001 | minioadmin/minioadmin |
-| Elasticsearch | http://localhost:9200 | - |
+| PostgreSQL | localhost:${POSTGRES_EXTERNAL_PORT:-5432} | statex/statex |
+| Redis | localhost:${REDIS_EXTERNAL_PORT:-6379} | - |
+| RabbitMQ | <http://localhost:${RABBITMQ_MANAGEMENT_EXTERNAL_PORT:-15672}> | admin/admin |
+| MinIO | <http://localhost:${MINIO_CONSOLE_EXTERNAL_PORT:-9001}> | minioadmin/minioadmin |
+| Elasticsearch | <http://localhost:${ELASTICSEARCH_EXTERNAL_PORT:-9200}> | - |
 
 ## 🆘 Emergency Commands
 
@@ -119,7 +124,7 @@ docker ps
 
 ```bash
 # Test all services
-for port in 8001 8002 8003 8004 8005 8006 8007; do
+for port in ${USER_PORTAL_EXTERNAL_PORT:-8001} ${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002} ${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005} ${CONTENT_SERVICE_EXTERNAL_PORT:-8006} ${LOGGING_SERVICE_EXTERNAL_PORT:-8007} ${MONITORING_SERVICE_EXTERNAL_PORT:-8007} ${CONTENT_SERVICE_EXTERNAL_PORT:-8009} ${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010} ${NLP_SERVICE_EXTERNAL_PORT:-8011} ${ASR_SERVICE_EXTERNAL_PORT:-8012} ${DOCUMENT_AI_EXTERNAL_PORT:-8013} ${PROTOTYPE_GENERATOR_EXTERNAL_PORT:-8014} ${TEMPLATE_REPOSITORY_EXTERNAL_PORT:-8015} ${FREE_AI_SERVICE_EXTERNAL_PORT:-8016} ${AI_WORKERS_EXTERNAL_PORT:-8017}; do
   echo "Port $port: $(curl -s http://localhost:$port/health | jq -r '.status // "DOWN"')"
 done
 ```

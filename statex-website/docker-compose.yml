@@ -35,8 +35,9 @@ services:
     build:
       context: .
       dockerfile: ./services/submission-service/Dockerfile
+    container_name: ${SUBMISSION_SERVICE_CONTAINER_NAME:-statex_submission_service}
     ports:
-      - "8002:8000"
+      - "${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}:${SUBMISSION_SERVICE_INTERNAL_PORT:-8000}"
     environment:
       - DATABASE_URL=postgresql://statex:statex_password@postgres:5432/statex
       - REDIS_URL=redis://redis:6379/1
@@ -62,8 +63,9 @@ services:
   # User Portal Service
   user-portal:
     build: ./user-portal
+    container_name: ${USER_PORTAL_CONTAINER_NAME:-statex_user_portal_service}
     ports:
-      - "8006:8000"
+      - "${USER_PORTAL_EXTERNAL_PORT:-8006}:${USER_PORTAL_INTERNAL_PORT:-8000}"
     environment:
       - DATABASE_URL=postgresql://statex:statex_password@postgres:5432/statex
       - REDIS_URL=redis://redis:6379/0
@@ -80,8 +82,9 @@ services:
   # Content Service
   content-service:
     build: ./services/content-service
+    container_name: ${CONTENT_SERVICE_CONTAINER_NAME:-statex_content_service}
     ports:
-      - "8009:8000"
+      - "${CONTENT_SERVICE_EXTERNAL_PORT:-8009}:${CONTENT_SERVICE_INTERNAL_PORT:-8000}"
     environment:
       - DATABASE_URL=postgresql://statex:statex_password@postgres:5432/statex
       - REDIS_URL=redis://redis:6379/5

@@ -1,4 +1,5 @@
 # StateX Development Optimization Guide
+
 ## Hybrid Docker + Local Development Approach
 
 This document provides comprehensive guidance on the optimized development environment for StateX microservices.
@@ -6,6 +7,7 @@ This document provides comprehensive guidance on the optimized development envir
 ## 🎯 Overview
 
 StateX has been optimized for development with a **hybrid approach** that combines the best of both worlds:
+
 - **Infrastructure services** run in Docker (stable, don't change often)
 - **Application services** run with volume mounts (instant startup, hot reload)
 
@@ -15,7 +17,7 @@ This approach reduces development startup time from **1+ hour to 2-3 minutes** w
 
 ### Development Environment Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Development Environment                       │
 ├─────────────────────────────────────────────────────────────────┤
@@ -186,12 +188,14 @@ These services run in Docker containers and are stable:
 These services run with volume mounts for instant startup:
 
 #### Website Services
+
 - **Frontend** (3000) - Next.js with hot reload
 - **Submission Service** (8002) - Form submission and file handling
 - **User Portal** (8006) - User management and authentication
 - **Content Service** (8009) - Content management and blog
 
 #### AI Services
+
 - **AI Orchestrator** (8010) - Central coordination
 - **NLP Service** (8011) - Text analysis and generation
 - **ASR Service** (8012) - Speech-to-text conversion
@@ -202,13 +206,16 @@ These services run with volume mounts for instant startup:
 - **AI Workers** (8017) - AI processing agents
 
 #### Communication Services
+
 - **Notification Service** (8005) - Multi-channel notifications
 
 #### Platform Services
+
 - **Platform Management** (8000) - Central orchestration
 - **API Gateway** (8001) - Central routing
 
 #### Monitoring Services
+
 - **Monitoring Service** (8007) - Custom monitoring
 - **Logging Service** (8008) - Centralized logging
 - **Grafana** (3002) - Visualization dashboards
@@ -219,6 +226,7 @@ These services run with volume mounts for instant startup:
 ### Common Issues
 
 #### Port Already in Use
+
 ```bash
 # Check what's using the port
 lsof -i :3000
@@ -228,6 +236,7 @@ kill -9 $(lsof -t -i:3000)
 ```
 
 #### Services Can't Connect
+
 ```bash
 # Check if infrastructure is running
 docker ps | grep postgres
@@ -238,6 +247,7 @@ docker compose -f docker-compose.dev.yml restart
 ```
 
 #### Hot Reload Not Working
+
 ```bash
 # For Node.js, check polling is enabled
 # In next.config.js:
@@ -253,6 +263,7 @@ module.exports = {
 ```
 
 #### File Permission Issues
+
 ```bash
 # Fix volume mount permissions
 sudo chown -R $USER:$USER ./frontend
@@ -260,6 +271,7 @@ sudo chown -R $USER:$USER ./services
 ```
 
 ### Reset Everything
+
 ```bash
 # Clean up and start fresh
 ./dev-manage.sh clean --force
@@ -268,7 +280,7 @@ sudo chown -R $USER:$USER ./services
 
 ## 📁 Project Structure
 
-```
+```text
 statex/
 ├── statex-platform/
 │   ├── dev-manage.sh          # Master development script
@@ -316,6 +328,7 @@ statex/
 ## 🔄 Migration from Legacy Development
 
 ### Step 1: Backup Current Setup
+
 ```bash
 # Backup current environment
 cp .env .env.backup
@@ -323,6 +336,7 @@ docker compose down
 ```
 
 ### Step 2: Update to New Approach
+
 ```bash
 # Copy new environment template
 cp env.development.template .env.development
@@ -332,6 +346,7 @@ nano .env.development
 ```
 
 ### Step 3: Test New Setup
+
 ```bash
 # Start with new approach
 ./dev-manage.sh start
@@ -341,6 +356,7 @@ nano .env.development
 ```
 
 ### Step 4: Clean Up Legacy
+
 ```bash
 # Remove old Docker containers
 docker system prune -f
@@ -364,10 +380,3 @@ If you encounter issues:
 2. **Health check**: `./dev-manage.sh health`
 3. **Status check**: `./dev-manage.sh status`
 4. **Reset environment**: `./dev-manage.sh clean --force && ./dev-manage.sh start`
-
----
-
-**Happy coding! 🚀**
-
-*Your development environment is now optimized for maximum productivity.*
-

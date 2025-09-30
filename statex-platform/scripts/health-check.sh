@@ -71,17 +71,17 @@ sleep 2
 
 # Check service health endpoints
 check_service "API Gateway" "http://localhost/health" 200
-check_service "Submission Service" "http://localhost:8002/health" 200
-check_service "User Portal" "http://localhost:8001/health" 200
-check_service "AI Orchestrator" "http://localhost:8003/health" 200
-check_service "AI Workers" "http://localhost:8004/health" 200
-check_service "Notification Service" "http://localhost:8005/health" 200
-check_service "Content Service" "http://localhost:8006/health" 200
-check_service "Logging Service" "http://localhost:8007/health" 200
+check_service "Submission Service" "http://localhost:${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}/health" 200
+check_service "API Gateway" "http://localhost:${API_GATEWAY_EXTERNAL_PORT:-8001}/health" 200
+check_service "AI Orchestrator" "http://localhost:${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010}/health" 200
+check_service "AI Workers" "http://localhost:${AI_WORKERS_EXTERNAL_PORT:-8017}/health" 200
+check_service "Notification Service" "http://localhost:${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005}/health" 200
+check_service "Content Service" "http://localhost:${CONTENT_SERVICE_EXTERNAL_PORT:-8006}/health" 200
+check_service "Logging Service" "http://localhost:${LOGGING_SERVICE_EXTERNAL_PORT:-8007}/health" 200
 
 echo ""
 echo "📊 Checking monitoring services..."
-check_service "Prometheus" "http://localhost:9090/-/healthy" 200
+check_service "Prometheus" "http://localhost:${PROMETHEUS_EXTERNAL_PORT:-9090}/-/healthy" 200
 check_service "Grafana" "http://localhost:${GRAFANA_PORT:-3000}/api/health" 200
 
 echo ""
@@ -110,7 +110,7 @@ fi
 
 echo ""
 echo "🔍 Checking MinIO connectivity..."
-if docker exec statex-platform_minio_1 curl -f http://localhost:9000/minio/health/live > /dev/null 2>&1; then
+if docker exec ${MINIO_CONTAINER_NAME:-statex-platform_minio_1} curl -f http://localhost:${MINIO_INTERNAL_PORT:-9000}/minio/health/live > /dev/null 2>&1; then
     echo -e "MinIO: ${GREEN}✓ Connected${NC}"
 else
     echo -e "MinIO: ${RED}✗ Connection failed${NC}"
@@ -118,7 +118,7 @@ fi
 
 echo ""
 echo "🔍 Checking Elasticsearch connectivity..."
-if docker exec statex-platform_elasticsearch_1 curl -f http://localhost:9200/_cluster/health > /dev/null 2>&1; then
+if docker exec ${ELASTICSEARCH_CONTAINER_NAME:-statex-platform_elasticsearch_1} curl -f http://localhost:${ELASTICSEARCH_INTERNAL_PORT:-9200}/_cluster/health > /dev/null 2>&1; then
     echo -e "Elasticsearch: ${GREEN}✓ Connected${NC}"
 else
     echo -e "Elasticsearch: ${RED}✗ Connection failed${NC}"
@@ -138,7 +138,7 @@ echo "✅ Health check completed!"
 echo ""
 echo "Access URLs:"
 echo "  🌐 Main Platform: http://localhost"
-echo "  📊 Prometheus: http://localhost:9090"
+echo "  📊 Prometheus: http://localhost:${PROMETHEUS_EXTERNAL_PORT:-9090}"
 echo "  📈 Grafana: http://localhost:${GRAFANA_PORT:-3000} (admin/admin)"
-echo "  🔧 RabbitMQ Management: http://localhost:15672 (statex/statex_password)"
-echo "  📁 MinIO Console: http://localhost:9001 (statex/statex_password)"
+echo "  🔧 RabbitMQ Management: http://localhost:${RABBITMQ_MANAGEMENT_EXTERNAL_PORT:-15672} (statex/statex_password)"
+echo "  📁 MinIO Console: http://localhost:${MINIO_CONSOLE_EXTERNAL_PORT:-9001} (statex/statex_password)"
