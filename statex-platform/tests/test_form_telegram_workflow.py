@@ -28,6 +28,132 @@ import aiohttp
 # Configuration
 NOTIFICATION_SERVICE_URL = "http://localhost:8005"
 TELEGRAM_CHAT_ID = "694579866"  # Your Telegram chat ID
+FRONTEND_URL = "http://localhost:3000"
+
+# URL Generation Functions
+def generate_customer_facing_urls(prototype_id: str) -> Dict[str, str]:
+    """Generate customer-facing prototype URLs"""
+    return {
+        "prototype": f"http://project-{prototype_id}.localhost:3000",
+        "plan": f"http://project-{prototype_id}.localhost:3000/plan",
+        "offer": f"http://project-{prototype_id}.localhost:3000/offer"
+    }
+
+def generate_internal_urls(prototype_id: str) -> Dict[str, str]:
+    """Generate internal prototype-results URLs"""
+    return {
+        "results": f"http://localhost:3000/prototype-results/{prototype_id}",
+        "plan": f"http://localhost:3000/prototype-results/{prototype_id}/plan",
+        "offer": f"http://localhost:3000/prototype-results/{prototype_id}/offer"
+    }
+
+def generate_all_urls(prototype_id: str) -> Dict[str, Dict[str, str]]:
+    """Generate all URL patterns for a prototype"""
+    return {
+        "customer_facing": generate_customer_facing_urls(prototype_id),
+        "internal": generate_internal_urls(prototype_id)
+    }
+
+async def test_url_accessibility(urls: Dict[str, str], timeout: int = 10) -> Dict[str, Dict[str, Any]]:
+    """Test URL accessibility and return results"""
+    results = {}
+    
+    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=timeout)) as session:
+        for name, url in urls.items():
+            try:
+                async with session.get(url) as response:
+                    results[name] = {
+                        "url": url,
+                        "status_code": response.status,
+                        "accessible": response.status == 200,
+                        "content_type": response.headers.get('content-type', 'unknown'),
+                        "content_length": response.headers.get('content-length', 'unknown')
+                    }
+                    
+                    # Check for specific content indicators
+                    if response.status == 200:
+                        content = await response.text()
+                        if "Development Plan" in content or "Service Offer" in content:
+                            results[name]["content_type_detected"] = "static_page"
+                        elif "Error Loading" in content:
+                            results[name]["content_type_detected"] = "error_page"
+                        else:
+                            results[name]["content_type_detected"] = "other"
+                    else:
+                        results[name]["content_type_detected"] = "unavailable"
+                        
+            except Exception as e:
+                results[name] = {
+                    "url": url,
+                    "status_code": None,
+                    "accessible": False,
+                    "error": str(e),
+                    "content_type_detected": "error"
+                }
+    
+    return results
+
+def print_url_test_results(all_urls: Dict[str, Dict[str, str]], test_results: Dict[str, Dict[str, Any]]) -> None:
+    """Print comprehensive URL test results"""
+    print("\n" + "="*80)
+    print("🔗 COMPREHENSIVE URL TESTING RESULTS")
+    print("="*80)
+    
+    # Customer-Facing URLs
+    print("\n📱 CUSTOMER-FACING URLs:")
+    print("-" * 40)
+    for name, url in all_urls["customer_facing"].items():
+        result = test_results["customer_facing"][name]
+        status_emoji = "✅" if result["accessible"] else "❌"
+        content_type = result.get("content_type_detected", "unknown")
+        print(f"{status_emoji} {name.upper()}: {url}")
+        print(f"   Status: {result.get('status_code', 'N/A')} | Content: {content_type}")
+    
+    # Internal URLs
+    print("\n🔍 INTERNAL URLs:")
+    print("-" * 40)
+    for name, url in all_urls["internal"].items():
+        result = test_results["internal"][name]
+        status_emoji = "✅" if result["accessible"] else "❌"
+        content_type = result.get("content_type_detected", "unknown")
+        print(f"{status_emoji} {name.upper()}: {url}")
+        print(f"   Status: {result.get('status_code', 'N/A')} | Content: {content_type}")
+    
+    # Summary
+    total_urls = sum(len(urls) for urls in all_urls.values())
+    accessible_urls = sum(
+        sum(1 for result in results.values() if result["accessible"])
+        for results in test_results.values()
+    )
+    
+    print(f"\n📊 SUMMARY: {accessible_urls}/{total_urls} URLs accessible")
+    print("="*80)
+
+async def test_all_prototype_urls(prototype_id: str) -> None:
+    """Test all prototype URL patterns"""
+    print(f"\n🧪 Testing all URLs for prototype ID: {prototype_id}")
+    
+    # Generate all URLs
+    all_urls = generate_all_urls(prototype_id)
+    
+    # Test customer-facing URLs
+    print("\n📱 Testing customer-facing URLs...")
+    customer_results = await test_url_accessibility(all_urls["customer_facing"])
+    
+    # Test internal URLs
+    print("🔍 Testing internal URLs...")
+    internal_results = await test_url_accessibility(all_urls["internal"])
+    
+    # Combine results
+    test_results = {
+        "customer_facing": customer_results,
+        "internal": internal_results
+    }
+    
+    # Print results
+    print_url_test_results(all_urls, test_results)
+    
+    return all_urls, test_results
 
 # Default test data
 DEFAULT_TEST_DATA = {
@@ -279,7 +405,23 @@ The StateX Team 🚀"""
             self.log("❌ AI analysis results failed!", "ERROR")
             return {"success": False, "error": "AI analysis results failed"}
         
-        # Step 4: Summary and timing
+        # Step 4: Test prototype URLs (if prototype ID is available)
+        url_test_results = None
+        if ai_results.get("prototype_id"):
+            self.log("\n🔗 Step 4: Testing prototype URLs")
+            url_start = time.time()
+            try:
+                all_urls, url_test_results = await test_all_prototype_urls(ai_results["prototype_id"])
+                url_duration = self.measure_time("URL Testing", url_start)
+                self.log(f"✅ URL testing completed in {url_duration:.2f} seconds")
+            except Exception as e:
+                self.log(f"⚠️ URL testing failed: {e}", "WARNING")
+                url_duration = 0
+        else:
+            self.log("\n⚠️ Step 4: Skipping URL testing (no prototype ID available)")
+            url_duration = 0
+        
+        # Step 5: Summary and timing
         total_time = time.time() - self.start_time
         self.log("\n" + "=" * 70)
         self.log("🎉 Form Submission and Telegram Workflow Test Complete!")
@@ -287,6 +429,8 @@ The StateX Team 🚀"""
         self.log(f"📧 Initial Confirmation: {confirmation_duration:.2f} seconds")
         self.log(f"🧠 AI Analysis: {ai_duration:.2f} seconds")
         self.log(f"📱 Analysis Results: {analysis_duration:.2f} seconds")
+        if url_duration > 0:
+            self.log(f"🔗 URL Testing: {url_duration:.2f} seconds")
         self.log(f"✅ Status: Success - Check your Telegram channel!")
         
         # Store results
@@ -296,9 +440,11 @@ The StateX Team 🚀"""
             "confirmation_duration": confirmation_duration,
             "ai_duration": ai_duration,
             "analysis_duration": analysis_duration,
+            "url_duration": url_duration,
             "ai_results": ai_results,
             "confirmation_result": confirmation_result,
             "analysis_result": analysis_result,
+            "url_test_results": url_test_results,
             "success": True
         }
         
@@ -378,7 +524,19 @@ async def main():
             print(f"   Confirmation: {results['confirmation_duration']:.2f} seconds")
             print(f"   AI Analysis: {results['ai_duration']:.2f} seconds")
             print(f"   Analysis Results: {results['analysis_duration']:.2f} seconds")
+            if results.get('url_duration', 0) > 0:
+                print(f"   URL Testing: {results['url_duration']:.2f} seconds")
             print(f"   Status: ✅ Success - Check your Telegram channel!")
+            
+            # Show URL testing results if available
+            if results.get('url_test_results'):
+                print(f"\n🔗 URL Testing Results:")
+                url_results = results['url_test_results']
+                if 'customer_facing' in url_results and 'internal' in url_results:
+                    customer_accessible = sum(1 for r in url_results['customer_facing'].values() if r.get('accessible', False))
+                    internal_accessible = sum(1 for r in url_results['internal'].values() if r.get('accessible', False))
+                    print(f"   Customer-Facing URLs: {customer_accessible}/{len(url_results['customer_facing'])} accessible")
+                    print(f"   Internal URLs: {internal_accessible}/{len(url_results['internal'])} accessible")
         else:
             print(f"\n❌ Test failed: {results.get('error', 'Unknown error')}")
         

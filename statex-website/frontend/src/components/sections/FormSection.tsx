@@ -9,7 +9,7 @@ import { fileUploadService, voiceRecordingService, validateFile, formatFileSize 
 import { userService, ContactData } from '@/services/userService';
 import { ContactCollectionModal } from '@/components/modals/ContactCollectionModal';
 import { ProcessingFeedback } from '@/components/forms/ProcessingFeedback';
-import { getPrototypeUrl } from '@/config/env';
+import { getPrototypeUrl, getInternalPrototypeUrl } from '@/config/env';
 import '@/styles/components/ContactCollectionModal.css';
 
 
@@ -416,7 +416,7 @@ export function FormSection({
         };
         
         // Process the form submission
-        await handleFormSubmission(updatedFormData);
+        await handleUserRegistrationAndSubmission(updatedFormData, pendingFormData.voiceRecording);
       }
     } catch (error) {
       console.error('Contact collection error:', error);
@@ -970,6 +970,63 @@ export function FormSection({
                           }}
                         >
                           💼 Service Offer
+                        </a>
+                      </>
+                    )}
+                    
+                    {/* Internal URL Buttons */}
+                    {prototypeId && (
+                      <>
+                        <a 
+                          href={getInternalPrototypeUrl(prototypeId)}
+                          className="stx-button stx-button--secondary"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ 
+                            display: 'inline-block',
+                            padding: '0.5rem 1rem',
+                            backgroundColor: '#8b5cf6',
+                            color: 'white',
+                            textDecoration: 'none',
+                            borderRadius: '6px',
+                            fontWeight: '600'
+                          }}
+                        >
+                          🔍 Internal Results
+                        </a>
+                        <a 
+                          href={getInternalPrototypeUrl(prototypeId, 'plan')}
+                          className="stx-button stx-button--secondary"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ 
+                            display: 'inline-block',
+                            padding: '0.5rem 1rem',
+                            backgroundColor: '#10b981',
+                            color: 'white',
+                            textDecoration: 'none',
+                            borderRadius: '6px',
+                            fontWeight: '600'
+                          }}
+                        >
+                          📊 Internal Plan
+                        </a>
+                        <a 
+                          href={getInternalPrototypeUrl(prototypeId, 'offer')}
+                          className="stx-button stx-button--secondary"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ 
+                            display: 'inline-block',
+                            padding: '0.5rem 1rem',
+                            backgroundColor: '#f59e0b',
+                            color: 'white',
+                            textDecoration: 'none',
+                            borderRadius: '6px',
+                            fontWeight: '600'
+                          }}
+                        >
+                          💼 Internal Offer
                         </a>
                       </>
                     )}

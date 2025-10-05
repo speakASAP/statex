@@ -308,29 +308,61 @@ class TelegramBusinessOfferFormatter:
                 ]
             }
         
+        # Extract prototype ID from project_id if available
+        prototype_id = offer_details.project_id if offer_details.project_id else "unknown"
+        
+        # Generate all URL patterns
+        customer_plan_url = f"http://project-{prototype_id}.localhost:3000/plan"
+        customer_offer_url = f"http://project-{prototype_id}.localhost:3000/offer"
+        internal_results_url = f"http://localhost:3000/prototype-results/{prototype_id}"
+        internal_plan_url = f"http://localhost:3000/prototype-results/{prototype_id}/plan"
+        internal_offer_url = f"http://localhost:3000/prototype-results/{prototype_id}/offer"
+        
         return {
             "inline_keyboard": [
+                # Customer-Facing URLs (first row)
                 [
                     {
-                        "text": "📋 View Project Plan",
-                        "url": offer_details.plan_url
+                        "text": "🤖 View Prototype",
+                        "url": f"http://project-{prototype_id}.localhost:3000"
                     },
                     {
-                        "text": "💰 View Offer Details",
-                        "url": offer_details.offer_url
+                        "text": "📋 Development Plan",
+                        "url": customer_plan_url
+                    },
+                    {
+                        "text": "💼 Service Offer",
+                        "url": customer_offer_url
                     }
                 ],
+                # Internal URLs (second row)
+                [
+                    {
+                        "text": "🔍 Internal Results",
+                        "url": internal_results_url
+                    },
+                    {
+                        "text": "📊 Internal Plan",
+                        "url": internal_plan_url
+                    },
+                    {
+                        "text": "💼 Internal Offer",
+                        "url": internal_offer_url
+                    }
+                ],
+                # Action buttons (third row)
                 [
                     {
                         "text": "📊 View Dashboard",
                         "url": "http://localhost:3000/dashboard"
-                    }
-                ],
-                [
+                    },
                     {
                         "text": "🚀 Request New Analysis",
                         "url": "http://localhost:3000/contact"
-                    },
+                    }
+                ],
+                # Support button (fourth row)
+                [
                     {
                         "text": "💬 Contact Sales",
                         "url": "https://t.me/statex_support"

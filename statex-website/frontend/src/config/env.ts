@@ -102,6 +102,24 @@ export const getSubdomainUrl = (subdomain: string, path?: string): string => {
   }
 };
 
+// Helper function to get internal prototype URL (for internal prototype-results pages)
+export const getInternalPrototypeUrl = (prototypeId: string, path?: string): string => {
+  const basePath = path ? `/${path}` : '';
+  if (env.NODE_ENV === 'production') {
+    return `https://statex.cz/prototype-results/${prototypeId}${basePath}`;
+  } else {
+    // Use the current port from the environment or detect from window location
+    let port = process.env['FRONTEND_PORT'] || '3000';
+    
+    // If running in browser, detect the current port
+    if (typeof window !== 'undefined' && window.location.port) {
+      port = window.location.port;
+    }
+    
+    return `http://localhost:${port}/prototype-results/${prototypeId}${basePath}`;
+  }
+};
+
 // DNS Service URL
 export const DNS_SERVICE_URL = process.env['NEXT_PUBLIC_DNS_SERVICE_URL'] || 
   (process.env.NODE_ENV === 'production' 

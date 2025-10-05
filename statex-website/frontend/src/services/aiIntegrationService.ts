@@ -347,7 +347,8 @@ export class AIIntegrationService {
       try {
         console.log(`📡 Polling attempt ${attempt}/${maxAttempts}...`);
         
-        const response = await fetch(`${this.aiServiceUrl}/api/results/${submissionId}`, {
+        // First check status to see if submission is completed
+        const statusResponse = await fetch(`${this.aiServiceUrl}/api/status/${submissionId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -356,36 +357,57 @@ export class AIIntegrationService {
           signal: AbortSignal.timeout(5000)
         });
         
-        if (response.ok) {
-          const results = await response.json();
-          console.log('✅ AI results received:', results);
+        if (statusResponse.ok) {
+          const statusData = await statusResponse.json();
+          console.log(`📊 Status: ${statusData.status}, Progress: ${statusData.progress}%`);
           
-          // Enhanced logging for full data capture
-          console.log('🔍 FULL AI RESPONSE DATA:');
-          console.log(JSON.stringify(results, null, 2));
-          console.log('📊 Results object keys:', Object.keys(results));
-          if (results.results) {
-            console.log('🤖 Results.results keys:', Object.keys(results.results));
-          }
-          if (results.workflow_steps) {
-            console.log('⚙️ Workflow steps count:', results.workflow_steps.length);
-            results.workflow_steps.forEach((step: any, index: number) => {
-              console.log(`Step ${index + 1}:`, step.step_id, '-', step.status);
-              if (step.output_data) {
-                console.log(`  Output data keys:`, Object.keys(step.output_data));
-              }
+          if (statusData.status === 'completed') {
+            // Now get the actual results
+            const resultsResponse = await fetch(`${this.aiServiceUrl}/api/results/${submissionId}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'StateX-Frontend/1.0'
+              },
+              signal: AbortSignal.timeout(5000)
             });
+            
+            if (resultsResponse.ok) {
+              const results = await resultsResponse.json();
+              console.log('✅ AI results received:', results);
+              
+              // Enhanced logging for full data capture
+              console.log('🔍 FULL AI RESPONSE DATA:');
+              console.log(JSON.stringify(results, null, 2));
+              console.log('📊 Results object keys:', Object.keys(results));
+              if (results.results) {
+                console.log('🤖 Results.results keys:', Object.keys(results.results));
+              }
+              if (results.workflow_steps) {
+                console.log('⚙️ Workflow steps count:', results.workflow_steps.length);
+                results.workflow_steps.forEach((step: any, index: number) => {
+                  console.log(`Step ${index + 1}:`, step.step_id, '-', step.status);
+                  if (step.output_data) {
+                    console.log(`  Output data keys:`, Object.keys(step.output_data));
+                  }
+                });
+              }
+              
+              // Convert the results to AIAnalysisResponse format
+              return this.convertResultsToAIAnalysisResponse(results, userId);
+            } else {
+              console.error(`❌ Results endpoint error: ${resultsResponse.status}`);
+              throw new Error(`Results endpoint error: ${resultsResponse.status}`);
+            }
+          } else {
+            // Still processing, wait and try again
+            console.log(`⏳ Still processing... Status: ${statusData.status}, Progress: ${statusData.progress}% (attempt ${attempt}/${maxAttempts})`);
+            await new Promise(resolve => setTimeout(resolve, intervalMs));
+            continue;
           }
-          
-          // Convert the results to AIAnalysisResponse format
-          return this.convertResultsToAIAnalysisResponse(results, userId);
-        } else if (response.status === 400) {
-          // Still processing, wait and try again
-          console.log(`⏳ Still processing... (attempt ${attempt}/${maxAttempts})`);
-          await new Promise(resolve => setTimeout(resolve, intervalMs));
-          continue;
         } else {
-          throw new Error(`Failed to get results: ${response.status}`);
+          console.error(`❌ Status endpoint error: ${statusResponse.status}`);
+          throw new Error(`Status endpoint error: ${statusResponse.status}`);
         }
       } catch (error) {
         console.warn(`⚠️ Polling attempt ${attempt} failed:`, error);
