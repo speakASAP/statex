@@ -2,9 +2,9 @@ fastapi==0.104.1
 uvicorn==0.24.0
 pydantic==2.5.0
 httpx==0.25.2
-python-multipart==0.0.6
+python-multipart==0.0.18
 python-dotenv==1.0.0
 redis==5.0.1
-langchain==0.0.350
-langchain-core==0.1.0
+langchain==0.2.5
+langchain-core==0.1.53
 asyncio-mqtt==0.13.0
