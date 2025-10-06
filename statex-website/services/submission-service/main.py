@@ -21,6 +21,13 @@ from pathlib import Path
 # Add shared directory to path
 sys.path.append('/app/shared')
 from http_clients import ServiceOrchestrator
+from storage.disk_storage import (
+    get_base_dir,
+    generate_user_and_session,
+    ensure_session_dirs,
+    write_form_markdown,
+    save_upload_file,
+)
 
 # Pydantic models for JSON API
 class FileInfo(BaseModel):
@@ -194,6 +201,25 @@ async def create_submission(
             "updated_at": datetime.utcnow().isoformat()
         }
         
+        # Prepare disk persistence
+        base_dir = get_base_dir()
+        user_id, session_id = generate_user_and_session(user_email, request)
+        session_path, files_path = ensure_session_dirs(base_dir, user_id, session_id)
+        # Write form markdown to disk
+        write_form_markdown(
+            session_path,
+            {
+                "request_type": request_type,
+                "user_name": user_name,
+                "user_email": user_email,
+                "description": description,
+                "has_voice": bool(voice_file and voice_file.filename),
+                "recording_time": 0,
+            },
+        )
+
+        saved_files = []
+
         # Handle voice file upload if present
         if voice_file and voice_file.filename:
             is_valid, error_msg = validate_file(voice_file)
@@ -222,6 +248,11 @@ async def create_submission(
             
             files_db[file_id] = file_info
             submission["file_urls"].append(f"/files/{file_id}")
+            # Persist voice file to disk
+            saved_meta = await save_upload_file(files_path, voice_file)
+            saved_meta["id"] = file_id
+            saved_meta["type"] = "voice"
+            saved_files.append(saved_meta)
 
         # Handle file uploads if present
         if files:
@@ -253,6 +284,11 @@ async def create_submission(
                     
                     files_db[file_id] = file_info
                     submission["file_urls"].append(f"/files/{file_id}")
+                    # Persist attachment to disk
+                    saved_meta = await save_upload_file(files_path, file)
+                    saved_meta["id"] = file_id
+                    saved_meta["type"] = "attachment"
+                    saved_files.append(saved_meta)
         
         # Store submission
         submissions_db[submission_id] = submission
@@ -285,7 +321,12 @@ async def create_submission(
                 "file_urls": submission["file_urls"],
                 "created_at": submission["created_at"],
                 "ai_submission_id": ai_result.get("submission_id"),
-                "estimated_completion_time": ai_result.get("estimated_completion_time")
+                "estimated_completion_time": ai_result.get("estimated_completion_time"),
+                # Disk persistence details for observability
+                "disk_path": str(session_path),
+                "user_id": user_id,
+                "session_id": session_id,
+                "saved_files": saved_files,
             }
         )
         
