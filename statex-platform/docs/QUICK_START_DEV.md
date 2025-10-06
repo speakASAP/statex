@@ -1,4 +1,5 @@
 # StateX Development Quick Start Guide
+
 ## Hybrid Docker + Local Development Setup
 
 This guide will get you up and running with the optimized StateX development environment in minutes instead of hours.
@@ -6,6 +7,7 @@ This guide will get you up and running with the optimized StateX development env
 ## 🚀 Quick Start (2-3 minutes)
 
 ### 1. Prerequisites
+
 ```bash
 # Install required tools
 # Docker Desktop (for infrastructure)
@@ -20,6 +22,7 @@ docker --version  # Any recent version
 ```
 
 ### 2. Environment Setup
+
 ```bash
 # Copy environment template
 cp env.development.template .env.development
@@ -30,6 +33,7 @@ nano .env.development
 ```
 
 ### 3. Start All Services
+
 ```bash
 # Start everything (infrastructure + applications)
 cd statex-platform
@@ -42,6 +46,7 @@ cd statex-platform
 ```
 
 ### 4. Verify Everything Works
+
 ```bash
 # Check health
 ./dev-manage.sh health
@@ -57,15 +62,16 @@ cd statex-platform
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| **Website** | http://localhost:3000 | Main frontend |
-| **API Gateway** | http://localhost:8001 | Central API access |
-| **AI Orchestrator** | http://localhost:8010 | AI coordination |
-| **Grafana** | http://localhost:3002 | Monitoring dashboards |
-| **Prometheus** | http://localhost:9090 | Metrics collection |
+| **Website** | <http://localhost:3000> | Main frontend |
+| **API Gateway** | <http://localhost:8001> | Central API access |
+| **AI Orchestrator** | <http://localhost:8010> | AI coordination |
+| **Grafana** | <http://localhost:3002> | Monitoring dashboards |
+| **Prometheus** | <http://localhost:9090> | Metrics collection |
 
 ## 🔧 Development Workflow
 
 ### Start Individual Services
+
 ```bash
 # Start only frontend
 ./dev-manage.sh dev frontend
@@ -78,6 +84,7 @@ cd statex-platform
 ```
 
 ### Local Development Setup
+
 ```bash
 # For any service directory
 cd statex-website/frontend
@@ -90,6 +97,7 @@ cd statex-website/frontend
 ```
 
 ### Hot Reload Development
+
 ```bash
 # Python services
 cd statex-ai/services/ai-orchestrator
@@ -115,6 +123,7 @@ npm run dev
 ### Common Issues
 
 #### Port Already in Use
+
 ```bash
 # Check what's using the port
 lsof -i :3000
@@ -124,6 +133,7 @@ kill -9 $(lsof -t -i:3000)
 ```
 
 #### Services Can't Connect
+
 ```bash
 # Check if infrastructure is running
 docker ps | grep postgres
@@ -134,6 +144,7 @@ docker compose -f docker-compose.dev.yml restart
 ```
 
 #### Hot Reload Not Working
+
 ```bash
 # For Node.js, check polling is enabled
 # In next.config.js:
@@ -149,6 +160,7 @@ module.exports = {
 ```
 
 ### Reset Everything
+
 ```bash
 # Clean up and start fresh
 ./dev-manage.sh clean --force
@@ -157,7 +169,7 @@ module.exports = {
 
 ## 📁 Project Structure
 
-```
+```text
 statex/
 ├── statex-platform/
 │   ├── dev-manage.sh          # Master development script
@@ -180,12 +192,14 @@ statex/
 ## 🎉 Benefits
 
 ### For Developers
+
 - **Instant feedback** on code changes
 - **Native file system** performance
 - **Easy debugging** with direct file access
 - **Fast iteration** cycle
 
 ### For the Project
+
 - **Maintained production** containerization
 - **Consistent development** environment
 - **Reduced resource** usage
@@ -204,10 +218,3 @@ statex/
 - **Service Logs**: `./dev-manage.sh logs [service]`
 - **Health Check**: `./dev-manage.sh health`
 - **Status Check**: `./dev-manage.sh status`
-
----
-
-**Happy coding! 🚀**
-
-*Your development environment is now optimized for maximum productivity.*
-
