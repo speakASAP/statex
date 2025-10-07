@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 import { ClassComposer } from '@/lib/classComposition';
 import { Container, Section } from '@/components/atoms';
@@ -66,6 +66,7 @@ export function FormSection({
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+  const [actualFiles, setActualFiles] = useState<File[]>([]);
   const [voiceRecordingFile, setVoiceRecordingFile] = useState<any>(null);
   const [recordingInterval, setRecordingInterval] = useState<NodeJS.Timeout | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -84,6 +85,7 @@ export function FormSection({
   // Processing feedback states
   const [showProcessingFeedback, setShowProcessingFeedback] = useState(false);
   const [currentSubmissionId, setCurrentSubmissionId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Check microphone permissions on component mount
   useEffect(() => {
@@ -163,6 +165,8 @@ export function FormSection({
             setRecordingInterval(null);
           }
           
+          // Keep local file reference; avoid relying on async state here
+          
           // Upload the voice recording to the server
           console.log('📤 Uploading voice recording to server...');
           const voiceRecording = await fileUploadService.uploadVoiceRecording(audioBlob);
@@ -170,7 +174,7 @@ export function FormSection({
           
           // Update the state with the uploaded recording
           setVoiceRecordingFile(voiceRecording);
-          finalVoiceRecordingFile = voiceRecording;
+          finalVoiceRecordingFile = audioBlob;
           
           // Verify the recording was uploaded successfully
           if (!voiceRecording.fileId || !voiceRecording.tempSessionId) {
@@ -178,6 +182,9 @@ export function FormSection({
           }
           
           console.log('🎯 Recording stopped, uploaded, and included in submission:', finalVoiceRecordingFile);
+          
+          // Add a small delay to ensure the upload is fully processed
+          await new Promise(resolve => setTimeout(resolve, 500));
         } catch (error) {
           console.error('❌ Failed to stop recording before submission:', error);
           // If recording fails, continue without it
@@ -186,6 +193,7 @@ export function FormSection({
             clearInterval(recordingInterval);
             setRecordingInterval(null);
           }
+          finalVoiceRecordingFile = null;
         }
       }
 
@@ -302,16 +310,97 @@ export function FormSection({
       // Show processing feedback
       setShowProcessingFeedback(true);
 
-      // Send to notification service - always use prototype request for consistency
+      // First persist to disk via submission-service
+      let diskResult = null;
+      try {
+        console.log('💾 Saving form data to disk via submission-service...', {
+          name,
+          contactValue,
+          description: formData.description,
+          filesCount: actualFiles.length,
+          hasVoice: !!finalVoiceRecordingFile
+        });
+        
+        const submissionData = new FormData();
+        submissionData.append('user_email', contactValue || '');
+        submissionData.append('user_name', name || '');
+        submissionData.append('request_type', 'contact');
+        submissionData.append('description', formData.description || '');
+        submissionData.append('priority', 'normal');
+        
+        // Add voice file if present (use local variable to avoid async state race)
+        if (finalVoiceRecordingFile) {
+          const voiceFileName = getVoiceFileName(finalVoiceRecordingFile);
+          const voiceFile = new File([finalVoiceRecordingFile], voiceFileName, {
+            type: (finalVoiceRecordingFile as any).type || 'audio/webm'
+          });
+          submissionData.append('voice_file', voiceFile, voiceFileName);
+        }
+        
+        // Add uploaded files
+        actualFiles.forEach(file => {
+          submissionData.append('files', file);
+        });
+        
+        // Submit to submission-service for disk persistence
+        const diskResponse = await fetch('http://localhost:8002/api/submissions/', {
+          method: 'POST',
+          body: submissionData,
+          headers: {
+            'User-Agent': 'StateX-Frontend-Direct/1.0'
+          }
+        });
+        
+        if (diskResponse.ok) {
+          diskResult = await diskResponse.json();
+          console.log('✅ Form data saved to disk successfully:', diskResult);
+        } else {
+          console.error('❌ Failed to save form data to disk:', diskResponse.status, await diskResponse.text());
+          throw new Error('Failed to save form data to disk');
+        }
+      } catch (diskError) {
+        console.error('Disk persistence failed:', diskError);
+        throw new Error('Failed to save form data to disk');
+      }
+
+      // Only send notification after successful disk persistence
       let response;
-      response = await directNotificationService.sendPrototypeRequest({
-        ...formData,
-        voiceRecording: finalVoiceRecordingFile,
-        userId: currentUserId,
-        submissionId: submissionId
-      });
+      try {
+        // Prepare enhanced notification data with file information
+        const notificationData = {
+          ...formData,
+          voiceRecording: finalVoiceRecordingFile,
+          userId: currentUserId,
+          submissionId: submissionId,
+          diskResult: diskResult,
+          filesInfo: actualFiles.map(file => ({
+            name: file.name,
+            size: file.size,
+            type: file.type
+          })),
+          voiceInfo: finalVoiceRecordingFile ? {
+            size: finalVoiceRecordingFile.size,
+            type: finalVoiceRecordingFile.type
+          } : null
+        };
+
+        response = await directNotificationService.sendPrototypeRequest(notificationData);
+        console.log('📤 Notification sent successfully:', response);
+      } catch (notificationError) {
+        console.error('❌ Notification failed:', notificationError);
+        // Don't throw here - disk persistence was successful
+        response = { success: false, message: 'Notification failed but form was saved' };
+      }
 
       if (response.success) {
+        // Hard reset local UI state so files disappear after submission
+        try {
+          setUploadedFiles([]);
+          setActualFiles([]);
+          setVoiceRecordingFile(null);
+          setRecordingTime(0);
+        } catch {}
+
         // Processing feedback will handle the success state
         // Don't set success immediately - let the processing feedback complete first
         console.log('✅ Form submitted successfully, processing in progress...');
@@ -328,6 +417,14 @@ export function FormSection({
         // User ID is already stored from registration process
         console.log('✅ Using existing user ID:', currentUserId);
         
+        // Hard reset local UI state so files disappear after submission
+        try {
+          setUploadedFiles([]);
+          setActualFiles([]);
+          setVoiceRecordingFile(null);
+          setRecordingTime(0);
+        } catch {}
+
         // Send confirmation to user if we have contact info (optional)
         // Note: User portal service is not running in development, so skip confirmation
         if (currentUserId && showContactFields && contactType && contactValue && process.env.NODE_ENV === 'production') {
@@ -405,6 +502,13 @@ export function FormSection({
       
       console.log('✅ Contact collection completed, now processing form submission...');
       
+      // Reset UI local state after successful contact collection
+      try {
+        setUploadedFiles([]);
+        setVoiceRecordingFile(null);
+        setRecordingTime(0);
+      } catch {}
+
       // Now process the pending form data with the collected contact info
       if (pendingFormData) {
         // Update the form data with contact info
@@ -503,6 +607,8 @@ export function FormSection({
         setRecordingInterval(null);
       }
 
+      // Keep local file reference; avoid relying on async state here
+      
       // Upload the voice recording
       const voiceRecording = await fileUploadService.uploadVoiceRecording(audioBlob);
       console.log('Voice recording uploaded:', voiceRecording);
@@ -530,10 +636,20 @@ export function FormSection({
         }
       }
       
+      // Store actual files for disk persistence
+      setActualFiles(prev => [...prev, ...newFiles]);
+      
       // Upload files
       try {
+        console.log('📎 Uploading files:', newFiles.map(f => ({ name: f.name, size: f.size, type: f.type })));
         const uploadedFileData = await fileUploadService.uploadFiles(newFiles);
+        console.log('✅ Files uploaded successfully:', uploadedFileData);
         setUploadedFiles(prev => [...prev, ...uploadedFileData]);
+        
+        // Clear the file input to allow selecting the same file again
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       } catch (error) {
         console.error('File upload failed:', error);
         alert(error instanceof Error ? error.message : 'File upload failed');
@@ -560,10 +676,20 @@ export function FormSection({
         }
       }
       
+      // Store actual files for disk persistence
+      setActualFiles(prev => [...prev, ...newFiles]);
+      
       // Upload files
       try {
+        console.log('📎 Uploading dropped files:', newFiles.map(f => ({ name: f.name, size: f.size, type: f.type })));
         const uploadedFileData = await fileUploadService.uploadFiles(newFiles);
+        console.log('✅ Dropped files uploaded successfully:', uploadedFileData);
         setUploadedFiles(prev => [...prev, ...uploadedFileData]);
+        
+        // Clear the file input to allow selecting the same file again
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       } catch (error) {
         console.error('File upload failed:', error);
         alert(error instanceof Error ? error.message : 'File upload failed');
@@ -576,6 +702,17 @@ export function FormSection({
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Determine a sensible filename for the voice blob based on its MIME type
+  const getVoiceFileName = (blob: Blob): string => {
+    const type = (blob.type || '').toLowerCase();
+    if (type.includes('wav')) return 'voice.wav';
+    if (type.includes('webm')) return 'voice.webm';
+    if (type.includes('ogg')) return 'voice.ogg';
+    if (type.includes('mpeg')) return 'voice.mp3';
+    if (type.includes('mp4') || type.includes('m4a')) return 'voice.m4a';
+    return 'voice.webm';
   };
 
   // Contact type placeholder updater
@@ -638,12 +775,10 @@ export function FormSection({
     }
   };
 
-
-
   // Update submit button text based on status
   const getSubmitButtonText = () => {
     if (isSubmitting) {
-      if (isRecording) return '⏹️ Stopping recording & submitting...';
+      if (isRecording) return '⏹️ Stopping recording...';
       return '⏳ Submitting...';
     }
     if (submitStatus === 'success') return '✅ Submitted!';
@@ -762,7 +897,7 @@ export function FormSection({
                                 ⏱️ Recording: <span>{formatTime(recordingTime)}</span>
                                 {isSubmitting && (
                                   <span style={{ color: 'orange', marginLeft: '8px' }}>
-                                    ⚠️ Will be included in submission
+                                    ⚠️ Stopping recording for submission...
                                   </span>
                                 )}
                               </div>
@@ -792,6 +927,7 @@ export function FormSection({
                         type="file"
                         id="fileInput"
                         className={classSet.elements['fileInput']}
+                        ref={fileInputRef}
                         multiple
                         accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.png,.txt,.mp4,.mov,.avi"
                         onChange={handleFileSelect}

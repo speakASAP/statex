@@ -1,0 +1,288 @@
+# StateX API Gateway Configuration
+# Centralized routing for all microservices
+
+# Upstream definitions for all services
+upstream ai_orchestrator {
+    server ${AI_ORCHESTRATOR_HOST:-ai-orchestrator}:${AI_ORCHESTRATOR_PORT:-8010};
+    keepalive 32;
+}
+
+upstream notification_service {
+    server ${NOTIFICATION_SERVICE_HOST:-notification-service}:${NOTIFICATION_SERVICE_PORT:-8005};
+    keepalive 32;
+}
+
+upstream submission_service {
+    server ${SUBMISSION_SERVICE_HOST:-submission-service}:${SUBMISSION_SERVICE_PORT:-8002};
+    keepalive 32;
+}
+
+upstream user_portal {
+    server ${USER_PORTAL_HOST:-user-portal}:${USER_PORTAL_PORT:-8006};
+    keepalive 32;
+}
+
+upstream content_service {
+    server ${CONTENT_SERVICE_HOST:-content-service}:${CONTENT_SERVICE_PORT:-8009};
+    keepalive 32;
+}
+
+# Monitoring and logging services are handled by the infrastructure layer
+# upstream monitoring_service {
+#     server ${MONITORING_SERVICE_HOST:-monitoring-service}:${MONITORING_SERVICE_PORT:-8007};
+#     keepalive 32;
+# }
+
+# upstream logging_service {
+#     server ${LOGGING_SERVICE_HOST:-logging-service}:${LOGGING_SERVICE_PORT:-8008};
+#     keepalive 32;
+# }
+
+upstream nlp_service {
+    server ${NLP_SERVICE_HOST:-nlp-service}:${NLP_SERVICE_PORT:-8011};
+    keepalive 32;
+}
+
+upstream asr_service {
+    server ${ASR_SERVICE_HOST:-asr-service}:${ASR_SERVICE_PORT:-8012};
+    keepalive 32;
+}
+
+upstream document_ai {
+    server ${DOCUMENT_AI_HOST:-document-ai}:${DOCUMENT_AI_PORT:-8013};
+    keepalive 32;
+}
+
+upstream prototype_generator {
+    server ${PROTOTYPE_GENERATOR_HOST:-prototype-generator}:${PROTOTYPE_GENERATOR_PORT:-8014};
+    keepalive 32;
+}
+
+upstream template_repository {
+    server ${TEMPLATE_REPOSITORY_HOST:-template-repository}:${TEMPLATE_REPOSITORY_PORT:-8015};
+    keepalive 32;
+}
+
+upstream free_ai_service {
+    server ${FREE_AI_SERVICE_HOST:-free-ai-service}:${FREE_AI_SERVICE_PORT:-8016};
+    keepalive 32;
+}
+
+upstream ai_workers {
+    server ${AI_WORKERS_HOST:-ai-workers}:${AI_WORKERS_PORT:-8017};
+    keepalive 32;
+}
+
+# Main API Gateway server
+server {
+    listen 80;
+    server_name _;
+    
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    
+    # Global rate limiting
+    limit_req zone=api burst=20 nodelay;
+    
+    # Health check endpoint
+    location /health {
+        access_log off;
+        return 200 "API Gateway is healthy\n";
+        add_header Content-Type text/plain;
+    }
+    
+    # API status endpoint
+    location /api/status {
+        access_log off;
+        return 200 '{"status":"healthy","gateway":"statex-api-gateway","timestamp":"$time_iso8601"}';
+        add_header Content-Type application/json;
+    }
+    
+    # AI Services Routes
+    location /api/ai/ {
+        limit_req zone=ai burst=10 nodelay;
+        proxy_pass http://ai_orchestrator/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # AI-specific timeouts (longer for processing)
+        proxy_connect_timeout 120s;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 120s;
+    }
+    
+    # NLP Service
+    location /api/nlp/ {
+        limit_req zone=ai burst=10 nodelay;
+        proxy_pass http://nlp_service/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        proxy_connect_timeout 120s;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 120s;
+    }
+    
+    # ASR Service
+    location /api/asr/ {
+        limit_req zone=ai burst=10 nodelay;
+        proxy_pass http://asr_service/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        proxy_connect_timeout 120s;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 120s;
+    }
+    
+    # Document AI Service
+    location /api/document/ {
+        limit_req zone=ai burst=10 nodelay;
+        proxy_pass http://document_ai/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        proxy_connect_timeout 120s;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 120s;
+    }
+    
+    # Prototype Generator
+    location /api/prototype/ {
+        limit_req zone=ai burst=10 nodelay;
+        proxy_pass http://prototype_generator/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        proxy_connect_timeout 120s;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 120s;
+    }
+    
+    # Template Repository
+    location /api/templates/ {
+        proxy_pass http://template_repository/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+    # Free AI Service
+    location /api/free-ai/ {
+        limit_req zone=ai burst=10 nodelay;
+        proxy_pass http://free_ai_service/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        proxy_connect_timeout 120s;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 120s;
+    }
+    
+    # AI Workers
+    location /api/workers/ {
+        limit_req zone=ai burst=10 nodelay;
+        proxy_pass http://ai_workers/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        proxy_connect_timeout 120s;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 120s;
+    }
+    
+    # Notification Service
+    location /api/notifications/ {
+        proxy_pass http://notification_service/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+    # Submission Service
+    location /api/submissions/ {
+        proxy_pass http://submission_service/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+    # User Portal
+    location /api/users/ {
+        proxy_pass http://user_portal/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+    # Content Service
+    location /api/content/ {
+        proxy_pass http://content_service/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+    # Monitoring Service - handled by infrastructure layer
+    # location /api/monitoring/ {
+    #     proxy_pass http://monitoring_service/;
+    #     proxy_http_version 1.1;
+    #     proxy_set_header Host $host;
+    #     proxy_set_header X-Real-IP $remote_addr;
+    #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #     proxy_set_header X-Forwarded-Proto $scheme;
+    # }
+    
+    # Logging Service - handled by infrastructure layer
+    # location /api/logs/ {
+    #     proxy_pass http://logging_service/;
+    #     proxy_http_version 1.1;
+    #     proxy_set_header Host $host;
+    #     proxy_set_header X-Real-IP $remote_addr;
+    #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #     proxy_set_header X-Forwarded-Proto $scheme;
+    # }
+    
+    # Default route - return API documentation
+    location / {
+        return 200 '{"message":"StateX API Gateway","version":"1.0","endpoints":["/api/ai/","/api/notifications/","/api/submissions/","/api/users/","/api/content/","/api/monitoring/","/api/logs/","/health","/api/status"]}';
+        add_header Content-Type application/json;
+    }
+}

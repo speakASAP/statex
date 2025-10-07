@@ -27,6 +27,7 @@ from storage.disk_storage import (
     ensure_session_dirs,
     write_form_markdown,
     save_upload_file,
+    move_temp_files_from_metadata,
 )
 
 # Pydantic models for JSON API
@@ -172,6 +173,7 @@ async def readiness_check():
 
 @app.post("/api/submissions/")
 async def create_submission(
+    request: Request,
     user_email: str = Form(...),
     user_name: str = Form(...),
     request_type: str = Form(...),
@@ -365,6 +367,30 @@ async def create_submission_json(request: FormSubmissionRequest):
                 file_url = f"/files/{file_info.fileId}"
                 submission["file_urls"].append(file_url)
         
+        # Prepare disk persistence
+        base_dir = get_base_dir()
+        user_id, session_id = generate_user_and_session(request.contactValue, None)
+        session_path, files_path = ensure_session_dirs(base_dir, user_id, session_id)
+        
+        # Write form markdown to disk
+        write_form_markdown(
+            session_path,
+            {
+                "request_type": request_type,
+                "user_name": request.name or "Unknown",
+                "user_email": request.contactValue,
+                "description": request.description,
+                "has_voice": bool(request.voiceRecording),
+                "recording_time": request.voiceRecording.recordingTime if request.voiceRecording else 0,
+            },
+        )
+        
+        # Move temp files to final location
+        saved_files = move_temp_files_from_metadata(
+            base_dir, user_id, session_id, 
+            request.files, request.voiceRecording
+        )
+        
         # Store submission
         submissions_db[submission_id] = submission
         
@@ -400,7 +426,11 @@ async def create_submission_json(request: FormSubmissionRequest):
                 "file_urls": submission["file_urls"],
                 "created_at": submission["created_at"],
                 "ai_submission_id": ai_result.get("submission_id"),
-                "estimated_completion_time": ai_result.get("estimated_completion_time")
+                "estimated_completion_time": ai_result.get("estimated_completion_time"),
+                "disk_path": f"/app/data/uploads/{user_id}/{session_id}",
+                "user_id": user_id,
+                "session_id": session_id,
+                "saved_files": saved_files
             }
         )
         

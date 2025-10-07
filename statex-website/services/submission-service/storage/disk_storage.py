@@ -31,6 +31,19 @@ def ensure_session_dirs(base_dir: Path, user_id: str, session_id: str) -> Tuple[
     return session_path, files_path
 
 
+def get_tmp_dir() -> Path:
+    base = Path(os.getenv("SUBMISSION_TMP_DIR", "/app/data/tmp"))
+    base.mkdir(parents=True, exist_ok=True)
+    return base
+
+
+def ensure_tmp_session_dirs(temp_session_id: str) -> Path:
+    tmp_base = get_tmp_dir()
+    session_tmp = tmp_base / temp_session_id / "files"
+    session_tmp.mkdir(parents=True, exist_ok=True)
+    return session_tmp
+
+
 def _form_markdown(payload: Dict[str, Any]) -> str:
     timestamp = datetime.utcnow().isoformat()
     return (
@@ -73,3 +86,39 @@ async def save_upload_file(files_path: Path, upload: UploadFile) -> Dict[str, An
     }
 
 
+def move_temp_files_from_metadata(base_dir: Path, user_id: str, session_id: str, files_meta: list[dict] | None, voice_meta: dict | None) -> list[dict]:
+    moved: list[dict] = []
+    if not files_meta and not voice_meta:
+        return moved
+    _, final_files = ensure_session_dirs(base_dir, user_id, session_id)
+
+    def _move_one(temp_session_id: str, stored_name: str, kind: str) -> dict | None:
+        src = get_tmp_dir() / temp_session_id / "files" / stored_name
+        if not src.exists():
+            return None
+        dst = final_files / stored_name
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            dst.write_bytes(src.read_bytes())
+            return {"stored_name": stored_name, "path": str(dst), "type": kind}
+        except Exception:
+            return None
+
+    if files_meta:
+        for f in files_meta:
+            stored = f.get("fileId") or f.get("stored_name")
+            temp_sess = f.get("tempSessionId")
+            if stored and temp_sess:
+                res = _move_one(temp_sess, stored, "attachment")
+                if res:
+                    moved.append(res)
+
+    if voice_meta:
+        stored = voice_meta.get("fileId") or voice_meta.get("stored_name")
+        temp_sess = voice_meta.get("tempSessionId")
+        if stored and temp_sess:
+            res = _move_one(temp_sess, stored, "voice")
+            if res:
+                moved.append(res)
+
+    return moved

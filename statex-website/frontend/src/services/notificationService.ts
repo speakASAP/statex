@@ -128,6 +128,9 @@ export class DirectNotificationService {
     voiceRecording?: any;
     userId?: string;
     submissionId?: string;
+    diskResult?: any;
+    filesInfo?: Array<{name: string, size: number, type: string}>;
+    voiceInfo?: {size: number, type: string} | null;
   }): Promise<NotificationResponse> {
     try {
       console.log('🤖 Starting AI analysis for prototype request...');
@@ -163,17 +166,34 @@ export class DirectNotificationService {
         [data.contactType]: data.contactValue
       };
 
-      // Format message with AI results
+      // Format message with AI results and file information
+      let fileDetails = '';
+      if (data.filesInfo && data.filesInfo.length > 0) {
+        fileDetails = '\n📁 *Attached Files:*\n';
+        data.filesInfo.forEach((file, index) => {
+          const sizeKB = Math.round(file.size / 1024);
+          fileDetails += `${index + 1}. ${file.name} (${sizeKB}KB, ${file.type})\n`;
+        });
+      }
+
+      let voiceDetails = '';
+      if (data.voiceInfo) {
+        const voiceSizeKB = Math.round(data.voiceInfo.size / 1024);
+        voiceDetails = `\n🎤 *Voice Recording:*\nDuration: ${data.recordingTime}s, Size: ${voiceSizeKB}KB, Type: ${data.voiceInfo.type}\n`;
+      }
+
+      let diskInfo = '';
+      if (data.diskResult) {
+        diskInfo = `\n💾 *Saved to Disk:*\nSession: ${data.diskResult.session_id}\nPath: ${data.diskResult.disk_path}\n`;
+      }
+
       const baseMessage = `
-New prototype request received:
+🚀 *New Prototype Request Received*
 
-Name: ${data.name || 'Not provided'}
-Contact: ${data.contactValue} (${data.contactType})
-Description: ${data.description}
-Has Recording: ${data.hasRecording ? 'Yes' : 'No'}
-Recording Time: ${data.recordingTime} seconds
-Files: ${data.files.length} files attached
-
+👤 *Customer:* ${data.name || 'Not provided'}
+📞 *Contact:* ${data.contactValue} (${data.contactType})
+📝 *Description:* ${data.description}
+${fileDetails}${voiceDetails}${diskInfo}
 ${aiIntegrationService.formatResultsForNotification(aiResults)}
       `;
 

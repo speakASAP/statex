@@ -6,9 +6,7 @@ services:
     volumes:
       - ./services/submission-service:/app
       - ./shared:/app/shared
-      # Optional local host/NAS bind mount for persistent storage outside Docker
-      - ${HOST_UPLOAD_DIR:-/srv/statex/submissions}:${HOST_UPLOAD_DIR:-/srv/statex/submissions}
-      # Fallback dev data directory (kept for backwards compatibility)
+      # Fallback dev data directory inside repo
       - ./services/submission-service/data:/app/data
       - ~/.cache/pip:/root/.cache/pip  # Cache pip packages
     working_dir: /app
@@ -25,8 +23,8 @@ services:
       - AI_ORCHESTRATOR_URL=${AI_ORCHESTRATOR_URL:-http://ai-orchestrator:8000}
       - NOTIFICATION_SERVICE_URL=${NOTIFICATION_SERVICE_URL:-http://notification-service:8005}
       - AI_SERVICES_BASE_URL=${AI_SERVICES_BASE_URL:-http://ai-orchestrator:8000}
-      # If HOST_UPLOAD_DIR provided, write directly to that absolute path; else fallback to /app/data/uploads
-      - SUBMISSION_UPLOAD_DIR=${HOST_UPLOAD_DIR:-/app/data/uploads}
+      # Write uploads inside repo by default
+      - SUBMISSION_UPLOAD_DIR=/app/data/uploads
     networks:
       - statex_network
     healthcheck:
