@@ -8,7 +8,35 @@ import {
   Theme,
   isValidTheme
 } from '@/lib/themeDetection';
-import { loadThemeCSS, preloadThemeCSS } from '@/lib/themeCSSLoader';
+import { loadThemeCSS } from '@/lib/themeCSSLoader';
+
+// Helper: prefetch a theme stylesheet for likely future use without triggering
+// "preloaded but not used" warnings. Uses rel=prefetch instead of rel=preload.
+function prefetchThemeCSS(themeToPrefetch: Theme) {
+  try {
+    const id = `prefetch-theme-${themeToPrefetch}`;
+    
+    // Remove any existing preload links that might be cached
+    const existingPreload = document.querySelector(`link[href="/themes/${themeToPrefetch}.css"][rel="preload"]`) as HTMLLinkElement;
+    if (existingPreload) {
+      existingPreload.remove();
+    }
+    
+    // Check if already prefetched
+    if (document.getElementById(id)) return;
+    
+    const link = document.createElement('link');
+    link.id = id;
+    link.rel = 'prefetch';
+    link.as = 'style';
+    link.href = `/themes/${themeToPrefetch}.css`;
+    // Hint lower priority; safe if unsupported
+    link.setAttribute('crossorigin', 'anonymous');
+    document.head.appendChild(link);
+  } catch (e) {
+    // no-op; prefetch is best-effort
+  }
+}
 
 interface ThemeContextType {
   theme: Theme;
@@ -77,12 +105,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Save theme preference
     localStorage.setItem('statex-theme', theme);
 
-    // Load theme CSS
+    // Load only the active theme CSS
     loadThemeCSS(theme).catch(error => {
       console.error('Failed to load theme CSS:', error);
     });
 
-    // Preload adjacent themes for faster switching
+    // Prefetch likely next themes using rel=prefetch (no warnings)
     const themes: Theme[] = ['light', 'dark', 'eu', 'uae'];
     const currentIndex = themes.indexOf(theme);
     const adjacentThemes = [
@@ -92,7 +120,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     adjacentThemes.forEach(adjacentTheme => {
       if (adjacentTheme) {
-        preloadThemeCSS(adjacentTheme);
+        prefetchThemeCSS(adjacentTheme);
       }
     });
 

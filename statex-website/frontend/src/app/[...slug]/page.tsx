@@ -168,7 +168,7 @@ export default async function CatchAllPage({ params }: CatchAllPageProps) {
   console.log(`[CATCHALL] Processing request - Host: ${host}, Path: ${slugPath}`);
   
   // Skip static assets and Next.js internal files
-  if (slugPath.startsWith('_next/') || slugPath.startsWith('__nextjs_')) {
+  if (slugPath.startsWith('_next/') || slugPath.startsWith('__nextjs_') || slugPath.startsWith('.well-known')) {
     console.log(`[CATCHALL] Skipping static asset: ${slugPath}`);
     notFound();
   }

@@ -46,21 +46,49 @@ def ensure_tmp_session_dirs(temp_session_id: str) -> Path:
 
 def _form_markdown(payload: Dict[str, Any]) -> str:
     timestamp = datetime.utcnow().isoformat()
-    return (
-        f"# Form Submission Data\n\n"
-        f"**Timestamp:** {timestamp}\n"
-        f"**Form Type:** {payload.get('request_type', 'contact')}\n\n"
-        f"## Contact Information\n"
-        f"- **Name:** {payload.get('user_name') or 'Not provided'}\n"
-        f"- **Contact Type:** email\n"
-        f"- **Contact Value:** {payload.get('user_email') or 'Not provided'}\n\n"
-        f"## Project Description\n"
-        f"{payload.get('description') or ''}\n\n"
-        f"## Voice Recording\n"
-        f"- **Has Recording:** {'Yes' if payload.get('has_voice') else 'No'}\n"
-        f"- **Recording Duration:** {payload.get('recording_time', 0)} seconds\n\n"
-        f"---\n*Generated automatically by Submission Service*\n"
-    )
+    contact_type = payload.get('contact_type')
+    contact_value = payload.get('contact_value')
+    saved_files = payload.get('saved_files') or []
+    # Partition saved files into attachments and voice
+    attachments = [f for f in saved_files if f.get('type') == 'attachment']
+    voice_entries = [f for f in saved_files if f.get('type') == 'voice']
+    voice_link = voice_entries[0]['path'] if voice_entries else None
+    parts = []
+    parts.append(f"# Form Submission Data\n\n")
+    parts.append(f"**Timestamp:** {timestamp}\n")
+    parts.append(f"**Form Type:** {payload.get('request_type', 'contact')}\n")
+    if payload.get('form_url'):
+        parts.append(f"**Form URL:** <{payload.get('form_url')}>\n")
+    parts.append("\n")
+    parts.append("## Contact Information\n\n")
+    parts.append(f"- **Name:** {payload.get('user_name') or 'Not provided'}\n")
+    parts.append(f"- **Contact Type:** {contact_type}\n")
+    parts.append(f"- **Contact Value:** {contact_value}\n\n")
+    parts.append("## Project Description\n\n")
+    parts.append(f"{payload.get('description') or ''}\n\n")
+    parts.append("## Documents Attached\n\n")
+    if attachments:
+        for att in attachments:
+            original = att.get('original_name', 'unknown')
+            stored = att.get('stored_name', 'unknown')
+            path = att.get('path', '')
+            parts.append(f"- {original} → {stored}\n(path: {path})\n")
+    else:
+        parts.append("- None\n")
+    parts.append("\n")
+    parts.append("## Voice Recording\n\n")
+    parts.append(f"- **Has Recording:** {'Yes' if payload.get('has_voice') else 'No'}\n")
+    parts.append(f"- **Recording Duration:** {payload.get('recording_time', 0)} seconds\n")
+    if voice_link:
+        parts.append(f"- **File:** {voice_link}\n")
+    parts.append("\n## Saved to Disk\n\n")
+    if payload.get('session_id') or payload.get('disk_path'):
+        if payload.get('session_id'):
+            parts.append(f"- **Session:** {payload.get('session_id')}\n")
+        if payload.get('disk_path'):
+            parts.append(f"- **Path:** {payload.get('disk_path')}\n")
+    parts.append("\n---\nGenerated automatically by Submission Service\n")
+    return ''.join(parts)
 
 
 def write_form_markdown(session_path: Path, payload: Dict[str, Any]) -> None:

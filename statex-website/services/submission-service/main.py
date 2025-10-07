@@ -179,6 +179,9 @@ async def create_submission(
     request_type: str = Form(...),
     description: str = Form(...),
     priority: str = Form("normal"),
+    contact_type: str = Form("email"),
+    contact_value: str = Form(None),
+    recording_time: str = Form("0"),
     voice_file: UploadFile = File(None),
     files: List[UploadFile] = File(None)
 ):
@@ -207,19 +210,6 @@ async def create_submission(
         base_dir = get_base_dir()
         user_id, session_id = generate_user_and_session(user_email, request)
         session_path, files_path = ensure_session_dirs(base_dir, user_id, session_id)
-        # Write form markdown to disk
-        write_form_markdown(
-            session_path,
-            {
-                "request_type": request_type,
-                "user_name": user_name,
-                "user_email": user_email,
-                "description": description,
-                "has_voice": bool(voice_file and voice_file.filename),
-                "recording_time": 0,
-            },
-        )
-
         saved_files = []
 
         # Handle voice file upload if present
@@ -292,6 +282,25 @@ async def create_submission(
                     saved_meta["type"] = "attachment"
                     saved_files.append(saved_meta)
         
+        # After saving files, write form markdown with file metadata
+        write_form_markdown(
+            session_path,
+            {
+                "request_type": request_type,
+                "user_name": user_name,
+                "user_email": user_email,
+                "contact_type": contact_type,
+                "contact_value": contact_value or user_email,
+                "description": description,
+                "has_voice": any(f.get("type") == "voice" for f in saved_files),
+                "recording_time": int(recording_time) if recording_time.isdigit() else 0,
+                "saved_files": saved_files,
+                "form_url": request.headers.get("referer") or None,
+                "session_id": session_id,
+                "disk_path": str(session_path),
+            },
+        )
+
         # Store submission
         submissions_db[submission_id] = submission
         
@@ -306,8 +315,8 @@ async def create_submission(
                 "email": user_email,
                 "name": user_name
             },
-            "contact_type": "email",
-            "contact_value": user_email,
+            "contact_type": contact_type,
+            "contact_value": contact_value or user_email,
             "user_name": user_name
         }
         
@@ -372,23 +381,27 @@ async def create_submission_json(request: FormSubmissionRequest):
         user_id, session_id = generate_user_and_session(request.contactValue, None)
         session_path, files_path = ensure_session_dirs(base_dir, user_id, session_id)
         
-        # Write form markdown to disk
+        # Move temp files to final location
+        saved_files = move_temp_files_from_metadata(
+            base_dir, user_id, session_id, 
+            request.files, request.voiceRecording
+        )
+        
+        # Write form markdown to disk including file metadata
         write_form_markdown(
             session_path,
             {
                 "request_type": request_type,
                 "user_name": request.name or "Unknown",
                 "user_email": request.contactValue,
+                "contact_type": request.contactType,
+                "contact_value": request.contactValue,
                 "description": request.description,
                 "has_voice": bool(request.voiceRecording),
                 "recording_time": request.voiceRecording.recordingTime if request.voiceRecording else 0,
+                "saved_files": saved_files,
+                "form_url": None,
             },
-        )
-        
-        # Move temp files to final location
-        saved_files = move_temp_files_from_metadata(
-            base_dir, user_id, session_id, 
-            request.files, request.voiceRecording
         )
         
         # Store submission

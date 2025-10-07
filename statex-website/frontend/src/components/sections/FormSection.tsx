@@ -203,7 +203,7 @@ export function FormSection({
         contactType: showContactFields ? contactType : 'telegram',
         contactValue: showContactFields ? contactValue : defaultTelegram,
         hasRecording: !!finalVoiceRecordingFile,
-        recordingTime: finalVoiceRecordingFile ? finalVoiceRecordingFile.recordingTime : 0,
+        recordingTime: (voiceRecordingFile && voiceRecordingFile.recordingTime) ? voiceRecordingFile.recordingTime : (recordingTime || 0),
         files: uploadedFiles.map(file => ({
           ...file,
           tempSessionId: file.tempSessionId
@@ -327,6 +327,9 @@ export function FormSection({
         submissionData.append('request_type', 'contact');
         submissionData.append('description', formData.description || '');
         submissionData.append('priority', 'normal');
+        submissionData.append('contact_type', (showContactFields ? contactType : 'telegram'));
+        submissionData.append('contact_value', (showContactFields ? contactValue : defaultTelegram));
+        submissionData.append('recording_time', String(recordingTime || 0));
         
         // Add voice file if present (use local variable to avoid async state race)
         if (finalVoiceRecordingFile) {
@@ -373,6 +376,7 @@ export function FormSection({
           userId: currentUserId,
           submissionId: submissionId,
           diskResult: diskResult,
+          recordingTime: (voiceRecordingFile && voiceRecordingFile.recordingTime) ? voiceRecordingFile.recordingTime : (recordingTime || 0),
           filesInfo: actualFiles.map(file => ({
             name: file.name,
             size: file.size,
