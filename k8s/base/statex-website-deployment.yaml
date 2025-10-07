@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: statex-website
+  namespace: statex
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: statex-website
+  template:
+    metadata:
+      labels:
+        app: statex-website
+    spec:
+      serviceAccountName: statex-platform
+      containers:
+      - name: website
+        image: statex/website:latest
+        ports:
+        - containerPort: 3000
+          name: frontend
+        - containerPort: 8002
+          name: submission-service
+        - containerPort: 8006
+          name: user-portal
+        - containerPort: 8009
+          name: content-service
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: statex-config
+              key: DB_HOST
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: statex-secrets
+              key: DB_PASSWORD
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: statex-config
+              key: REDIS_HOST
+        - name: PLATFORM_URL
+          valueFrom:
+            configMapKeyRef:
+              name: statex-config
+              key: PLATFORM_URL
+        - name: AI_ORCHESTRATOR_URL
+          valueFrom:
+            configMapKeyRef:
+              name: statex-config
+              key: AI_ORCHESTRATOR_URL
+        - name: NOTIFICATION_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: statex-config
+              key: NOTIFICATION_SERVICE_URL
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: statex-secrets
+              key: JWT_SECRET
+        - name: ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: statex-config
+              key: ENVIRONMENT
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "300m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: statex-website
+  namespace: statex
+spec:
+  selector:
+    app: statex-website
+  ports:
+  - port: 3000
+    targetPort: 3000
+    name: frontend
+  - port: 8002
+    targetPort: 8002
+    name: submission-service
+  - port: 8006
+    targetPort: 8006
+    name: user-portal
+  - port: 8009
+    targetPort: 8009
+    name: content-service
+  type: ClusterIP

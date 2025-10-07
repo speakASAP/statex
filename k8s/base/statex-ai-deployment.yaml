@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: statex-ai
+  namespace: statex
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: statex-ai
+  template:
+    metadata:
+      labels:
+        app: statex-ai
+    spec:
+      serviceAccountName: statex-platform
+      containers:
+      - name: ai-orchestrator
+        image: statex/ai-orchestrator:latest
+        ports:
+        - containerPort: 8010
+          name: orchestrator
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: statex-config
+              key: DB_HOST
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: statex-secrets
+              key: DB_PASSWORD
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: statex-config
+              key: REDIS_HOST
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: statex-secrets
+              key: OPENAI_API_KEY
+        - name: PLATFORM_URL
+          valueFrom:
+            configMapKeyRef:
+              name: statex-config
+              key: PLATFORM_URL
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: statex-config
+              key: LOG_LEVEL
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8010
+          initialDelaySeconds: 60
+          periodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: statex-ai
+  namespace: statex
+spec:
+  selector:
+    app: statex-ai
+  ports:
+  - port: 8010
+    targetPort: 8010
+    name: ai-orchestrator
+  type: ClusterIP

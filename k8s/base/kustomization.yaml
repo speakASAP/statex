@@ -1,0 +1,39 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: statex-base
+
+resources:
+  # Core Infrastructure
+  - namespace.yaml
+  - rbac.yaml
+  - configmap.yaml
+  - secret.yaml
+
+  # Stateful Services
+  - postgres-statefulset.yaml
+  - redis-statefulset.yaml
+  - rabbitmq-statefulset.yaml
+
+  # Application Services
+  - statex-platform-deployment.yaml
+  - statex-ai-deployment.yaml
+  - statex-notification-deployment.yaml
+  - statex-website-deployment.yaml
+
+  # Networking
+  - ingress.yaml
+
+  # Monitoring
+  - monitoring-deployment.yaml
+
+# Common labels for all resources
+commonLabels:
+  app.kubernetes.io/name: statex
+  app.kubernetes.io/version: v1.0.0
+  app.kubernetes.io/component: backend
+  app.kubernetes.io/part-of: statex-platform
+
+# Namespace for all resources
+namespace: statex
