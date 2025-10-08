@@ -22,6 +22,8 @@ services:
       - FREE_AI_SERVICE_URL=http://free-ai-service:8016
       - AI_WORKERS_URL=http://ai-workers:8017
       - NOTIFICATION_SERVICE_URL=http://notification-service:8005
+      - SUBMISSION_SERVICE_URL=http://submission-service:8002
+      - USE_MULTI_AGENT_WORKFLOW=true
     networks:
       - statex_network
     healthcheck:
@@ -183,6 +185,9 @@ services:
       - AI_ORCHESTRATOR_URL=${AI_ORCHESTRATOR_URL:-http://ai-orchestrator:8000}
       - OLLAMA_URL=http://host.docker.internal:11434
       - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENROUTER_API_BASE=${OPENROUTER_API_BASE:-https://openrouter.ai/api/v1}
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL:-google/gemini-2.0-flash-exp:free}
     networks:
       - statex_network
     healthcheck:

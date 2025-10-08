@@ -13,14 +13,17 @@ import uvicorn
 import sys
 from typing import List, Optional
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 import hashlib
 import re
+import json
 from pathlib import Path
 
-# Add shared directory to path
-sys.path.append('/app/shared')
-from http_clients import ServiceOrchestrator
+# Add shared directory to path dynamically
+current_dir = Path(__file__).parent.resolve()
+shared_dir = current_dir.parent.parent / "shared"
+sys.path.append(str(shared_dir))
+from http_clients import ServiceOrchestrator  # type: ignore
 from storage.disk_storage import (
     get_base_dir,
     generate_user_and_session,
@@ -54,6 +57,19 @@ class FormSubmissionRequest(BaseModel):
     recordingTime: int = 0
     files: List[FileInfo] = []
     voiceRecording: Optional[VoiceRecording] = None
+
+class SummaryRequest(BaseModel):
+    summary: str
+    model_used: Optional[str] = None
+    tokens_used: Optional[int] = None
+    processing_time: Optional[float] = None
+
+class AgentResultRequest(BaseModel):
+    agent_type: str
+    result_data: dict
+    model_used: Optional[str] = None
+    tokens_used: Optional[int] = None
+    processing_time: Optional[float] = None
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -138,7 +154,7 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "submission-service",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "version": "1.0.0"
     }
 
@@ -152,14 +168,14 @@ async def external_services_health():
             "status": "healthy",
             "service": "submission-service",
             "external_services": health_status,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     except Exception as e:
         return {
             "status": "unhealthy",
             "service": "submission-service",
             "error": str(e),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
 
 @app.get("/health/ready")
@@ -168,7 +184,7 @@ async def readiness_check():
     return {
         "status": "ready",
         "service": "submission-service",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 @app.post("/api/submissions/")
@@ -202,8 +218,8 @@ async def create_submission(
             "priority": priority,
             "status": "submitted",
             "file_urls": [],
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat()
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
         }
         
         # Prepare disk persistence
@@ -235,7 +251,7 @@ async def create_submission(
                 "size": 0,  # Would be calculated from actual file
                 "submission_id": submission_id,
                 "type": "voice",
-                "created_at": datetime.utcnow().isoformat()
+                "created_at": datetime.now(timezone.utc).isoformat()
             }
             
             files_db[file_id] = file_info
@@ -271,7 +287,7 @@ async def create_submission(
                         "size": 0,  # Would be calculated from actual file
                         "submission_id": submission_id,
                         "type": "attachment",
-                        "created_at": datetime.utcnow().isoformat()
+                        "created_at": datetime.now(timezone.utc).isoformat()
                     }
                     
                     files_db[file_id] = file_info
@@ -366,8 +382,8 @@ async def create_submission_json(request: FormSubmissionRequest):
             "priority": "normal",
             "status": "submitted",
             "file_urls": [],
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat()
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
         }
         
         # Handle file URLs from uploaded files
@@ -422,7 +438,7 @@ async def create_submission_json(request: FormSubmissionRequest):
                 "phone": None,
                 "source": "website_contact_form",
                 "form_type": request_type,
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
         }
         
@@ -503,6 +519,211 @@ async def delete_submission(submission_id: str):
     
     return {"message": "Submission deleted successfully"}
 
+@app.post("/api/submissions/{submission_id}/summary")
+async def save_submission_summary(submission_id: str, request: SummaryRequest):
+    """
+    Save AI-generated summary for a submission
+    """
+    if submission_id not in submissions_db:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    
+    try:
+        # Get submission data to find the session path
+        submission = submissions_db[submission_id]
+        
+        # Extract user_id and session_id from submission metadata if available
+        # For now, we'll use a simple approach to find the session directory
+        base_dir = get_base_dir()
+        
+        # Try to find the session directory by looking for form_data.md files
+        # This is a simplified approach - in production, you'd want to store this info
+        # Use contact_value if available, otherwise fall back to user_email
+        contact_value = submission.get("contact_value", submission.get("user_email", "unknown"))
+        user_id = hashlib.md5(contact_value.encode()).hexdigest()
+        
+        # Look for the most recent session for this user
+        user_dir = base_dir / user_id
+        if user_dir.exists():
+            # Find the most recent session directory
+            session_dirs = [d for d in user_dir.iterdir() if d.is_dir() and d.name.startswith("sess_")]
+            if session_dirs:
+                # Sort by modification time and get the most recent
+                latest_session = max(session_dirs, key=lambda x: x.stat().st_mtime)
+                session_path = latest_session
+                
+                # Write summary.md to the session directory
+                summary_file = session_path / "summary.md"
+                with open(summary_file, 'w', encoding='utf-8') as f:
+                    f.write(f"# AI Analysis Summary\n\n")
+                    f.write(f"**Generated:** {datetime.now(timezone.utc).isoformat()}\n\n")
+                    f.write(f"**Submission ID:** {submission_id}\n\n")
+                    if request.model_used:
+                        f.write(f"**Model Used:** {request.model_used}\n\n")
+                    if request.tokens_used:
+                        f.write(f"**Tokens Used:** {request.tokens_used}\n\n")
+                    if request.processing_time:
+                        f.write(f"**Processing Time:** {request.processing_time:.2f} seconds\n\n")
+                    f.write(f"## Summary\n\n{request.summary}\n\n")
+                    f.write(f"## Performance Analysis\n\n")
+                    f.write(f"This analysis was completed using AI models with the following performance characteristics:\n\n")
+                    f.write(f"- **Model Performance:** {request.model_used if request.model_used else 'Unknown'}\n")
+                    f.write(f"- **Total Processing Time:** {request.processing_time:.2f} seconds\n")
+                    f.write(f"- **Token Efficiency:** {request.tokens_used if request.tokens_used else 'Unknown'} tokens used\n")
+                    f.write(f"- **Cost per Token:** Available in individual agent result files\n\n")
+                    f.write(f"*For detailed performance metrics of each agent, see the individual result files (nlp.md, voicerecording.md, attachments.md, prototype.md).*\n")
+                
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "success": True,
+                        "message": "Summary saved successfully",
+                        "summary_file": str(summary_file),
+                        "submission_id": submission_id
+                    }
+                )
+        
+        # Fallback: create a new session directory
+        user_id, session_id = generate_user_and_session(contact_value, None)
+        session_path, files_path = ensure_session_dirs(base_dir, user_id, session_id)
+        
+        # Write summary.md to the session directory
+        summary_file = session_path / "summary.md"
+        with open(summary_file, 'w', encoding='utf-8') as f:
+            f.write(f"# AI Analysis Summary\n\n")
+            f.write(f"**Generated:** {datetime.now(timezone.utc).isoformat()}\n\n")
+            f.write(f"**Submission ID:** {submission_id}\n\n")
+            if request.model_used:
+                f.write(f"**Model Used:** {request.model_used}\n\n")
+            if request.tokens_used:
+                f.write(f"**Tokens Used:** {request.tokens_used}\n\n")
+            if request.processing_time:
+                f.write(f"**Processing Time:** {request.processing_time:.2f} seconds\n\n")
+            f.write(f"## Summary\n\n{request.summary}\n\n")
+            f.write(f"## Performance Analysis\n\n")
+            f.write(f"This analysis was completed using AI models with the following performance characteristics:\n\n")
+            f.write(f"- **Model Performance:** {request.model_used if request.model_used else 'Unknown'}\n")
+            f.write(f"- **Total Processing Time:** {request.processing_time:.2f} seconds\n")
+            f.write(f"- **Token Efficiency:** {request.tokens_used if request.tokens_used else 'Unknown'} tokens used\n")
+            f.write(f"- **Cost per Token:** Available in individual agent result files\n\n")
+            f.write(f"*For detailed performance metrics of each agent, see the individual result files (nlp.md, voicerecording.md, attachments.md, prototype.md).*\n")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Summary saved successfully",
+                "summary_file": str(summary_file),
+                "submission_id": submission_id
+            }
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save summary: {str(e)}")
+
+@app.post("/api/submissions/{submission_id}/agent-result")
+async def save_agent_result(submission_id: str, request: AgentResultRequest):
+    """
+    Save individual agent result to a specific .md file
+    """
+    if submission_id not in submissions_db:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    
+    try:
+        # Get submission data to find the session path
+        submission = submissions_db[submission_id]
+        
+        # Extract user_id and session_id from submission metadata
+        base_dir = get_base_dir()
+        contact_value = submission.get("contact_value", submission.get("user_email", "unknown"))
+        user_id = hashlib.md5(contact_value.encode()).hexdigest()
+        
+        # Look for the most recent session for this user
+        user_dir = base_dir / user_id
+        if user_dir.exists():
+            # Find the most recent session directory
+            session_dirs = [d for d in user_dir.iterdir() if d.is_dir() and d.name.startswith("sess_")]
+            if session_dirs:
+                # Sort by modification time and get the most recent
+                latest_session = max(session_dirs, key=lambda x: x.stat().st_mtime)
+                session_path = latest_session
+                
+                # Determine filename based on agent type
+                filename_map = {
+                    "nlp": "nlp.md",
+                    "asr": "voicerecording.md", 
+                    "document": "attachments.md",
+                    "prototype": "prototype.md"
+                }
+                filename = filename_map.get(request.agent_type, f"{request.agent_type}.md")
+                
+                # Write agent result to the session directory
+                result_file = session_path / filename
+                with open(result_file, 'w', encoding='utf-8') as f:
+                    f.write(f"# {request.agent_type.upper()} Agent Results\n\n")
+                    f.write(f"**Generated:** {datetime.now(timezone.utc).isoformat()}\n\n")
+                    f.write(f"**Submission ID:** {submission_id}\n\n")
+                    f.write(f"**Agent Type:** {request.agent_type}\n\n")
+                    if request.model_used:
+                        f.write(f"**Model Used:** {request.model_used}\n\n")
+                    if request.tokens_used:
+                        f.write(f"**Tokens Used:** {request.tokens_used}\n\n")
+                    if request.processing_time:
+                        f.write(f"**Processing Time:** {request.processing_time:.2f} seconds\n\n")
+                    f.write(f"## Results\n\n")
+                    f.write(f"```json\n{json.dumps(request.result_data, indent=2)}\n```\n")
+                
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "success": True,
+                        "message": f"{request.agent_type} result saved successfully",
+                        "result_file": str(result_file),
+                        "submission_id": submission_id
+                    }
+                )
+        
+        # Fallback: create a new session directory
+        user_id, session_id = generate_user_and_session(contact_value, None)
+        session_path, files_path = ensure_session_dirs(base_dir, user_id, session_id)
+        
+        # Determine filename based on agent type
+        filename_map = {
+            "nlp": "nlp.md",
+            "asr": "voicerecording.md",
+            "document": "attachments.md", 
+            "prototype": "prototype.md"
+        }
+        filename = filename_map.get(request.agent_type, f"{request.agent_type}.md")
+        
+        # Write agent result to the session directory
+        result_file = session_path / filename
+        with open(result_file, 'w', encoding='utf-8') as f:
+            f.write(f"# {request.agent_type.upper()} Agent Results\n\n")
+            f.write(f"**Generated:** {datetime.now(timezone.utc).isoformat()}\n\n")
+            f.write(f"**Submission ID:** {submission_id}\n\n")
+            f.write(f"**Agent Type:** {request.agent_type}\n\n")
+            if request.model_used:
+                f.write(f"**Model Used:** {request.model_used}\n\n")
+            if request.tokens_used:
+                f.write(f"**Tokens Used:** {request.tokens_used}\n\n")
+            if request.processing_time:
+                f.write(f"**Processing Time:** {request.processing_time:.2f} seconds\n\n")
+            f.write(f"## Results\n\n")
+            f.write(f"```json\n{json.dumps(request.result_data, indent=2)}\n```\n")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": f"{request.agent_type} result saved successfully",
+                "result_file": str(result_file),
+                "submission_id": submission_id
+            }
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save agent result: {str(e)}")
+
 # Forms API endpoints for website integration
 @app.post("/api/forms/upload-files")
 async def upload_files(request: Request, file: UploadFile = File(...)):
@@ -540,7 +761,7 @@ async def upload_files(request: Request, file: UploadFile = File(...)):
             "size": file_size,
             "user_id": user_id,
             "session_id": session_id,
-            "created_at": datetime.utcnow().isoformat()
+            "created_at": datetime.now(timezone.utc).isoformat()
         }
         
         files_db[file_id] = file_info
@@ -597,7 +818,7 @@ async def upload_voice(request: Request, file: UploadFile = File(...)):
             "user_id": user_id,
             "session_id": session_id,
             "type": "voice",
-            "created_at": datetime.utcnow().isoformat()
+            "created_at": datetime.now(timezone.utc).isoformat()
         }
         
         files_db[file_id] = file_info

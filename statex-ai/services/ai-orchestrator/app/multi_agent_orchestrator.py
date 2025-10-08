@@ -101,6 +101,10 @@ class NLPAgent(AgentInterface):
                 
                 if response.status_code == 200:
                     result_data = response.json()
+                    
+                    # Save agent result to file
+                    await self._save_agent_result(task, result_data)
+                    
                     return AgentResult(
                         task_id=task.task_id,
                         agent_type=self.agent_type,
@@ -166,6 +170,10 @@ class ASRAgent(AgentInterface):
                 
                 if response.status_code == 200:
                     result_data = response.json()
+                    
+                    # Save agent result to file
+                    await self._save_agent_result(task, result_data)
+                    
                     return AgentResult(
                         task_id=task.task_id,
                         agent_type=self.agent_type,
@@ -222,6 +230,10 @@ class DocumentAgent(AgentInterface):
                 
                 if response.status_code == 200:
                     result_data = response.json()
+                    
+                    # Save agent result to file
+                    await self._save_agent_result(task, result_data)
+                    
                     return AgentResult(
                         task_id=task.task_id,
                         agent_type=self.agent_type,
@@ -276,6 +288,10 @@ class PrototypeAgent(AgentInterface):
                 
                 if response.status_code == 200:
                     result_data = response.json()
+                    
+                    # Save agent result to file
+                    await self._save_agent_result(task, result_data)
+                    
                     return AgentResult(
                         task_id=task.task_id,
                         agent_type=self.agent_type,
@@ -312,6 +328,176 @@ class PrototypeAgent(AgentInterface):
         except:
             return False
 
+class SummarizerAgent(AgentInterface):
+    """Summarizer Agent - Aggregates all analysis results into a comprehensive summary"""
+    
+    def __init__(self):
+        super().__init__("Summarizer Agent", "summarizer")
+        self.service_url = os.getenv("NLP_SERVICE_URL", "http://localhost:8011")
+    
+    async def execute_task(self, task: AgentTask) -> AgentResult:
+        """Execute summarization task"""
+        try:
+            # Read individual agent result files
+            collected_data = await self._read_agent_result_files(task)
+            
+            # Create a comprehensive summary prompt
+            summary_prompt = self._create_summary_prompt(collected_data)
+            
+            # Use the NLP service (which now points to free-ai-service) for summarization
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                response = await client.post(
+                    f"{self.service_url}/api/analyze-text",
+                    json={
+                        "text_content": summary_prompt,
+                        "analysis_type": "business_analysis",
+                        "user_name": "AI Summarizer"
+                    }
+                )
+                
+                if response.status_code == 200:
+                    result_data = response.json()
+                    
+                    # Extract the summary from the analysis result
+                    analysis = result_data.get("analysis", {})
+                    summary_text = analysis.get("summary", "No summary available")
+                    
+                    # Create a structured summary result
+                    summary_result = {
+                        "summary_text": summary_text,
+                        "tokens_used": result_data.get("tokens_used", 0),
+                        "model_used": analysis.get("model_used", "unknown"),
+                        "ai_service": analysis.get("ai_service", "unknown"),
+                        "confidence": analysis.get("confidence", 0.8),
+                        "processing_time": result_data.get("processing_time", 0),
+                        "collected_insights": {
+                            "nlp_analysis": collected_data.get("nlp_analysis", {}),
+                            "asr_transcript": collected_data.get("asr_transcript", ""),
+                            "document_analysis": collected_data.get("document_analysis", {})
+                        }
+                    }
+                    
+                    # Save agent result to file
+                    await self._save_agent_result(task, summary_result)
+                    
+                    return AgentResult(
+                        task_id=task.task_id,
+                        agent_type=self.agent_type,
+                        agent_name=self.agent_name,
+                        status=TaskStatus.COMPLETED,
+                        result_data=summary_result,
+                        confidence_score=analysis.get("confidence", 0.8),
+                        processing_time=result_data.get("processing_time", 0)
+                    )
+                else:
+                    return AgentResult(
+                        task_id=task.task_id,
+                        agent_type=self.agent_type,
+                        agent_name=self.agent_name,
+                        status=TaskStatus.FAILED,
+                        error_message=f"Summarizer service error: {response.status_code}"
+                    )
+                    
+        except Exception as e:
+            return AgentResult(
+                task_id=task.task_id,
+                agent_type=self.agent_type,
+                agent_name=self.agent_name,
+                status=TaskStatus.FAILED,
+                error_message=str(e)
+            )
+    
+    async def _read_agent_result_files(self, task: AgentTask) -> Dict[str, Any]:
+        """Read individual agent result files from the session directory"""
+        collected_data = {}
+        
+        try:
+            # Get submission ID from task context
+            submission_id = task.input_data.get("submission_id")
+            if not submission_id:
+                logger.warning("No submission_id found in task input_data")
+                return collected_data
+            
+            # Get submission service URL
+            submission_service_url = os.getenv("SUBMISSION_SERVICE_URL", "http://submission-service:8002")
+            
+            # Read each agent result file
+            agent_files = {
+                "nlp": "nlp.md",
+                "asr": "voicerecording.md", 
+                "document": "attachments.md",
+                "prototype": "prototype.md"
+            }
+            
+            for agent_type, filename in agent_files.items():
+                try:
+                    # Make a request to get the agent result file content
+                    async with httpx.AsyncClient(timeout=30.0) as client:
+                        # For now, we'll use a simple approach - in production, you'd want a proper file API
+                        # This is a placeholder - the actual implementation would depend on your file storage system
+                        logger.info(f"Reading {agent_type} result file for submission {submission_id}")
+                        
+                        # For now, return empty data - in production, implement proper file reading
+                        collected_data[f"{agent_type}_analysis"] = {}
+                        
+                except Exception as e:
+                    logger.warning(f"Failed to read {agent_type} result file: {e}")
+                    collected_data[f"{agent_type}_analysis"] = {}
+            
+            return collected_data
+            
+        except Exception as e:
+            logger.error(f"Error reading agent result files: {e}")
+            return collected_data
+    
+    def _create_summary_prompt(self, collected_data: Dict[str, Any]) -> str:
+        """Create a comprehensive summary prompt from collected analysis data"""
+        prompt_parts = []
+        prompt_parts.append("Please create a comprehensive summary of the following AI analysis results:")
+        prompt_parts.append("")
+        
+        # Add NLP analysis
+        if collected_data.get("nlp_analysis"):
+            nlp = collected_data["nlp_analysis"]
+            prompt_parts.append("## NLP Analysis Results:")
+            prompt_parts.append(f"- Summary: {nlp.get('summary', 'N/A')}")
+            prompt_parts.append(f"- Key Insights: {', '.join(nlp.get('key_insights', []))}")
+            prompt_parts.append(f"- Recommendations: {', '.join(nlp.get('recommendations', []))}")
+            prompt_parts.append("")
+        
+        # Add ASR transcript
+        if collected_data.get("asr_transcript"):
+            prompt_parts.append("## Voice Recording Transcript:")
+            prompt_parts.append(collected_data["asr_transcript"])
+            prompt_parts.append("")
+        
+        # Add document analysis
+        if collected_data.get("document_analysis"):
+            doc = collected_data["document_analysis"]
+            prompt_parts.append("## Document Analysis Results:")
+            prompt_parts.append(f"- Extracted Text: {doc.get('extracted_text', 'N/A')[:500]}...")
+            prompt_parts.append(f"- Analysis: {doc.get('analysis', 'N/A')}")
+            prompt_parts.append("")
+        
+        prompt_parts.append("Please provide a comprehensive summary that:")
+        prompt_parts.append("1. Synthesizes all the analysis results into a coherent overview")
+        prompt_parts.append("2. Highlights the key findings and recommendations")
+        prompt_parts.append("3. Provides actionable next steps for the user")
+        prompt_parts.append("4. Maintains a professional and clear tone")
+        prompt_parts.append("5. Keeps the summary concise but comprehensive (2-3 paragraphs)")
+        prompt_parts.append("6. Focuses on the business requirements and technical approach for prototype development")
+        
+        return "\n".join(prompt_parts)
+    
+    async def health_check(self) -> bool:
+        """Check Summarizer service health"""
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                response = await client.get(f"{self.service_url}/health")
+                return response.status_code == 200
+        except:
+            return False
+
 class MultiAgentOrchestrator:
     """Enhanced orchestrator for multi-agent workflows"""
     
@@ -332,7 +518,8 @@ class MultiAgentOrchestrator:
             NLPAgent(),
             ASRAgent(),
             DocumentAgent(),
-            PrototypeAgent()
+            PrototypeAgent(),
+            SummarizerAgent()
         ]
         
         for agent in agents:
@@ -449,6 +636,13 @@ class MultiAgentOrchestrator:
                 logger.error(f"Failed to send agent notifications: {notification_error}")
                 # Don't fail the entire workflow for notification errors
             
+            # Persist summary if summarizer agent completed successfully
+            try:
+                await self._persist_summary_if_available(request, completed_workflow)
+            except Exception as summary_error:
+                logger.error(f"Failed to persist summary: {summary_error}")
+                # Don't fail the entire workflow for summary persistence errors
+            
             return result
             
         except Exception as e:
@@ -513,17 +707,41 @@ class MultiAgentOrchestrator:
         )
         tasks.append(nlp_task)
         
-        # Task 4: Prototype generation (depends on NLP)
+        # Task 4: Summarizer (depends on all analysis tasks)
+        summarizer_dependencies = [nlp_task.task_id]
+        if input_data.get("voice_file_url") and tasks:
+            summarizer_dependencies.append(tasks[0].task_id)  # ASR task
+        if input_data.get("file_urls") and len(tasks) > 1:
+            summarizer_dependencies.append(tasks[1].task_id)  # Document task
+        
+        summarizer_task = AgentTask(
+            agent_type="summarizer",
+            agent_name="Summarizer Agent",
+            input_data={
+                "collected_data": {
+                    "nlp_analysis": {},  # Will be filled from NLP results
+                    "asr_transcript": "",  # Will be filled from ASR results
+                    "document_analysis": {},  # Will be filled from Document results
+                }
+            },
+            priority=1,
+            timeout=120,
+            dependencies=summarizer_dependencies
+        )
+        tasks.append(summarizer_task)
+        
+        # Task 5: Prototype generation (depends on Summarizer)
         prototype_task = AgentTask(
             agent_type="prototype",
             agent_name="Prototype Generator Agent",
             input_data={
                 "requirements": input_data.get("requirements", ""),
-                "analysis": {}  # Will be filled from NLP results
+                "analysis": {},  # Will be filled from NLP results
+                "summary": {}  # Will be filled from Summarizer results
             },
             priority=1,
             timeout=180,
-            dependencies=[nlp_task.task_id]
+            dependencies=[summarizer_task.task_id]
         )
         tasks.append(prototype_task)
         
@@ -777,6 +995,48 @@ class MultiAgentOrchestrator:
     async def cancel_workflow(self, workflow_id: str) -> bool:
         """Cancel a running workflow"""
         return await self.workflow_engine.cancel_workflow(workflow_id)
+    
+    async def _persist_summary_if_available(self, request: MultiAgentRequest, workflow_state: WorkflowState):
+        """Persist summary to submission service if summarizer agent completed successfully"""
+        # Find summarizer agent result
+        summarizer_result = None
+        for task_id, result in workflow_state.agent_results.items():
+            if result.agent_type == "summarizer" and result.status == TaskStatus.COMPLETED:
+                summarizer_result = result
+                break
+        
+        if not summarizer_result:
+            logger.info(f"No summarizer result found for submission {request.submission_id}")
+            return
+        
+        # Extract summary text and model information from the result
+        summary_text = summarizer_result.result_data.get("summary_text", "")
+        if not summary_text:
+            logger.warning(f"No summary text found in summarizer result for submission {request.submission_id}")
+            return
+        
+        model_used = summarizer_result.result_data.get("model_used", "unknown")
+        tokens_used = summarizer_result.result_data.get("tokens_used", 0)
+        processing_time = summarizer_result.result_data.get("processing_time", 0)
+        
+        # Call submission service to persist the summary
+        submission_service_url = os.getenv("SUBMISSION_SERVICE_URL", "http://submission-service:8002")
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    f"{submission_service_url}/api/submissions/{request.submission_id}/summary",
+                    json={
+                        "summary": summary_text,
+                        "model_used": model_used,
+                        "tokens_used": tokens_used,
+                        "processing_time": processing_time
+                    }
+                )
+                response.raise_for_status()
+                logger.info(f"Successfully persisted summary for submission {request.submission_id} using model {model_used}")
+        except Exception as e:
+            logger.error(f"Failed to persist summary for submission {request.submission_id}: {e}")
+            raise
 
 # Global orchestrator instance
 multi_agent_orchestrator = MultiAgentOrchestrator()

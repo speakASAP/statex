@@ -144,6 +144,7 @@ class ServiceOrchestrator:
         self.notification_client = NotificationServiceClient()
         self.website_client = WebsiteServiceClient()
         self.monitoring_client = MonitoringServiceClient()
+        self.submission_service_url = os.getenv("SUBMISSION_SERVICE_URL", "http://submission-service:8002")
     
     async def process_user_submission(self, submission_data: Dict[str, Any]) -> Dict[str, Any]:
         """Process user submission through all relevant services"""
@@ -189,6 +190,45 @@ class ServiceOrchestrator:
             except Exception as notification_error:
                 logger.error(f"Failed to send error notification: {notification_error}")
             
+            raise
+    
+    async def persist_summary(self, submission_id: str, summary_text: str, model_used: str = None, tokens_used: int = None, processing_time: float = None) -> Dict[str, Any]:
+        """Persist AI-generated summary for a submission"""
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    f"{self.submission_service_url}/api/submissions/{submission_id}/summary",
+                    json={
+                        "summary": summary_text,
+                        "model_used": model_used,
+                        "tokens_used": tokens_used,
+                        "processing_time": processing_time
+                    }
+                )
+                response.raise_for_status()
+                return response.json()
+        except Exception as e:
+            logger.error(f"Failed to persist summary for submission {submission_id}: {e}")
+            raise
+    
+    async def persist_agent_result(self, submission_id: str, agent_type: str, result_data: Dict[str, Any], model_used: str = None, tokens_used: int = None, processing_time: float = None) -> Dict[str, Any]:
+        """Persist individual agent result to a specific .md file"""
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    f"{self.submission_service_url}/api/submissions/{submission_id}/agent-result",
+                    json={
+                        "agent_type": agent_type,
+                        "result_data": result_data,
+                        "model_used": model_used,
+                        "tokens_used": tokens_used,
+                        "processing_time": processing_time
+                    }
+                )
+                response.raise_for_status()
+                return response.json()
+        except Exception as e:
+            logger.error(f"Failed to persist {agent_type} result for submission {submission_id}: {e}")
             raise
     
     async def check_all_services_health(self) -> Dict[str, Any]:

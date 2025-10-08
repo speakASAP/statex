@@ -179,5 +179,5 @@ volumes:
 
 networks:
   statex_network:
-    driver: bridge
+    external: true
     name: statex_network

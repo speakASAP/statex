@@ -15,10 +15,10 @@ def get_base_dir() -> Path:
     return base_path
 
 
-def generate_user_and_session(user_email: str, request: Request) -> Tuple[str, str]:
+def generate_user_and_session(contact_value: str, request: Request) -> Tuple[str, str]:
     ip = request.client.host if request and request.client else "unknown"
     user_agent = request.headers.get("user-agent", "unknown") if request else "unknown"
-    seed = f"{user_email}|{ip}|{user_agent}"
+    seed = f"{contact_value}|{ip}|{user_agent}"
     user_id = hashlib.md5(seed.encode()).hexdigest()
     session_id = f"sess_{int(datetime.utcnow().timestamp())}_{uuid.uuid4().hex[:8]}"
     return user_id, session_id
