@@ -52,7 +52,7 @@ class AIServiceClient(BaseServiceClient):
     """Client for communicating with StateX AI services"""
     
     def __init__(self):
-        ai_base_url = os.getenv("AI_SERVICES_BASE_URL", os.getenv("AI_ORCHESTRATOR_URL", "http://ai-orchestrator:8000"))
+        ai_base_url = os.getenv("AI_SERVICES_BASE_URL", os.getenv("AI_ORCHESTRATOR_URL", "http://localhost:8010"))
         super().__init__(ai_base_url)
     
     async def process_submission(self, submission_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -75,7 +75,7 @@ class NotificationServiceClient(BaseServiceClient):
     """Client for communicating with StateX Notification Service"""
     
     def __init__(self):
-        notification_base_url = os.getenv("NOTIFICATION_SERVICE_URL", "http://notification-service:8005")
+        notification_base_url = os.getenv("NOTIFICATION_SERVICE_URL", "http://localhost:8005")
         super().__init__(notification_base_url)
     
     async def send_notification(self, notification_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -94,7 +94,7 @@ class WebsiteServiceClient(BaseServiceClient):
     """Client for communicating with StateX Website services"""
     
     def __init__(self):
-        website_base_url = os.getenv("WEBSITE_SERVICES_URL", "http://user-portal:8006")
+        website_base_url = os.getenv("WEBSITE_SERVICES_URL", "http://localhost:8006")
         super().__init__(website_base_url)
     
     async def get_user_portal_data(self, user_id: str) -> Dict[str, Any]:
@@ -103,7 +103,7 @@ class WebsiteServiceClient(BaseServiceClient):
     
     async def get_content_data(self, content_id: str) -> Dict[str, Any]:
         """Get content data"""
-        content_url = os.getenv("CONTENT_SERVICE_URL", "http://content-service:8009")
+        content_url = os.getenv("CONTENT_SERVICE_URL", "http://localhost:8009")
         async with BaseServiceClient(content_url) as client:
             return await client._make_request("GET", f"/api/content/{content_id}")
     
@@ -115,7 +115,7 @@ class MonitoringServiceClient(BaseServiceClient):
     """Client for communicating with StateX Monitoring services"""
     
     def __init__(self):
-        monitoring_base_url = os.getenv("MONITORING_SERVICE_URL", "http://monitoring-service:8007")
+        monitoring_base_url = os.getenv("MONITORING_SERVICE_URL", "http://localhost:8007")
         super().__init__(monitoring_base_url)
     
     async def send_metrics(self, metrics_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -124,7 +124,7 @@ class MonitoringServiceClient(BaseServiceClient):
     
     async def send_logs(self, log_data: Dict[str, Any]) -> Dict[str, Any]:
         """Send logs to monitoring service"""
-        logging_url = os.getenv("LOGGING_SERVICE_URL", "http://logging-service:8008")
+        logging_url = os.getenv("LOGGING_SERVICE_URL", "http://localhost:8008")
         async with BaseServiceClient(logging_url) as client:
             return await client._make_request("POST", "/api/logs", json=log_data)
     
@@ -144,7 +144,7 @@ class ServiceOrchestrator:
         self.notification_client = NotificationServiceClient()
         self.website_client = WebsiteServiceClient()
         self.monitoring_client = MonitoringServiceClient()
-        self.submission_service_url = os.getenv("SUBMISSION_SERVICE_URL", "http://submission-service:8002")
+        self.submission_service_url = os.getenv("SUBMISSION_SERVICE_URL", "http://localhost:8002")
     
     async def process_user_submission(self, submission_data: Dict[str, Any]) -> Dict[str, Any]:
         """Process user submission through all relevant services"""

@@ -26,6 +26,11 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 LOG_DIR="$PROJECT_ROOT/logs"
 PID_DIR="$PROJECT_ROOT/pids"
 
+# Load environment variables
+if [[ -f "$PROJECT_ROOT/statex-infrastructure/env.dev" ]]; then
+    source "$PROJECT_ROOT/statex-infrastructure/env.dev"
+fi
+
 # Create necessary directories
 mkdir -p "$LOG_DIR" "$PID_DIR"
 
@@ -464,6 +469,38 @@ start_dns_service() {
     SSL_BASE_DIR="$ssl_dir" NODE_ENV="$node_env" DNS_PORT="$dns_port" start_service "$service_name" "npm start" "$working_dir" "$port"
 }
 
+# Function to start StateX Dashboard
+start_dashboard() {
+    local service_name="dashboard"
+    local working_dir="$PROJECT_ROOT/statex-dashboard"
+    local port="${DASHBOARD_EXTERNAL_PORT:-8020}"
+    
+    if check_port $port; then
+        kill_port $port
+    fi
+    
+    # Check if virtual environment exists
+    if [[ ! -d "$working_dir/venv" ]]; then
+        print_status "Creating virtual environment for $service_name..."
+        cd "$working_dir"
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        cd "$PROJECT_ROOT"
+    else
+        # Ensure dependencies are up to date
+        print_status "Updating dependencies for $service_name..."
+        cd "$working_dir"
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        cd "$PROJECT_ROOT"
+    fi
+    
+    start_service "$service_name" "source venv/bin/activate && python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${DASHBOARD_INTERNAL_PORT:-8020}" "$working_dir" "$port"
+}
+
 # Function to start StateX Monitoring services
 start_monitoring_services() {
     local services=(
@@ -526,6 +563,7 @@ show_status() {
         "free-ai-service:${FREE_AI_SERVICE_EXTERNAL_PORT:-8016}"
         "ai-workers:${AI_WORKERS_EXTERNAL_PORT:-8017}"
         "dns-service:${DNS_SERVICE_EXTERNAL_PORT:-8053}"
+        "dashboard:${DASHBOARD_EXTERNAL_PORT:-8020}"
     )
     
     for service_info in "${services[@]}"; do
@@ -555,7 +593,7 @@ stop_all() {
     fi
     
     # Define all service ports
-    local ports=(3000 8000 8001 8002 8005 8006 8007 8008 8009 8010 8011 8012 8013 8014 8015 8016 8017 8053)
+    local ports=(3000 8000 8001 8002 8005 8006 8007 8008 8009 8010 8011 8012 8013 8014 8015 8016 8017 8020 8053)
     
     # Stop services by port (more reliable than PID files)
     for port in "${ports[@]}"; do
@@ -638,6 +676,11 @@ main() {
             # Phase 6: Frontend (depends on all backend services)
             print_status "Phase 6: Starting frontend..."
             start_website_frontend
+            sleep 3
+            
+            # Phase 7: Dashboard (depends on all services)
+            print_status "Phase 7: Starting dashboard..."
+            start_dashboard
             
             echo ""
             print_success "All services started!"
@@ -645,6 +688,7 @@ main() {
             show_status
             echo ""
             print_status "Access URLs:"
+            echo "  🎛️  Service Dashboard:    http://localhost:${DASHBOARD_EXTERNAL_PORT:-8020}"
             echo "  🌐 Website Frontend:     http://localhost:${FRONTEND_EXTERNAL_PORT:-3000}"
             echo "  🔗 API Gateway:          http://localhost:${API_GATEWAY_EXTERNAL_PORT:-8001}"
             echo "  📝 Submission Service:   http://localhost:${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}"
@@ -737,6 +781,11 @@ main() {
             fi
             
             start_service "$service_name" "npm run dev" "$working_dir" "$port"
+            sleep 3
+            
+            # Dashboard (for service management)
+            print_status "Starting dashboard..."
+            start_dashboard
             
             echo ""
             print_success "Essential services started!"
@@ -744,6 +793,7 @@ main() {
             show_status
             echo ""
             print_status "Access URLs:"
+            echo "  🎛️  Service Dashboard:    http://localhost:${DASHBOARD_EXTERNAL_PORT:-8020}"
             echo "  🌐 Website Frontend:     http://localhost:3000"
             echo "  🔗 Platform Management:  http://localhost:8000"
             echo "  🤖 AI Orchestrator:      http://localhost:8010"
