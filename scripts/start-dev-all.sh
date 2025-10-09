@@ -543,10 +543,16 @@ show_status() {
 stop_all() {
     print_status "Stopping all services..."
     
-    # Stop infrastructure services
-    cd "$PROJECT_ROOT/statex-infrastructure"
-    docker compose -f docker-compose.dev.yml down
-    cd "$PROJECT_ROOT"
+    # Stop infrastructure services (if Docker is running)
+    if docker info >/dev/null 2>&1; then
+        print_status "Stopping infrastructure services (Docker)..."
+        cd "$PROJECT_ROOT/statex-infrastructure"
+        docker compose -f docker-compose.dev.yml down
+        cd "$PROJECT_ROOT"
+        print_success "Infrastructure services stopped"
+    else
+        print_status "Docker is not running - infrastructure services already stopped"
+    fi
     
     # Define all service ports
     local ports=(3000 8000 8001 8002 8005 8006 8007 8008 8009 8010 8011 8012 8013 8014 8015 8016 8017 8053)
