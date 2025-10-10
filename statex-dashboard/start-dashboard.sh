@@ -99,7 +99,7 @@ stop_dashboard() {
     # Stop container if running
     if docker compose -f docker-compose.dev.yml ps | grep -q "Up"; then
         print_status "Stopping dashboard container..."
-        docker compose -f docker-compose.dev.yml down
+        docker compose -f docker-compose.dev.yml stop
     fi
     
     # Stop development process if running

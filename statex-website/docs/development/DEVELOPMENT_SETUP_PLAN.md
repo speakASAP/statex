@@ -220,7 +220,7 @@ docker compose -f docker-compose.development.yml logs frontend
 
 #### **Полная очистка (удаление томов и образов):**
 ```bash
-docker compose -f docker-compose.development.yml down -v --rmi all
+docker compose -f docker-compose.development.yml stop -v --rmi all
 ```
 
 ### 🧪 **Тестирование:**

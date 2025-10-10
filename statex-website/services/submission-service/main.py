@@ -19,10 +19,10 @@ import re
 import json
 from pathlib import Path
 
-# Add shared directory to path dynamically
+# Add platform shared directory to path dynamically
 current_dir = Path(__file__).parent.resolve()
-shared_dir = current_dir.parent.parent / "shared"
-sys.path.append(str(shared_dir))
+platform_shared_dir = current_dir.parent.parent.parent / "statex-platform" / "shared"
+sys.path.append(str(platform_shared_dir))
 from http_clients import ServiceOrchestrator  # type: ignore
 from storage.disk_storage import (
     get_base_dir,

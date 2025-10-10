@@ -358,7 +358,7 @@ docker-compose logs -f [service-name]
 docker-compose down
 
 # Stop and remove volumes
-docker-compose down -v
+docker-compose stop -v
 ```
 
 #### Database Management

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { platformNotificationService } from '@/services/platformNotificationService';
 import './DirectForm.css';
 
 interface DirectFormProps {
@@ -22,9 +23,7 @@ export function DirectForm({
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [submitMessage, setSubmitMessage] = useState('');
 
-  // Get notification service URL from environment
-  const notificationServiceUrl = process.env['NEXT_PUBLIC_NOTIFICATION_SERVICE_URL'] || `http://localhost:${process.env['FRONTEND_PORT'] || '3000'}`;
-  const apiKey = process.env['NEXT_PUBLIC_NOTIFICATION_SERVICE_API_KEY'] || 'dev-notification-api-key';
+  // Platform notification service is configured in the service itself
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,50 +34,47 @@ export function DirectForm({
     try {
       const formData = new FormData(e.currentTarget);
       
-      // Prepare notification data
-      const notificationData = {
-        type: formType === 'prototype' ? 'prototype_request' : 'contact_form',
-        recipient: {
+      // Determine contact type and value
+      const email = formData.get('email') as string;
+      const phone = formData.get('phone') as string;
+      const contactType = email ? 'email' : 'telegram';
+      const contactValue = email || phone || '694579866';
+
+      let response;
+      if (formType === 'prototype') {
+        // Use prototype request endpoint
+        const prototypeData = {
           name: formData.get('name') as string,
-          email: formData.get('email') as string,
-          phone: formData.get('phone') as string
-        },
-        content: {
-          subject: formType === 'prototype' ? 'New Prototype Request - StateX' : 'New Contact Form Submission - StateX',
-          message: `
-New ${formType} form submission:
+          contactType: contactType,
+          contactValue: contactValue,
+          description: formData.get('description') as string,
+          hasRecording: false,
+          recordingTime: 0,
+          files: []
+        };
 
-Name: ${formData.get('name') || 'Not provided'}
-Email: ${formData.get('email') || 'Not provided'}
-Phone: ${formData.get('phone') || 'Not provided'}
-Description: ${formData.get('description') || 'Not provided'}
-          `,
-          metadata: {
-            formType: formType,
-            source: 'statex-frontend-direct'
-          }
-        }
-      };
+        response = await platformNotificationService.sendPrototypeRequest(prototypeData);
+      } else {
+        // Use generic notification endpoint
+        const notificationData = {
+          user_id: 'frontend-user',
+          type: 'contact_form',
+          title: 'New Contact Form Submission - StateX',
+          message: `New contact form submission:\n\nName: ${formData.get('name') || 'Not provided'}\nContact: ${contactValue} (${contactType})\nDescription: ${formData.get('description') || 'Not provided'}`,
+          contact_type: contactType,
+          contact_value: contactValue,
+          user_name: formData.get('name') as string || 'User'
+        };
 
-      const response = await fetch(`${notificationServiceUrl}/api/notifications`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-          'User-Agent': 'StateX-Frontend-Direct/1.0'
-        },
-        body: JSON.stringify(notificationData),
-        signal: AbortSignal.timeout(10000)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        response = await platformNotificationService.sendNotification(notificationData);
       }
 
-      const result = await response.json();
-      setSubmitStatus('success');
-      setSubmitMessage('Form submitted successfully! We\'ll get back to you within 24 hours.');
+      if (response.success) {
+        setSubmitStatus('success');
+        setSubmitMessage('Form submitted successfully! We\'ll get back to you within 24 hours.');
+      } else {
+        throw new Error(response.error || 'Failed to submit form');
+      }
       
       // Clear form on success
       setTimeout(() => {

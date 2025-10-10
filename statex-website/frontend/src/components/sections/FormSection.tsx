@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 import { ClassComposer } from '@/lib/classComposition';
 import { Container, Section } from '@/components/atoms';
-import { directNotificationService } from '@/services/notificationService';
+import { platformNotificationService } from '@/services/platformNotificationService';
 import { fileUploadService, voiceRecordingService, validateFile, formatFileSize } from '@/services/fileUploadService';
 import { userService, ContactData } from '@/services/userService';
 import { ContactCollectionModal } from '@/components/modals/ContactCollectionModal';
@@ -393,7 +393,7 @@ export function FormSection({
           } : null
         };
 
-        response = await directNotificationService.sendPrototypeRequest(notificationData);
+        response = await platformNotificationService.sendPrototypeRequest(notificationData);
         console.log('📤 Notification sent successfully:', response);
       } catch (notificationError) {
         console.error('❌ Notification failed:', notificationError);

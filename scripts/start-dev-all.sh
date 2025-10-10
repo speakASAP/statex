@@ -551,8 +551,8 @@ show_status() {
         "submission-service:${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}"
         "notification-service:${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005}"
         "user-portal:${USER_PORTAL_EXTERNAL_PORT:-8006}"
-        "monitoring-service:${MONITORING_SERVICE_EXTERNAL_PORT:-8007}"
-        "logging-service:${LOGGING_SERVICE_EXTERNAL_PORT:-8008}"
+        # "monitoring-service:${MONITORING_SERVICE_EXTERNAL_PORT:-8007}"  # TEMPORARILY DISABLED
+        # "logging-service:${LOGGING_SERVICE_EXTERNAL_PORT:-8008}"  # TEMPORARILY DISABLED
         "content-service:${CONTENT_SERVICE_EXTERNAL_PORT:-8009}"
         "ai-orchestrator:${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010}"
         "nlp-service:${NLP_SERVICE_EXTERNAL_PORT:-8011}"
@@ -585,15 +585,15 @@ stop_all() {
     if docker info >/dev/null 2>&1; then
         print_status "Stopping infrastructure services (Docker)..."
         cd "$PROJECT_ROOT/statex-infrastructure"
-        docker compose -f docker-compose.dev.yml down
+        docker compose -f docker-compose.dev.yml stop
         cd "$PROJECT_ROOT"
         print_success "Infrastructure services stopped"
     else
         print_status "Docker is not running - infrastructure services already stopped"
     fi
     
-    # Define all service ports
-    local ports=(3000 8000 8001 8002 8005 8006 8007 8008 8009 8010 8011 8012 8013 8014 8015 8016 8017 8020 8053)
+    # Define all service ports (monitoring services 8007 and 8008 temporarily disabled)
+    local ports=(3000 8000 8001 8002 8005 8006 8009 8010 8011 8012 8013 8014 8015 8016 8017 8020 8053)
     
     # Stop services by port (more reliable than PID files)
     for port in "${ports[@]}"; do
@@ -668,10 +668,10 @@ main() {
             start_dns_service
             sleep 3
             
-            # Phase 5: Monitoring Services (independent)
-            print_status "Phase 5: Starting monitoring services..."
-            start_monitoring_services
-            sleep 3
+            # Phase 5: Monitoring Services (independent) - TEMPORARILY DISABLED
+            # print_status "Phase 5: Starting monitoring services..."
+            # start_monitoring_services
+            # sleep 3
             
             # Phase 6: Frontend (depends on all backend services)
             print_status "Phase 6: Starting frontend..."
@@ -694,8 +694,8 @@ main() {
             echo "  📝 Submission Service:   http://localhost:${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}"
             echo "  📧 Notification Service: http://localhost:${NOTIFICATION_SERVICE_EXTERNAL_PORT:-8005}"
             echo "  👤 User Portal:          http://localhost:${USER_PORTAL_EXTERNAL_PORT:-8006}"
-            echo "  📊 Monitoring Service:   http://localhost:${MONITORING_SERVICE_EXTERNAL_PORT:-8007}"
-            echo "  📋 Logging Service:      http://localhost:${LOGGING_SERVICE_EXTERNAL_PORT:-8008}"
+            echo "  📊 Monitoring Service:   http://localhost:${MONITORING_SERVICE_EXTERNAL_PORT:-8007}  # TEMPORARILY DISABLED"
+            echo "  📋 Logging Service:      http://localhost:${LOGGING_SERVICE_EXTERNAL_PORT:-8008}  # TEMPORARILY DISABLED"
             echo "  🤖 AI Orchestrator:      http://localhost:${AI_ORCHESTRATOR_EXTERNAL_PORT:-8010}"
             echo ""
             print_status "Logs are available in: $LOG_DIR"

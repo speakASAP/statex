@@ -1,8 +1,9 @@
 """
 StateX Platform HTTP Clients
 
-HTTP clients for communicating with external microservices.
+Single source of truth for HTTP clients across all StateX microservices.
 Provides unified interface for service-to-service communication.
+Supports both Docker container and localhost environments.
 """
 
 import httpx
@@ -52,7 +53,11 @@ class AIServiceClient(BaseServiceClient):
     """Client for communicating with StateX AI services"""
     
     def __init__(self):
-        ai_base_url = os.getenv("AI_SERVICES_BASE_URL", os.getenv("AI_ORCHESTRATOR_URL", "http://ai-orchestrator:8000"))
+        # Support both Docker and localhost environments
+        ai_base_url = os.getenv(
+            "AI_SERVICES_BASE_URL", 
+            os.getenv("AI_ORCHESTRATOR_URL", "http://localhost:8010")
+        )
         super().__init__(ai_base_url)
     
     async def process_submission(self, submission_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -75,7 +80,8 @@ class NotificationServiceClient(BaseServiceClient):
     """Client for communicating with StateX Notification Service"""
     
     def __init__(self):
-        notification_base_url = os.getenv("NOTIFICATION_SERVICE_URL", "http://notification-service:8005")
+        # Support both Docker and localhost environments
+        notification_base_url = os.getenv("NOTIFICATION_SERVICE_URL", "http://localhost:8005")
         super().__init__(notification_base_url)
     
     async def send_notification(self, notification_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -94,7 +100,8 @@ class WebsiteServiceClient(BaseServiceClient):
     """Client for communicating with StateX Website services"""
     
     def __init__(self):
-        website_base_url = os.getenv("WEBSITE_SERVICES_URL", "http://user-portal:8006")
+        # Support both Docker and localhost environments
+        website_base_url = os.getenv("WEBSITE_SERVICES_URL", "http://localhost:8006")
         super().__init__(website_base_url)
     
     async def get_user_portal_data(self, user_id: str) -> Dict[str, Any]:
@@ -103,7 +110,7 @@ class WebsiteServiceClient(BaseServiceClient):
     
     async def get_content_data(self, content_id: str) -> Dict[str, Any]:
         """Get content data"""
-        content_url = os.getenv("CONTENT_SERVICE_URL", "http://content-service:8009")
+        content_url = os.getenv("CONTENT_SERVICE_URL", "http://localhost:8009")
         async with BaseServiceClient(content_url) as client:
             return await client._make_request("GET", f"/api/content/{content_id}")
     
@@ -115,7 +122,8 @@ class MonitoringServiceClient(BaseServiceClient):
     """Client for communicating with StateX Monitoring services"""
     
     def __init__(self):
-        monitoring_base_url = os.getenv("MONITORING_SERVICE_URL", "http://monitoring-service:8007")
+        # Support both Docker and localhost environments
+        monitoring_base_url = os.getenv("MONITORING_SERVICE_URL", "http://localhost:8007")
         super().__init__(monitoring_base_url)
     
     async def send_metrics(self, metrics_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -124,7 +132,7 @@ class MonitoringServiceClient(BaseServiceClient):
     
     async def send_logs(self, log_data: Dict[str, Any]) -> Dict[str, Any]:
         """Send logs to monitoring service"""
-        logging_url = os.getenv("LOGGING_SERVICE_URL", "http://logging-service:8008")
+        logging_url = os.getenv("LOGGING_SERVICE_URL", "http://localhost:8008")
         async with BaseServiceClient(logging_url) as client:
             return await client._make_request("POST", "/api/logs", json=log_data)
     
@@ -136,6 +144,37 @@ class MonitoringServiceClient(BaseServiceClient):
         """Check monitoring services health"""
         return await self._make_request("GET", "/health")
 
+class SubmissionServiceClient(BaseServiceClient):
+    """Client for communicating with StateX Submission Service"""
+    
+    def __init__(self):
+        # Support both Docker and localhost environments
+        submission_base_url = os.getenv("SUBMISSION_SERVICE_URL", "http://localhost:8002")
+        super().__init__(submission_base_url)
+    
+    async def persist_summary(self, submission_id: str, summary_text: str, model_used: str = None, tokens_used: int = None, processing_time: float = None) -> Dict[str, Any]:
+        """Persist AI-generated summary for a submission"""
+        return await self._make_request("POST", f"/api/submissions/{submission_id}/summary", json={
+            "summary": summary_text,
+            "model_used": model_used,
+            "tokens_used": tokens_used,
+            "processing_time": processing_time
+        })
+    
+    async def persist_agent_result(self, submission_id: str, agent_type: str, result_data: Dict[str, Any], model_used: str = None, tokens_used: int = None, processing_time: float = None) -> Dict[str, Any]:
+        """Persist individual agent result to a specific .md file"""
+        return await self._make_request("POST", f"/api/submissions/{submission_id}/agent-result", json={
+            "agent_type": agent_type,
+            "result_data": result_data,
+            "model_used": model_used,
+            "tokens_used": tokens_used,
+            "processing_time": processing_time
+        })
+    
+    async def health_check(self) -> Dict[str, Any]:
+        """Check submission service health"""
+        return await self._make_request("GET", "/health")
+
 class ServiceOrchestrator:
     """Orchestrator for managing all external service communications"""
     
@@ -144,6 +183,7 @@ class ServiceOrchestrator:
         self.notification_client = NotificationServiceClient()
         self.website_client = WebsiteServiceClient()
         self.monitoring_client = MonitoringServiceClient()
+        self.submission_client = SubmissionServiceClient()
     
     async def process_user_submission(self, submission_data: Dict[str, Any]) -> Dict[str, Any]:
         """Process user submission through all relevant services"""
@@ -151,29 +191,20 @@ class ServiceOrchestrator:
             # Start AI processing
             async with self.ai_client as ai:
                 ai_result = await ai.process_submission(submission_data)
-            
-            # Send initial notification
-            async with self.notification_client as notification:
-                notification_data = {
-                    "user_id": submission_data.get("user_id"),
-                    "type": "confirmation",
-                    "title": "Submission Received",
-                    "message": "Your submission is being processed by our AI agents.",
-                    "contact_type": submission_data.get("contact_type", "email"),
-                    "contact_value": submission_data.get("contact_value"),
-                    "user_name": submission_data.get("user_name")
-                }
-                await notification.send_notification(notification_data)
-            
-            # Send metrics
-            async with self.monitoring_client as monitoring:
-                metrics_data = {
-                    "service": "submission-service",
-                    "event": "submission_processed",
-                    "timestamp": datetime.now().isoformat(),
-                    "data": {"submission_id": ai_result.get("submission_id")}
-                }
-                await monitoring.send_metrics(metrics_data)
+
+            # Send metrics (if monitoring service is enabled)
+            if os.getenv("ENABLE_MONITORING", "false").lower() == "true":
+                try:
+                    async with self.monitoring_client as monitoring:
+                        metrics_data = {
+                            "service": "submission-service",
+                            "event": "submission_processed",
+                            "timestamp": datetime.now().isoformat(),
+                            "data": {"submission_id": ai_result.get("submission_id")}
+                        }
+                        await monitoring.send_metrics(metrics_data)
+                except Exception as e:
+                    logger.warning(f"Failed to send metrics: {e}")
             
             return ai_result
             
@@ -196,6 +227,16 @@ class ServiceOrchestrator:
                 logger.error(f"Failed to send error notification: {notification_error}")
             
             raise
+    
+    async def persist_summary(self, submission_id: str, summary_text: str, model_used: str = None, tokens_used: int = None, processing_time: float = None) -> Dict[str, Any]:
+        """Persist AI-generated summary for a submission"""
+        async with self.submission_client as submission:
+            return await submission.persist_summary(submission_id, summary_text, model_used, tokens_used, processing_time)
+    
+    async def persist_agent_result(self, submission_id: str, agent_type: str, result_data: Dict[str, Any], model_used: str = None, tokens_used: int = None, processing_time: float = None) -> Dict[str, Any]:
+        """Persist individual agent result to a specific .md file"""
+        async with self.submission_client as submission:
+            return await submission.persist_agent_result(submission_id, agent_type, result_data, model_used, tokens_used, processing_time)
     
     async def check_all_services_health(self) -> Dict[str, Any]:
         """Check health of all external services"""
@@ -220,9 +261,19 @@ class ServiceOrchestrator:
             health_status["website_services"] = {"status": "unhealthy", "error": str(e)}
         
         try:
-            async with self.monitoring_client as monitoring:
-                health_status["monitoring_services"] = await monitoring.health_check()
+            async with self.submission_client as submission:
+                health_status["submission_service"] = await submission.health_check()
         except Exception as e:
-            health_status["monitoring_services"] = {"status": "unhealthy", "error": str(e)}
+            health_status["submission_service"] = {"status": "unhealthy", "error": str(e)}
+        
+        # Only check monitoring if enabled
+        if os.getenv("ENABLE_MONITORING", "false").lower() == "true":
+            try:
+                async with self.monitoring_client as monitoring:
+                    health_status["monitoring_services"] = await monitoring.health_check()
+            except Exception as e:
+                health_status["monitoring_services"] = {"status": "unhealthy", "error": str(e)}
+        else:
+            health_status["monitoring_services"] = {"status": "disabled"}
         
         return health_status

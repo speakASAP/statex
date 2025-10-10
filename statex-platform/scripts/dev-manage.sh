@@ -1714,30 +1714,30 @@ stop_all() {
     # Stop in reverse order
     print_status "Stopping monitoring services..."
     cd ../statex-monitoring
-    docker compose -f docker-compose.dev.yml down 2>/dev/null || true
+    docker compose -f docker-compose.dev.yml stop 2>/dev/null || true
     cd ../statex-platform
     
     print_status "Stopping website services..."
     cd ../statex-website
-    docker compose -f docker-compose.dev.yml down 2>/dev/null || true
+    docker compose -f docker-compose.dev.yml stop 2>/dev/null || true
     cd ../statex-platform
     
     print_status "Stopping notification service..."
     cd ../statex-notification-service
-    docker compose -f docker-compose.dev.yml down 2>/dev/null || true
+    docker compose -f docker-compose.dev.yml stop 2>/dev/null || true
     cd ../statex-platform
     
     print_status "Stopping AI services..."
     cd ../statex-ai
-    docker compose -f docker-compose.dev.yml down 2>/dev/null || true
+    docker compose -f docker-compose.dev.yml stop 2>/dev/null || true
     cd ../statex-platform
     
     print_status "Stopping platform services..."
-    docker compose -f docker-compose.dev.yml down 2>/dev/null || true
+    docker compose -f docker-compose.dev.yml stop 2>/dev/null || true
     
     print_status "Stopping infrastructure services..."
     cd ../statex-infrastructure
-    docker compose -f docker-compose.dev.yml down 2>/dev/null || true
+    docker compose -f docker-compose.dev.yml stop 2>/dev/null || true
     cd ../statex-platform
     
     print_success "All services stopped"
@@ -2360,25 +2360,25 @@ clean_up() {
     
     # Stop and remove all containers in reverse order
     cd ../statex-monitoring
-    docker compose -f docker-compose.dev.yml down -v --remove-orphans 2>/dev/null || true
+    docker compose -f docker-compose.dev.yml stop -v --remove-orphans 2>/dev/null || true
     cd ../statex-platform
     
     cd ../statex-website
-    docker compose -f docker-compose.dev.yml down -v --remove-orphans 2>/dev/null || true
+    docker compose -f docker-compose.dev.yml stop -v --remove-orphans 2>/dev/null || true
     cd ../statex-platform
     
     cd ../statex-notification-service
-    docker compose -f docker-compose.dev.yml down -v --remove-orphans 2>/dev/null || true
+    docker compose -f docker-compose.dev.yml stop -v --remove-orphans 2>/dev/null || true
     cd ../statex-platform
     
     cd ../statex-ai
-    docker compose -f docker-compose.dev.yml down -v --remove-orphans 2>/dev/null || true
+    docker compose -f docker-compose.dev.yml stop -v --remove-orphans 2>/dev/null || true
     cd ../statex-platform
     
-    docker compose -f docker-compose.dev.yml down -v --remove-orphans 2>/dev/null || true
+    docker compose -f docker-compose.dev.yml stop -v --remove-orphans 2>/dev/null || true
     
     cd ../statex-infrastructure
-    docker compose -f docker-compose.dev.yml down -v --remove-orphans 2>/dev/null || true
+    docker compose -f docker-compose.dev.yml stop -v --remove-orphans 2>/dev/null || true
     cd ../statex-platform
     
     # Remove unused resources

@@ -63,7 +63,7 @@ stop_infrastructure() {
     
     if docker info >/dev/null 2>&1; then
         cd statex-infrastructure
-        docker compose -f docker-compose.dev.yml down
+        docker compose -f docker-compose.dev.yml stop
         cd ..
         print_success "Infrastructure services stopped"
     else

@@ -30,16 +30,16 @@ services:
       timeout: 10s
       retries: 2
 
-  # Self-Signed Certificate Generator
-  cert-generator:
-    image: alpine:latest
-    container_name: statex_cert_generator
-    volumes:
-      - ./ssl-dev:/ssl
-      - ./scripts/generate-self-signed.sh:/generate-certs.sh
-    command: sh -c "apk add --no-cache openssl && chmod +x /generate-certs.sh && /generate-certs.sh"
-    networks:
-      - statex_network
+  # Self-Signed Certificate Generator - DISABLED
+  # cert-generator:
+  #   image: alpine:latest
+  #   container_name: statex_cert_generator
+  #   volumes:
+  #     - ./ssl-dev:/ssl
+  #     - ./scripts/generate-self-signed.sh:/generate-certs.sh
+  #   command: sh -c "apk add --no-cache openssl && chmod +x /generate-certs.sh && /generate-certs.sh"
+  #   networks:
+  #     - statex_network
 
   # Centralized Database
   postgres:

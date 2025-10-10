@@ -109,59 +109,59 @@ services:
       timeout: 10s
       retries: 3
 
-  # Self-Signed Certificate Generator
-  cert-generator:
-    image: alpine:latest
-    container_name: statex_cert_generator
-    volumes:
-      - ./ssl-dev:/ssl
-      - ./scripts/generate-self-signed.sh:/generate-certs.sh:ro
-    command: sh -c "apk add --no-cache openssl && chmod +x /generate-certs.sh && /generate-certs.sh"
-    networks:
-      - statex_network
+  # Self-Signed Certificate Generator - DISABLED
+  # cert-generator:
+  #   image: alpine:latest
+  #   container_name: statex_cert_generator
+  #   volumes:
+  #     - ./ssl-dev:/ssl
+  #     - ./scripts/generate-self-signed.sh:/generate-certs.sh:ro
+  #   command: sh -c "apk add --no-cache openssl && chmod +x /generate-certs.sh && /generate-certs.sh"
+  #   networks:
+  #     - statex_network
 
-  # Elasticsearch (for advanced search features)
-  elasticsearch:
-    image: elasticsearch:8.11.0
-    container_name: statex_elasticsearch_dev
-    restart: unless-stopped
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-    networks:
-      - statex_network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+  # Elasticsearch (for advanced search features) - TEMPORARILY DISABLED
+  # elasticsearch:
+  #   image: elasticsearch:8.11.0
+  #   container_name: statex_elasticsearch_dev
+  #   restart: unless-stopped
+  #   environment:
+  #     - discovery.type=single-node
+  #     - xpack.security.enabled=false
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #   ports:
+  #     - "9200:9200"
+  #     - "9300:9300"
+  #   volumes:
+  #     - elasticsearch_data:/usr/share/elasticsearch/data
+  #   networks:
+  #     - statex_network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
 
-  # Ollama Local AI Service
-  ollama:
-    image: ollama/ollama:latest
-    container_name: statex_ollama_dev
-    restart: unless-stopped
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    networks:
-      - statex_network
-    environment:
-      - OLLAMA_HOST=0.0.0.0
-      - OLLAMA_ORIGINS=*
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+  # Ollama Local AI Service - DISABLED
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: statex_ollama_dev
+  #   restart: unless-stopped
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   networks:
+  #     - statex_network
+  #   environment:
+  #     - OLLAMA_HOST=0.0.0.0
+  #     - OLLAMA_ORIGINS=*
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+  #     start_period: 60s
 
 volumes:
   postgres_data:
@@ -172,10 +172,10 @@ volumes:
     driver: local
   minio_data:
     driver: local
-  elasticsearch_data:
-    driver: local
-  ollama_data:
-    driver: local
+  # elasticsearch_data:
+  #   driver: local
+  # ollama_data:
+  #   driver: local
 
 networks:
   statex_network:

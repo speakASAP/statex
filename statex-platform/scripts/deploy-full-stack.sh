@@ -129,9 +129,9 @@ main() {
     echo "  - Website: cd $WEBSITE_DIR && docker compose logs -f"
     echo ""
     echo -e "${BLUE}🛑 To stop all services:${NC}"
-    echo "  - Infrastructure: cd $INFRASTRUCTURE_DIR && docker compose down"
+    echo "  - Infrastructure: cd $INFRASTRUCTURE_DIR && docker compose stop"
     echo "  - Platform: cd $PLATFORM_DIR && make stop"
-    echo "  - Website: cd $WEBSITE_DIR && docker compose down"
+    echo "  - Website: cd $WEBSITE_DIR && docker compose stop"
 }
 
 # Run main function

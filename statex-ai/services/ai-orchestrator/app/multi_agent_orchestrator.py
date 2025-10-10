@@ -629,13 +629,6 @@ class MultiAgentOrchestrator:
                 agent_results=completed_workflow.agent_results
             )
             
-            # Send notifications for each agent result
-            try:
-                await self._send_agent_notifications(request, completed_workflow)
-            except Exception as notification_error:
-                logger.error(f"Failed to send agent notifications: {notification_error}")
-                # Don't fail the entire workflow for notification errors
-            
             # Persist summary if summarizer agent completed successfully
             try:
                 await self._persist_summary_if_available(request, completed_workflow)

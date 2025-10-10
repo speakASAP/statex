@@ -568,9 +568,6 @@ async def process_submission_workflow(submission_id: str):
         # Step 5: Create results page
         await create_results_page(submission_id)
         
-        # Step 6: Send notification to user
-        await send_notification(submission_id)
-        
         # Step 7: Mark as completed
         submission["status"] = SubmissionStatus.COMPLETED
         submission["updated_at"] = datetime.now().isoformat()
@@ -616,15 +613,6 @@ async def process_voice_content(submission_id: str):
                 # Add transcribed text to submission
                 submission["text_content"] = (submission["text_content"] or "") + "\n" + result.get("transcript", "")
                 
-                # Send individual agent notification
-                await send_agent_notification(
-                    submission_id=submission_id,
-                    agent_name="ASR Service",
-                    service_name="asr-service",
-                    input_data={"voice_file_url": submission["voice_file_url"]},
-                    output_data=result,
-                    processing_time=result.get("processing_time", 0)
-                )
             else:
                 # Update the step in the workflow_steps list
                 for i, workflow_step in enumerate(submission["workflow_steps"]):
@@ -675,16 +663,7 @@ async def process_document_files(submission_id: str):
                 # Add extracted text to submission
                 extracted_text = result.get("extracted_text", "")
                 submission["text_content"] = (submission["text_content"] or "") + "\n" + extracted_text
-                
-                # Send individual agent notification
-                await send_agent_notification(
-                    submission_id=submission_id,
-                    agent_name="Document AI",
-                    service_name="document-ai",
-                    input_data={"file_urls": submission["file_urls"]},
-                    output_data=result,
-                    processing_time=result.get("processing_time", 0)
-                )
+
             else:
                 step.status = "failed"
                 step.error_message = f"Document AI service error: {response.status_code}"
@@ -729,16 +708,7 @@ async def process_nlp_analysis(submission_id: str):
                 
                 # Store NLP results
                 submission["results"]["nlp_analysis"] = result
-                
-                # Send individual agent notification
-                await send_agent_notification(
-                    submission_id=submission_id,
-                    agent_name="NLP Analysis",
-                    service_name="nlp-service",
-                    input_data={"text_content": submission["text_content"], "requirements": submission["requirements"]},
-                    output_data=result,
-                    processing_time=result.get("processing_time", 0)
-                )
+
             else:
                 step.status = "failed"
                 step.error_message = f"NLP service error: {response.status_code}"
@@ -800,16 +770,6 @@ async def create_results_page(submission_id: str):
                 }
                 submission["workflow_steps"][i]["processing_time"] = 0.1
                 break
-        
-        # Send individual agent notification
-        await send_agent_notification(
-            submission_id=submission_id,
-            agent_name="Results Page Creator",
-            service_name="results-storage",
-            input_data={"prototype_id": submission.get("prototype_id", f"proto_{submission_id}")},
-            output_data={"results_page_url": submission["results_page_url"]},
-            processing_time=0.1
-        )
         
     except Exception as e:
         # Update the step in the workflow_steps list
@@ -876,19 +836,6 @@ async def generate_prototype(submission_id: str):
                     logger.error(f"Error generating project URLs: {e}")
                     # Fallback to simple ID
                     submission["prototype_id"] = result.get("prototype_id", f"proto_{int(time.time())}")
-                
-                # Send individual agent notification
-                await send_agent_notification(
-                    submission_id=submission_id,
-                    agent_name="Prototype Generator",
-                    service_name="prototype-generator",
-                    input_data={
-                        "requirements": submission["requirements"],
-                        "nlp_analysis": submission["results"].get("nlp_analysis", {})
-                    },
-                    output_data=result,
-                    processing_time=result.get("processing_time", 0)
-                )
             else:
                 step.status = "failed"
                 step.error_message = f"Prototype generator error: {response.status_code}"
@@ -1117,20 +1064,6 @@ async def send_notification(submission_id: str):
                 step.processing_time = 0  # Notification is usually instant
                 
                 logger.info(f"Notification sent successfully for submission {submission_id}")
-                
-                # Send individual agent notification for notification service
-                await send_agent_notification(
-                    submission_id=submission_id,
-                    agent_name="Notification Service",
-                    service_name="notification-service",
-                    input_data={
-                        "user_name": submission["user_name"],
-                        "contact_type": submission["contact_type"],
-                        "contact_value": submission["contact_value"]
-                    },
-                    output_data=result,
-                    processing_time=0
-                )
             else:
                 step.status = "failed"
                 step.error_message = f"Notification service error: {response.status_code}"

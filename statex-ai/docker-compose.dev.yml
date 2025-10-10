@@ -183,7 +183,7 @@ services:
       - DATABASE_URL=postgresql://statex:statex_password@host.docker.internal:5432/statex
       - REDIS_URL=redis://host.docker.internal:6379
       - AI_ORCHESTRATOR_URL=${AI_ORCHESTRATOR_URL:-http://ai-orchestrator:8000}
-      - OLLAMA_URL=http://host.docker.internal:11434
+      # - OLLAMA_URL=http://host.docker.internal:11434  # Ollama disabled
       - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - OPENROUTER_API_BASE=${OPENROUTER_API_BASE:-https://openrouter.ai/api/v1}

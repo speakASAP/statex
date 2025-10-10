@@ -57,7 +57,7 @@ deploy_development() {
     
     # Stop existing containers
     echo "🛑 Stopping existing containers..."
-    docker-compose down || true
+    docker-compose stop || true
     
     # Build images
     echo "🔨 Building Docker images..."

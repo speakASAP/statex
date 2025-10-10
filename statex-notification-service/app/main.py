@@ -215,21 +215,7 @@ async def send_email_notification(notification: NotificationRequest) -> tuple[bo
                 <p style="margin: 5px 0 0 0; opacity: 0.9;">AI-Powered Development Services</p>
             </div>
             <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <h2 style="color: #333; margin-top: 0;">Hello {notification.user_name or 'there'}!</h2>
-                <p style="color: #666; line-height: 1.6;">{notification.message}</p>
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                    <h3 style="color: #333; margin-top: 0;">What's Next?</h3>
-                    <ul style="color: #666; line-height: 1.6;">
-                        <li>We'll analyze your requirements within 24 hours</li>
-                        <li>You'll receive your working prototype in 24-48 hours</li>
-                        <li>We'll contact you via this email for any clarifications</li>
-                    </ul>
-                </div>
-                <p style="color: #666; font-size: 14px; margin-top: 30px;">
-                    Best regards,<br>
-                    The Statex Team<br>
-                    <a href="https://statex.cz" style="color: #667eea;">statex.cz</a>
-                </p>
+                <div style="color: #666; line-height: 1.6; white-space: pre-line;">{notification.message}</div>
             </div>
         </body>
         </html>
@@ -277,7 +263,7 @@ async def send_whatsapp_notification(notification: NotificationRequest) -> tuple
             "to": phone_number,
             "type": "text",
             "text": {
-                "body": f"🚀 *Statex Notification*\n\nHello {notification.user_name or 'there'}!\n\n{notification.message}\n\nWe'll contact you via WhatsApp for updates on your prototype.\n\nBest regards,\nThe Statex Team"
+                "body": notification.message
             }
         }
         
@@ -303,16 +289,7 @@ async def send_telegram_notification(notification: NotificationRequest) -> tuple
         if not chat_id:
             return False, "Telegram chat ID not provided"
         
-        message = f"""🚀 *Statex Notification*
-
-Hello {notification.user_name or 'there'}!
-
-{notification.message}
-
-We'll contact you via Telegram for updates on your prototype.
-
-Best regards,
-The Statex Team"""
+        message = notification.message
         
         # Check if this is a prototype completion notification and add buttons
         inline_keyboard = None

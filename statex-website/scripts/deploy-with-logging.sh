@@ -18,7 +18,7 @@ fi
 # Шаг 1: Остановка существующих контейнеров
 echo ""
 echo "🛑 Шаг 1: Остановка существующих контейнеров..."
-docker compose -f docker-compose.production.yml down -v
+docker compose -f docker-compose.production.yml stop -v
 echo "✅ Контейнеры остановлены"
 
 # Шаг 2: Очистка Docker cache

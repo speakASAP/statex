@@ -202,7 +202,7 @@ stop_all() {
     
     # Stop infrastructure services
     cd statex-infrastructure
-    docker compose -f docker-compose.dev.yml down
+    docker compose -f docker-compose.dev.yml stop
     cd ..
     
     # Stop all local services
