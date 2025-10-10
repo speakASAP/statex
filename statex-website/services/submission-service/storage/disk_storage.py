@@ -9,7 +9,7 @@ from fastapi import UploadFile, Request
 
 
 def get_base_dir() -> Path:
-    base = os.getenv("SUBMISSION_UPLOAD_DIR", "./uploads")
+    base = os.getenv("SUBMISSION_UPLOAD_DIR", "./data/uploads")
     base_path = Path(base)
     base_path.mkdir(parents=True, exist_ok=True)
     return base_path

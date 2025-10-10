@@ -167,14 +167,19 @@ export function FormSection({
           
           // Keep local file reference; avoid relying on async state here
           
-          // Upload the voice recording to the server
-          console.log('📤 Uploading voice recording to server...');
-          const voiceRecording = await fileUploadService.uploadVoiceRecording(audioBlob);
-          console.log('✅ Voice recording uploaded:', voiceRecording);
+          // Store the voice recording for form submission
+          const voiceRecording = {
+            fileId: `voice_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            originalName: 'voice_recording.webm',
+            fileSize: audioBlob.size,
+            recordingTime: recordingTime,
+            tempSessionId: `temp_${Date.now()}`,
+            blob: audioBlob  // Store the actual blob
+          };
           
-          // Update the state with the uploaded recording
+          // Update the state with the voice recording
           setVoiceRecordingFile(voiceRecording);
-          finalVoiceRecordingFile = audioBlob;
+          finalVoiceRecordingFile = voiceRecording;
           
           // Verify the recording was uploaded successfully
           if (!voiceRecording.fileId || !voiceRecording.tempSessionId) {
@@ -332,10 +337,10 @@ export function FormSection({
         submissionData.append('recording_time', String(recordingTime || 0));
         
         // Add voice file if present (use local variable to avoid async state race)
-        if (finalVoiceRecordingFile) {
-          const voiceFileName = getVoiceFileName(finalVoiceRecordingFile);
-          const voiceFile = new File([finalVoiceRecordingFile], voiceFileName, {
-            type: (finalVoiceRecordingFile as any).type || 'audio/webm'
+        if (finalVoiceRecordingFile && finalVoiceRecordingFile.blob) {
+          const voiceFileName = getVoiceFileName(finalVoiceRecordingFile.blob);
+          const voiceFile = new File([finalVoiceRecordingFile.blob], voiceFileName, {
+            type: finalVoiceRecordingFile.blob.type || 'audio/webm'
           });
           submissionData.append('voice_file', voiceFile, voiceFileName);
         }
@@ -412,7 +417,7 @@ export function FormSection({
         // Get prototype ID and submission ID from AI orchestrator response
         const aiResponse = response.aiResponse;
         const generatedPrototypeId = aiResponse?.prototype_id || `proto_${Date.now()}`;
-        const actualSubmissionId = aiResponse?.submission_id || submissionId;
+        const actualSubmissionId = response.ai_submission_id || aiResponse?.submission_id || submissionId;
         setPrototypeId(generatedPrototypeId);
         
         // Update the submission ID to the one actually used by the AI service
@@ -611,13 +616,16 @@ export function FormSection({
         setRecordingInterval(null);
       }
 
-      // Keep local file reference; avoid relying on async state here
-      
-      // Upload the voice recording
-      const voiceRecording = await fileUploadService.uploadVoiceRecording(audioBlob);
-      console.log('Voice recording uploaded:', voiceRecording);
-      
       // Store the voice recording for form submission
+      const voiceRecording = {
+        fileId: `voice_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        originalName: 'voice_recording.webm',
+        fileSize: audioBlob.size,
+        recordingTime: recordingTime,
+        tempSessionId: `temp_${Date.now()}`,
+        blob: audioBlob  // Store the actual blob
+      };
+      
       setVoiceRecordingFile(voiceRecording);
     } catch (error) {
       console.error('Failed to stop recording:', error);
@@ -640,23 +648,23 @@ export function FormSection({
         }
       }
       
-      // Store actual files for disk persistence
+      // Store actual files for form submission
       setActualFiles(prev => [...prev, ...newFiles]);
       
-      // Upload files
-      try {
-        console.log('📎 Uploading files:', newFiles.map(f => ({ name: f.name, size: f.size, type: f.type })));
-        const uploadedFileData = await fileUploadService.uploadFiles(newFiles);
-        console.log('✅ Files uploaded successfully:', uploadedFileData);
-        setUploadedFiles(prev => [...prev, ...uploadedFileData]);
-        
-        // Clear the file input to allow selecting the same file again
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-      } catch (error) {
-        console.error('File upload failed:', error);
-        alert(error instanceof Error ? error.message : 'File upload failed');
+      // Create display metadata for UI
+      const fileMetadata = newFiles.map(file => ({
+        fileId: `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        originalName: file.name,
+        fileSize: file.size,
+        type: file.type,
+        tempSessionId: `temp_${Date.now()}`
+      }));
+      
+      setUploadedFiles(prev => [...prev, ...fileMetadata]);
+      
+      // Clear the file input to allow selecting the same file again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
       }
     }
   };
@@ -680,23 +688,23 @@ export function FormSection({
         }
       }
       
-      // Store actual files for disk persistence
+      // Store actual files for form submission
       setActualFiles(prev => [...prev, ...newFiles]);
       
-      // Upload files
-      try {
-        console.log('📎 Uploading dropped files:', newFiles.map(f => ({ name: f.name, size: f.size, type: f.type })));
-        const uploadedFileData = await fileUploadService.uploadFiles(newFiles);
-        console.log('✅ Dropped files uploaded successfully:', uploadedFileData);
-        setUploadedFiles(prev => [...prev, ...uploadedFileData]);
-        
-        // Clear the file input to allow selecting the same file again
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-      } catch (error) {
-        console.error('File upload failed:', error);
-        alert(error instanceof Error ? error.message : 'File upload failed');
+      // Create display metadata for UI
+      const fileMetadata = newFiles.map(file => ({
+        fileId: `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        originalName: file.name,
+        fileSize: file.size,
+        type: file.type,
+        tempSessionId: `temp_${Date.now()}`
+      }));
+      
+      setUploadedFiles(prev => [...prev, ...fileMetadata]);
+      
+      // Clear the file input to allow selecting the same file again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
       }
     }
   };

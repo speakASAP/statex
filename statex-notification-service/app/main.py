@@ -6,6 +6,7 @@ Enhanced with business offer formatting and delivery reliability.
 """
 
 import os
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -80,6 +81,9 @@ class NotificationResponse(BaseModel):
     notification_id: str
     status: str
     channel: str
+
+# Load environment variables
+load_dotenv()
 
 # Configuration
 SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")

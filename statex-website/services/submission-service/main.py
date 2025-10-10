@@ -30,7 +30,6 @@ from storage.disk_storage import (
     ensure_session_dirs,
     write_form_markdown,
     save_upload_file,
-    move_temp_files_from_metadata,
 )
 
 # Pydantic models for JSON API
