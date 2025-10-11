@@ -183,7 +183,7 @@ start_services() {
     check_docker
     check_network
     check_images
-    check_ollama
+    # check_ollama  # Ollama disabled
     
     # Start infrastructure first
     print_status "Starting infrastructure services..."
@@ -247,35 +247,35 @@ stop_services() {
     # Stop monitoring services
     print_status "Stopping monitoring services..."
     cd ../statex-monitoring
-    docker compose down 2>/dev/null || true
+    docker compose stop 2>/dev/null || true
     cd ../statex-platform
     
     # Stop website services (includes core business services)
     print_status "Stopping website services (Frontend, Submission)..."
     cd ../statex-website
-    docker compose down 2>/dev/null || true
+    docker compose stop 2>/dev/null || true
     cd ../statex-platform
     
     # Stop notification service
     print_status "Stopping notification service..."
     cd ../statex-notification-service
-    docker compose down 2>/dev/null || true
+    docker compose stop 2>/dev/null || true
     cd ../statex-platform
     
     # Stop AI services
     print_status "Stopping AI services..."
     cd ../statex-ai
-    docker compose down 2>/dev/null || true
+    docker compose stop 2>/dev/null || true
     cd ../statex-platform
     
     # Stop platform services
     print_status "Stopping platform services..."
-    docker compose down 2>/dev/null || true
+    docker compose stop 2>/dev/null || true
     
     # Stop infrastructure
     print_status "Stopping infrastructure services..."
     cd ../statex-infrastructure
-    docker compose down 2>/dev/null || true
+    docker compose stop 2>/dev/null || true
     cd ../statex-platform
     
     print_success "All services stopped successfully!"
@@ -505,25 +505,25 @@ clean_up() {
     
     # Stop and remove all containers in reverse order
     cd ../statex-monitoring
-    docker compose down -v --remove-orphans 2>/dev/null || true
+    docker compose stop -v --remove-orphans 2>/dev/null || true
     cd ../statex-platform
     
     cd ../statex-website
-    docker compose down -v --remove-orphans 2>/dev/null || true
+    docker compose stop -v --remove-orphans 2>/dev/null || true
     cd ../statex-platform
     
     cd ../statex-notification-service
-    docker compose down -v --remove-orphans 2>/dev/null || true
+    docker compose stop -v --remove-orphans 2>/dev/null || true
     cd ../statex-platform
     
     cd ../statex-ai
-    docker compose down -v --remove-orphans 2>/dev/null || true
+    docker compose stop -v --remove-orphans 2>/dev/null || true
     cd ../statex-platform
     
-    docker compose down -v --remove-orphans 2>/dev/null || true
+    docker compose stop -v --remove-orphans 2>/dev/null || true
     
     cd ../statex-infrastructure
-    docker compose down -v --remove-orphans 2>/dev/null || true
+    docker compose stop -v --remove-orphans 2>/dev/null || true
     cd ../statex-platform
     
     # Remove unused resources

@@ -142,7 +142,7 @@ clean_environment() {
     read -p "" -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        docker compose -f docker-compose.development.yml down -v --remove-orphans
+        docker compose -f docker-compose.development.yml stop -v --remove-orphans
         echo -e "${GREEN}✅ Development environment cleaned successfully!${NC}"
     else
         echo -e "${YELLOW}Cleanup cancelled${NC}"

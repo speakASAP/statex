@@ -1,0 +1,30 @@
+services:
+  # StateX Service Management Dashboard
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: statex_dashboard_dev
+    restart: unless-stopped
+    ports:
+      - "8020:8020"
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ../logs:/app/logs
+      - ../pids:/app/pids
+    environment:
+      - PYTHONPATH=/app
+      - LOG_LEVEL=debug
+    networks:
+      - statex_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8020/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  statex_network:
+    external: true

@@ -37,24 +37,25 @@ else
 fi
 
 # Ollama Service (Port 11434)
-if curl -s http://localhost:11434/api/tags > /dev/null; then
-    echo "✅ Ollama Service (11434) - Ready"
-    
-    # Download free models
-    echo "📥 Downloading free AI models..."
-    echo "   Downloading Llama 2 7B..."
-    docker exec statex-platform-ollama-1 ollama pull llama2:7b
-    
-    echo "   Downloading Mistral 7B..."
-    docker exec statex-platform-ollama-1 ollama pull mistral:7b
-    
-    echo "   Downloading CodeLlama 7B..."
-    docker exec statex-platform-ollama-1 ollama pull codellama:7b
-    
-    echo "✅ AI models downloaded successfully"
-else
-    echo "❌ Ollama Service (11434) - Not ready"
-fi
+# Ollama Service (Port 11434) - DISABLED
+# if curl -s http://localhost:11434/api/tags > /dev/null; then
+#     echo "✅ Ollama Service (11434) - Ready"
+#     
+#     # Download free models
+#     echo "📥 Downloading free AI models..."
+#     echo "   Downloading Llama 2 7B..."
+#     docker exec statex-platform-ollama-1 ollama pull llama2:7b
+#     
+#     echo "   Downloading Mistral 7B..."
+#     docker exec statex-platform-ollama-1 ollama pull mistral:7b
+#     
+#     echo "   Downloading CodeLlama 7B..."
+#     docker exec statex-platform-ollama-1 ollama pull codellama:7b
+#     
+#     echo "✅ AI models downloaded successfully"
+# else
+#     echo "❌ Ollama Service (11434) - Not ready"
+# fi
 
 # Notification Service (Port 8005)
 if curl -s http://localhost:8005/health > /dev/null; then
@@ -73,7 +74,7 @@ echo "🎉 Platform Free AI Services Setup Complete!"
 echo ""
 echo "📋 Available Services:"
 echo "  • Free AI Service: http://localhost:8016"
-echo "  • Ollama Service: http://localhost:11434"
+echo "  • Ollama Service: DISABLED"
 echo "  • Notification Service: http://localhost:8005"
 echo ""
 echo "🔧 To test the workflow:"

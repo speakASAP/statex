@@ -15,6 +15,8 @@ from pydantic import BaseModel, Field
 import logging
 import json
 import time
+import httpx
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -106,6 +108,44 @@ class AgentInterface(ABC):
             logger.error(f"Health check failed for {self.agent_name}: {e}")
             self.is_healthy = False
             return False
+    
+    async def _save_agent_result(self, task: AgentTask, result_data: Dict[str, Any]) -> None:
+        """Save agent result to submission service"""
+        try:
+            submission_id = task.input_data.get("submission_id")
+            if not submission_id:
+                logger.warning(f"No submission_id found for {self.agent_type} agent")
+                return
+            
+            # Get submission service URL
+            submission_service_url = os.getenv("SUBMISSION_SERVICE_URL", "http://submission-service:8002")
+            
+            # Extract model information from result
+            analysis = result_data.get("analysis", {})
+            model_used = analysis.get("model_used", result_data.get("model_used", "unknown"))
+            tokens_used = result_data.get("tokens_used", 0)
+            processing_time = result_data.get("processing_time", 0)
+            
+            # Save to submission service
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    f"{submission_service_url}/api/submissions/{submission_id}/agent-result",
+                    json={
+                        "agent_type": self.agent_type,
+                        "result_data": result_data,
+                        "model_used": model_used,
+                        "tokens_used": tokens_used,
+                        "processing_time": processing_time
+                    }
+                )
+                
+                if response.status_code == 200:
+                    logger.info(f"Saved {self.agent_type} result for submission {submission_id}")
+                else:
+                    logger.warning(f"Failed to save {self.agent_type} result: {response.status_code}")
+                    
+        except Exception as e:
+            logger.error(f"Error saving {self.agent_type} result: {e}")
 
 class WorkflowEngine:
     """Main workflow engine for orchestrating multi-agent tasks"""

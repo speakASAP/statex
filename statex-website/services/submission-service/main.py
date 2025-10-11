@@ -13,21 +13,27 @@ import uvicorn
 import sys
 from typing import List, Optional
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 import hashlib
 import re
+import json
 from pathlib import Path
+from dotenv import load_dotenv
 
-# Add shared directory to path
-sys.path.append('/app/shared')
-from http_clients import ServiceOrchestrator
+# Load environment variables from .env file
+load_dotenv()
+
+# Add platform shared directory to path dynamically
+current_dir = Path(__file__).parent.resolve()
+platform_shared_dir = current_dir.parent.parent.parent / "statex-platform" / "shared"
+sys.path.append(str(platform_shared_dir))
+from http_clients import ServiceOrchestrator  # type: ignore
 from storage.disk_storage import (
     get_base_dir,
     generate_user_and_session,
     ensure_session_dirs,
     write_form_markdown,
     save_upload_file,
-    move_temp_files_from_metadata,
 )
 
 # Pydantic models for JSON API
@@ -55,6 +61,27 @@ class FormSubmissionRequest(BaseModel):
     files: List[FileInfo] = []
     voiceRecording: Optional[VoiceRecording] = None
 
+class SummaryRequest(BaseModel):
+    summary: str
+    model_used: Optional[str] = None
+    tokens_used: Optional[int] = None
+    processing_time: Optional[float] = None
+
+class AgentResultRequest(BaseModel):
+    agent_type: str
+    result_data: dict
+    model_used: Optional[str] = None
+    tokens_used: Optional[int] = None
+    processing_time: Optional[float] = None
+
+
+class FilenameMapping(BaseModel):
+    original_name: str
+    stored_name: str
+    file_type: str
+    file_size: int
+    content_type: str
+
 # Initialize FastAPI app
 app = FastAPI(
     title="StateX Submission Service",
@@ -63,6 +90,12 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc"
 )
+
+# Import database manager
+from database import db_manager, create_tables
+
+# Initialize database tables
+create_tables()
 
 # CORS middleware
 app.add_middleware(
@@ -138,7 +171,7 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "submission-service",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "version": "1.0.0"
     }
 
@@ -152,14 +185,14 @@ async def external_services_health():
             "status": "healthy",
             "service": "submission-service",
             "external_services": health_status,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     except Exception as e:
         return {
             "status": "unhealthy",
             "service": "submission-service",
             "error": str(e),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
 
 @app.get("/health/ready")
@@ -168,7 +201,7 @@ async def readiness_check():
     return {
         "status": "ready",
         "service": "submission-service",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 @app.post("/api/submissions/")
@@ -202,8 +235,8 @@ async def create_submission(
             "priority": priority,
             "status": "submitted",
             "file_urls": [],
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat()
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
         }
         
         # Prepare disk persistence
@@ -235,7 +268,7 @@ async def create_submission(
                 "size": 0,  # Would be calculated from actual file
                 "submission_id": submission_id,
                 "type": "voice",
-                "created_at": datetime.utcnow().isoformat()
+                "created_at": datetime.now(timezone.utc).isoformat()
             }
             
             files_db[file_id] = file_info
@@ -271,7 +304,7 @@ async def create_submission(
                         "size": 0,  # Would be calculated from actual file
                         "submission_id": submission_id,
                         "type": "attachment",
-                        "created_at": datetime.utcnow().isoformat()
+                        "created_at": datetime.now(timezone.utc).isoformat()
                     }
                     
                     files_db[file_id] = file_info
@@ -301,15 +334,57 @@ async def create_submission(
             },
         )
 
-        # Store submission
+        # Store submission in database
+        submission_data = {
+            "user_id": user_id,
+            "session_id": session_id,
+            "submission_type": "text",
+            "text_content": description,
+            "voice_file_url": submission.get("voice_file_url"),
+            "file_urls": submission.get("file_urls", []),
+            "requirements": f"Type: {request_type}, Priority: {priority}",
+            "contact_info": {
+                "email": user_email,
+                "name": user_name or "Unknown"
+            }
+        }
+        db_submission_id = db_manager.create_submission(submission_data)
+        
+        # Also store in memory for backward compatibility
         submissions_db[submission_id] = submission
+        
+        # Save filename mappings for AI agents to use (using database)
+        # No files to map in this endpoint, but we still create an empty mapping record
+        mappings_data = []  # No files in this endpoint
+        db_manager.save_filename_mappings(session_id, db_submission_id, mappings_data)
+        
+        # Original code commented out since saved_files is not defined in this function
+        # if saved_files:
+        #     mappings_data = []
+        #     for file_info in saved_files:
+        #         if file_info.get("type") == "attachment":  # Only process attachment files
+        #             mapping_data = {
+        #                 "original_name": file_info.get("original_name", ""),
+        #                 "stored_name": file_info.get("stored_name", ""),
+        #                 "file_type": file_info.get("type", "attachment"),
+        #                 "file_size": file_info.get("size", 0),
+        #                 "content_type": file_info.get("content_type", "application/octet-stream")
+        #             }
+        #             mappings_data.append(mapping_data)
+        #     
+        #     if mappings_data:
+        #         db_manager.save_filename_mappings(session_id, db_submission_id, mappings_data)
         
         # Process submission through external services
         orchestrator = ServiceOrchestrator()
         ai_submission_data = {
-            "user_id": submission_id,
+            "user_id": user_id,  # Use actual user_id, not submission_id
+            "submission_id": submission_id,  # Add submission_id separately
+            "session_id": session_id,  # Add session_id for filename mapping
             "submission_type": "text",
             "text_content": description,
+            "voice_file_url": submission.get("voice_file_url"),  # Add voice file URL
+            "file_urls": submission.get("file_urls", []),  # Add file URLs
             "requirements": f"Type: {request_type}, Priority: {priority}",
             "contact_info": {
                 "email": user_email,
@@ -321,7 +396,9 @@ async def create_submission(
         }
         
         # Process through AI services and send notifications
+        print(f"DEBUG: Calling AI orchestrator with data: {ai_submission_data}")
         ai_result = await orchestrator.process_user_submission(ai_submission_data)
+        print(f"DEBUG: AI orchestrator response: {ai_result}")
         
         return JSONResponse(
             status_code=200,
@@ -337,7 +414,7 @@ async def create_submission(
                 "disk_path": str(session_path),
                 "user_id": user_id,
                 "session_id": session_id,
-                "saved_files": saved_files,
+                "saved_files": []  # No file uploads in this endpoint,
             }
         )
         
@@ -366,8 +443,8 @@ async def create_submission_json(request: FormSubmissionRequest):
             "priority": "normal",
             "status": "submitted",
             "file_urls": [],
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat()
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
         }
         
         # Handle file URLs from uploaded files
@@ -381,12 +458,6 @@ async def create_submission_json(request: FormSubmissionRequest):
         user_id, session_id = generate_user_and_session(request.contactValue, None)
         session_path, files_path = ensure_session_dirs(base_dir, user_id, session_id)
         
-        # Move temp files to final location
-        saved_files = move_temp_files_from_metadata(
-            base_dir, user_id, session_id, 
-            request.files, request.voiceRecording
-        )
-        
         # Write form markdown to disk including file metadata
         write_form_markdown(
             session_path,
@@ -399,18 +470,58 @@ async def create_submission_json(request: FormSubmissionRequest):
                 "description": request.description,
                 "has_voice": bool(request.voiceRecording),
                 "recording_time": request.voiceRecording.recordingTime if request.voiceRecording else 0,
-                "saved_files": saved_files,
+                "saved_files": [],  # No file uploads in this endpoint
                 "form_url": None,
             },
         )
         
-        # Store submission
+        # Store submission in database
+        submission_data = {
+            "user_id": user_id,
+            "session_id": session_id,
+            "submission_type": "text",
+            "text_content": request.description,
+            "voice_file_url": submission.get("voice_file_url"),
+            "file_urls": submission.get("file_urls", []),
+            "requirements": f"Type: contact, Priority: normal",
+            "contact_info": {
+                "email": request.contactValue,
+                "name": request.name or "Unknown"
+            }
+        }
+        db_submission_id = db_manager.create_submission(submission_data)
+        
+        # Also store in memory for backward compatibility
         submissions_db[submission_id] = submission
+        
+        # Save filename mappings for AI agents to use (using database)
+        # No files to map in this endpoint, but we still create an empty mapping record
+        mappings_data = []  # No files in this endpoint
+        db_manager.save_filename_mappings(session_id, db_submission_id, mappings_data)
+        
+        # Original code commented out since saved_files is not defined in this function
+        # if saved_files:
+        #     mappings_data = []
+        #     for file_info in saved_files:
+        #         if file_info.get("type") == "attachment":  # Only process attachment files
+        #             mapping_data = {
+        #                 "original_name": file_info.get("original_name", ""),
+        #                 "stored_name": file_info.get("stored_name", ""),
+        #                 "file_type": file_info.get("type", "attachment"),
+        #                 "file_size": file_info.get("size", 0),
+        #                 "content_type": file_info.get("content_type", "application/octet-stream")
+        #             }
+        #             mappings_data.append(mapping_data)
+        #     
+        #     if mappings_data:
+        #         db_manager.save_filename_mappings(session_id, db_submission_id, mappings_data)
         
         # Process submission through external services
         orchestrator = ServiceOrchestrator()
         ai_submission_data = {
-            "user_id": submission_id,
+            "user_id": user_id,  # Use actual user_id, not submission_id
+            "submission_id": submission_id,  # Add submission_id separately
+            "session_id": session_id,  # Add session_id for filename mapping
             "submission_type": "text",
             "text_content": request.description,
             "voice_file_url": f"/files/{request.voiceRecording.fileId}" if request.voiceRecording else None,
@@ -422,12 +533,14 @@ async def create_submission_json(request: FormSubmissionRequest):
                 "phone": None,
                 "source": "website_contact_form",
                 "form_type": request_type,
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
         }
         
         # Process through AI services and send notifications
+        print(f"DEBUG: Calling AI orchestrator with data: {ai_submission_data}")
         ai_result = await orchestrator.process_user_submission(ai_submission_data)
+        print(f"DEBUG: AI orchestrator response: {ai_result}")
         
         return JSONResponse(
             status_code=200,
@@ -440,10 +553,10 @@ async def create_submission_json(request: FormSubmissionRequest):
                 "created_at": submission["created_at"],
                 "ai_submission_id": ai_result.get("submission_id"),
                 "estimated_completion_time": ai_result.get("estimated_completion_time"),
-                "disk_path": f"/app/data/uploads/{user_id}/{session_id}",
+                "disk_path": str(session_path),
                 "user_id": user_id,
                 "session_id": session_id,
-                "saved_files": saved_files
+                "saved_files": []  # No file uploads in this endpoint
             }
         )
         
@@ -503,6 +616,211 @@ async def delete_submission(submission_id: str):
     
     return {"message": "Submission deleted successfully"}
 
+@app.post("/api/submissions/{submission_id}/summary")
+async def save_submission_summary(submission_id: str, request: SummaryRequest):
+    """
+    Save AI-generated summary for a submission
+    """
+    if submission_id not in submissions_db:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    
+    try:
+        # Get submission data to find the session path
+        submission = submissions_db[submission_id]
+        
+        # Extract user_id and session_id from submission metadata if available
+        # For now, we'll use a simple approach to find the session directory
+        base_dir = get_base_dir()
+        
+        # Try to find the session directory by looking for form_data.md files
+        # This is a simplified approach - in production, you'd want to store this info
+        # Use contact_value if available, otherwise fall back to user_email
+        contact_value = submission.get("contact_value", submission.get("user_email", "unknown"))
+        user_id = hashlib.md5(contact_value.encode()).hexdigest()
+        
+        # Look for the most recent session for this user
+        user_dir = base_dir / user_id
+        if user_dir.exists():
+            # Find the most recent session directory
+            session_dirs = [d for d in user_dir.iterdir() if d.is_dir() and d.name.startswith("sess_")]
+            if session_dirs:
+                # Sort by modification time and get the most recent
+                latest_session = max(session_dirs, key=lambda x: x.stat().st_mtime)
+                session_path = latest_session
+                
+                # Write summary.md to the session directory
+                summary_file = session_path / "summary.md"
+                with open(summary_file, 'w', encoding='utf-8') as f:
+                    f.write(f"# AI Analysis Summary\n\n")
+                    f.write(f"**Generated:** {datetime.now(timezone.utc).isoformat()}\n\n")
+                    f.write(f"**Submission ID:** {submission_id}\n\n")
+                    if request.model_used:
+                        f.write(f"**Model Used:** {request.model_used}\n\n")
+                    if request.tokens_used:
+                        f.write(f"**Tokens Used:** {request.tokens_used}\n\n")
+                    if request.processing_time:
+                        f.write(f"**Processing Time:** {request.processing_time:.2f} seconds\n\n")
+                    f.write(f"## Summary\n\n{request.summary}\n\n")
+                    f.write(f"## Performance Analysis\n\n")
+                    f.write(f"This analysis was completed using AI models with the following performance characteristics:\n\n")
+                    f.write(f"- **Model Performance:** {request.model_used if request.model_used else 'Unknown'}\n")
+                    f.write(f"- **Total Processing Time:** {request.processing_time:.2f} seconds\n")
+                    f.write(f"- **Token Efficiency:** {request.tokens_used if request.tokens_used else 'Unknown'} tokens used\n")
+                    f.write(f"- **Cost per Token:** Available in individual agent result files\n\n")
+                    f.write(f"*For detailed performance metrics of each agent, see the individual result files (nlp.md, voicerecording.md, attachments.md, prototype.md).*\n")
+                
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "success": True,
+                        "message": "Summary saved successfully",
+                        "summary_file": str(summary_file),
+                        "submission_id": submission_id
+                    }
+                )
+        
+        # Fallback: create a new session directory
+        user_id, session_id = generate_user_and_session(contact_value, None)
+        session_path, files_path = ensure_session_dirs(base_dir, user_id, session_id)
+        
+        # Write summary.md to the session directory
+        summary_file = session_path / "summary.md"
+        with open(summary_file, 'w', encoding='utf-8') as f:
+            f.write(f"# AI Analysis Summary\n\n")
+            f.write(f"**Generated:** {datetime.now(timezone.utc).isoformat()}\n\n")
+            f.write(f"**Submission ID:** {submission_id}\n\n")
+            if request.model_used:
+                f.write(f"**Model Used:** {request.model_used}\n\n")
+            if request.tokens_used:
+                f.write(f"**Tokens Used:** {request.tokens_used}\n\n")
+            if request.processing_time:
+                f.write(f"**Processing Time:** {request.processing_time:.2f} seconds\n\n")
+            f.write(f"## Summary\n\n{request.summary}\n\n")
+            f.write(f"## Performance Analysis\n\n")
+            f.write(f"This analysis was completed using AI models with the following performance characteristics:\n\n")
+            f.write(f"- **Model Performance:** {request.model_used if request.model_used else 'Unknown'}\n")
+            f.write(f"- **Total Processing Time:** {request.processing_time:.2f} seconds\n")
+            f.write(f"- **Token Efficiency:** {request.tokens_used if request.tokens_used else 'Unknown'} tokens used\n")
+            f.write(f"- **Cost per Token:** Available in individual agent result files\n\n")
+            f.write(f"*For detailed performance metrics of each agent, see the individual result files (nlp.md, voicerecording.md, attachments.md, prototype.md).*\n")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Summary saved successfully",
+                "summary_file": str(summary_file),
+                "submission_id": submission_id
+            }
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save summary: {str(e)}")
+
+@app.post("/api/submissions/{submission_id}/agent-result")
+async def save_agent_result(submission_id: str, request: AgentResultRequest):
+    """
+    Save individual agent result to a specific .md file
+    """
+    if submission_id not in submissions_db:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    
+    try:
+        # Get submission data to find the session path
+        submission = submissions_db[submission_id]
+        
+        # Extract user_id and session_id from submission metadata
+        base_dir = get_base_dir()
+        contact_value = submission.get("contact_value", submission.get("user_email", "unknown"))
+        user_id = hashlib.md5(contact_value.encode()).hexdigest()
+        
+        # Look for the most recent session for this user
+        user_dir = base_dir / user_id
+        if user_dir.exists():
+            # Find the most recent session directory
+            session_dirs = [d for d in user_dir.iterdir() if d.is_dir() and d.name.startswith("sess_")]
+            if session_dirs:
+                # Sort by modification time and get the most recent
+                latest_session = max(session_dirs, key=lambda x: x.stat().st_mtime)
+                session_path = latest_session
+                
+                # Determine filename based on agent type
+                filename_map = {
+                    "nlp": "nlp.md",
+                    "asr": "voicerecording.md", 
+                    "document": "attachments.md",
+                    "prototype": "prototype.md"
+                }
+                filename = filename_map.get(request.agent_type, f"{request.agent_type}.md")
+                
+                # Write agent result to the session directory
+                result_file = session_path / filename
+                with open(result_file, 'w', encoding='utf-8') as f:
+                    f.write(f"# {request.agent_type.upper()} Agent Results\n\n")
+                    f.write(f"**Generated:** {datetime.now(timezone.utc).isoformat()}\n\n")
+                    f.write(f"**Submission ID:** {submission_id}\n\n")
+                    f.write(f"**Agent Type:** {request.agent_type}\n\n")
+                    if request.model_used:
+                        f.write(f"**Model Used:** {request.model_used}\n\n")
+                    if request.tokens_used:
+                        f.write(f"**Tokens Used:** {request.tokens_used}\n\n")
+                    if request.processing_time:
+                        f.write(f"**Processing Time:** {request.processing_time:.2f} seconds\n\n")
+                    f.write(f"## Results\n\n")
+                    f.write(f"```json\n{json.dumps(request.result_data, indent=2)}\n```\n")
+                
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "success": True,
+                        "message": f"{request.agent_type} result saved successfully",
+                        "result_file": str(result_file),
+                        "submission_id": submission_id
+                    }
+                )
+        
+        # Fallback: create a new session directory
+        user_id, session_id = generate_user_and_session(contact_value, None)
+        session_path, files_path = ensure_session_dirs(base_dir, user_id, session_id)
+        
+        # Determine filename based on agent type
+        filename_map = {
+            "nlp": "nlp.md",
+            "asr": "voicerecording.md",
+            "document": "attachments.md", 
+            "prototype": "prototype.md"
+        }
+        filename = filename_map.get(request.agent_type, f"{request.agent_type}.md")
+        
+        # Write agent result to the session directory
+        result_file = session_path / filename
+        with open(result_file, 'w', encoding='utf-8') as f:
+            f.write(f"# {request.agent_type.upper()} Agent Results\n\n")
+            f.write(f"**Generated:** {datetime.now(timezone.utc).isoformat()}\n\n")
+            f.write(f"**Submission ID:** {submission_id}\n\n")
+            f.write(f"**Agent Type:** {request.agent_type}\n\n")
+            if request.model_used:
+                f.write(f"**Model Used:** {request.model_used}\n\n")
+            if request.tokens_used:
+                f.write(f"**Tokens Used:** {request.tokens_used}\n\n")
+            if request.processing_time:
+                f.write(f"**Processing Time:** {request.processing_time:.2f} seconds\n\n")
+            f.write(f"## Results\n\n")
+            f.write(f"```json\n{json.dumps(request.result_data, indent=2)}\n```\n")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": f"{request.agent_type} result saved successfully",
+                "result_file": str(result_file),
+                "submission_id": submission_id
+            }
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save agent result: {str(e)}")
+
 # Forms API endpoints for website integration
 @app.post("/api/forms/upload-files")
 async def upload_files(request: Request, file: UploadFile = File(...)):
@@ -540,7 +858,7 @@ async def upload_files(request: Request, file: UploadFile = File(...)):
             "size": file_size,
             "user_id": user_id,
             "session_id": session_id,
-            "created_at": datetime.utcnow().isoformat()
+            "created_at": datetime.now(timezone.utc).isoformat()
         }
         
         files_db[file_id] = file_info
@@ -597,7 +915,7 @@ async def upload_voice(request: Request, file: UploadFile = File(...)):
             "user_id": user_id,
             "session_id": session_id,
             "type": "voice",
-            "created_at": datetime.utcnow().isoformat()
+            "created_at": datetime.now(timezone.utc).isoformat()
         }
         
         files_db[file_id] = file_info
@@ -654,6 +972,64 @@ async def get_user_sessions(user_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get user sessions: {str(e)}")
 
+@app.post("/api/sessions/{session_id}/filename-mappings")
+async def save_filename_mappings(session_id: str, mappings: List[FilenameMapping]):
+    """
+    Save filename mappings for a session
+    Maps original filenames to stored filenames on disk
+    """
+    try:
+        # Convert Pydantic models to dictionaries
+        mappings_data = [mapping.model_dump() for mapping in mappings]
+        
+        # Get submission_id for this session from the database
+        submission = db_manager.get_submission_by_session(session_id)
+        if not submission:
+            raise HTTPException(status_code=404, detail=f"No submission found for session {session_id}")
+        
+        submission_id = submission["id"]
+        
+        success = db_manager.save_filename_mappings(session_id, submission_id, mappings_data)
+        
+        if success:
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "success": True,
+                    "message": f"Filename mappings saved for session {session_id}",
+                    "mappings_count": len(mappings_data)
+                }
+            )
+        else:
+            raise HTTPException(status_code=500, detail="Failed to save filename mappings")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save filename mappings: {str(e)}")
+
+@app.get("/api/sessions/{session_id}/filename-mappings")
+async def get_filename_mappings(session_id: str):
+    """
+    Get filename mappings for a session
+    Returns mapping between original and stored filenames
+    """
+    try:
+        mappings = db_manager.get_filename_mappings(session_id)
+        
+        if not mappings:
+            raise HTTPException(status_code=404, detail=f"No filename mappings found for session {session_id}")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "session_id": session_id,
+                "mappings": mappings,
+                "count": len(mappings)
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get filename mappings: {str(e)}")
+
 @app.post("/api/forms/cleanup-sessions")
 async def cleanup_sessions():
     """
@@ -677,6 +1053,6 @@ if __name__ == "__main__":
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8000,
+        port=8002,
         reload=True if os.getenv("ENVIRONMENT") == "development" else False
     )

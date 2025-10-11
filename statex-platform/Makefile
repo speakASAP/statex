@@ -138,7 +138,7 @@ health-check:
 # Maintenance
 clean:
 	@echo "Cleaning up..."
-	@docker compose down -v
+	@docker compose stop -v
 	@docker system prune -f
 	@echo "Cleanup complete!"
 
@@ -303,7 +303,7 @@ resources:
 # Cleanup Commands
 clean-all:
 	@echo "Cleaning up everything..."
-	@docker compose down -v --remove-orphans
+	@docker compose stop -v --remove-orphans
 	@docker system prune -a -f
 	@docker volume prune -f
 	@docker network prune -f

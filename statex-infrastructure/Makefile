@@ -45,8 +45,8 @@ prod:
 # Stop all services
 stop:
 	@echo "🛑 Stopping all infrastructure services..."
-	docker compose -f docker-compose.dev.yml down 2>/dev/null || true
-	docker compose -f docker-compose.prod.yml down 2>/dev/null || true
+	docker compose -f docker-compose.dev.yml stop 2>/dev/null || true
+	docker compose -f docker-compose.prod.yml stop 2>/dev/null || true
 	@echo "✅ All services stopped"
 
 # Clean up
@@ -60,9 +60,9 @@ setup-dev:
 	@echo "🔧 Setting up development environment..."
 	@echo "📁 Creating necessary directories..."
 	mkdir -p ssl-dev logs/nginx logs/certbot webroot
-	@echo "🔐 Generating self-signed certificates..."
-	chmod +x scripts/generate-self-signed.sh
-	./scripts/generate-self-signed.sh
+	@echo "🔐 Self-signed certificate generation - DISABLED"
+	# chmod +x scripts/generate-self-signed.sh
+	# ./scripts/generate-self-signed.sh
 	@echo "✅ Development environment setup completed!"
 
 # Setup production environment

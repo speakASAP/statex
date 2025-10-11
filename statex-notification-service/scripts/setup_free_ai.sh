@@ -27,40 +27,38 @@ else
 fi
 
 # Start Ollama service
-echo "🚀 Starting Ollama service..."
-ollama serve &
-OLLAMA_PID=$!
+# Ollama service - DISABLED
+# echo "🚀 Starting Ollama service..."
+# ollama serve &
+# OLLAMA_PID=$!
 
 # Wait for Ollama to start
-echo "⏳ Waiting for Ollama to start..."
-sleep 5
+# echo "⏳ Waiting for Ollama to start..."
+# sleep 5
 
-# Download free models
-echo "📥 Downloading free AI models..."
+# Download free models - DISABLED
+# echo "📥 Downloading free AI models..."
 
 # Llama 2 7B (Good for general text generation)
-echo "📥 Downloading Llama 2 7B..."
-ollama pull llama2:7b
+# echo "📥 Downloading Llama 2 7B..."
+# ollama pull llama2:7b
 
 # Mistral 7B (Good for code and analysis)
-echo "📥 Downloading Mistral 7B..."
-ollama pull mistral:7b
+# echo "📥 Downloading Mistral 7B..."
+# ollama pull mistral:7b
 
 # CodeLlama 7B (Good for technical analysis)
-echo "📥 Downloading CodeLlama 7B..."
-ollama pull codellama:7b
+# echo "📥 Downloading CodeLlama 7B..."
+# ollama pull codellama:7b
 
 echo ""
 echo "🎉 Free AI Services Setup Complete!"
 echo ""
 echo "📋 Available Models:"
-echo "  • llama2:7b - General text generation"
-echo "  • mistral:7b - Code and analysis"
-echo "  • codellama:7b - Technical analysis"
+echo "  • Ollama models disabled"
 echo ""
-echo "🔧 To use these models:"
-echo "  • Test: ollama run llama2:7b 'Hello, how are you?'"
-echo "  • List models: ollama list"
-echo "  • Stop service: kill $OLLAMA_PID"
+echo "🔧 To use AI models:"
+echo "  • Use OpenRouter or Hugging Face instead"
+echo "  • Configure API keys in environment"
 echo ""
 echo "🚀 Now you can run: python3 test_workflow_free_ai.py --demo"

@@ -209,7 +209,7 @@ docker compose up
 docker compose down
 
 # Stop and remove volumes
-docker compose down -v
+docker compose stop -v
 
 # Rebuild and start services
 docker compose up --build -d
@@ -400,7 +400,7 @@ docker exec statex-platform-postgres-1 pg_isready
 docker compose logs postgres
 
 # Reset database
-docker compose down -v
+docker compose stop -v
 docker compose up -d postgres
 ```
 
@@ -563,7 +563,7 @@ make deploy-prod DOMAIN=api.statex.cz WEB_DOMAIN=statex.cz
 docker compose down
 
 # Clean up everything
-docker compose down -v && docker system prune -a
+docker compose stop -v && docker system prune -a
 
 # Restart from scratch
 make clean && make setup && make dev

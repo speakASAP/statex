@@ -11,7 +11,7 @@ services:
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     env_file:
-      - .env
+      - ../.env
     environment:
       - NODE_ENV=${NODE_ENV}
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}

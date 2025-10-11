@@ -5,7 +5,7 @@ Goal: Save ALL submitted information (text, attachments, voice) on disk for ever
 Scope:
 
 - Service: `statex-website/services/submission-service`
-- Persist to: `${SUBMISSION_UPLOAD_DIR:-./uploads}/<user_id>/<session_id>/`
+- Persist to: `${HOST_UPLOAD_DIR:-./uploads}/<user_id>/<session_id>/`
   - `form_data.md` – submitted text + metadata
   - `files/<uuid>.<ext>` – attachments
   - `files/<uuid>.<ext>` – voice recording
@@ -13,7 +13,7 @@ Scope:
 Implementation:
 
 - Add `storage/disk_storage.py` with helpers:
-  - `get_base_dir()` reads `SUBMISSION_UPLOAD_DIR` or defaults `./uploads`
+  - `get_base_dir()` reads `HOST_UPLOAD_DIR` or defaults `./uploads`
   - `generate_user_and_session(user_email, request)` derives stable `user_id`, new `session_id`
   - `ensure_session_dirs(base, user_id, session_id)` creates `<base>/<user_id>/<session_id>/files`
   - `write_form_markdown(path_session, payload)` writes markdown aligned with website backend format
@@ -24,7 +24,7 @@ Implementation:
 Dev configuration:
 
 - Update `statex-website/docker-compose.dev.yml` (submission-service):
-  - env: `SUBMISSION_UPLOAD_DIR=/app/data/uploads`
+  - env: `HOST_UPLOAD_DIR=/app/data/uploads`
   - volumes: `./services/submission-service/data:/app/data`
 
 Exact Save Location (development default):

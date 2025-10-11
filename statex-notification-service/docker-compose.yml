@@ -14,7 +14,7 @@ services:
       - WHATSAPP_ACCESS_TOKEN=${WHATSAPP_ACCESS_TOKEN}
       - WHATSAPP_PHONE_NUMBER_ID=${WHATSAPP_PHONE_NUMBER_ID}
     env_file:
-      - .env
+      - ../.env
     restart: unless-stopped
     networks:
       - statex_network

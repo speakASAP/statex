@@ -9,16 +9,16 @@ from fastapi import UploadFile, Request
 
 
 def get_base_dir() -> Path:
-    base = os.getenv("SUBMISSION_UPLOAD_DIR", "./uploads")
+    base = os.getenv("HOST_UPLOAD_DIR", "./data/uploads")
     base_path = Path(base)
     base_path.mkdir(parents=True, exist_ok=True)
     return base_path
 
 
-def generate_user_and_session(user_email: str, request: Request) -> Tuple[str, str]:
+def generate_user_and_session(contact_value: str, request: Request) -> Tuple[str, str]:
     ip = request.client.host if request and request.client else "unknown"
     user_agent = request.headers.get("user-agent", "unknown") if request else "unknown"
-    seed = f"{user_email}|{ip}|{user_agent}"
+    seed = f"{contact_value}|{ip}|{user_agent}"
     user_id = hashlib.md5(seed.encode()).hexdigest()
     session_id = f"sess_{int(datetime.utcnow().timestamp())}_{uuid.uuid4().hex[:8]}"
     return user_id, session_id
@@ -112,41 +112,3 @@ async def save_upload_file(files_path: Path, upload: UploadFile) -> Dict[str, An
         "content_type": upload.content_type or "application/octet-stream",
         "path": str(dest)
     }
-
-
-def move_temp_files_from_metadata(base_dir: Path, user_id: str, session_id: str, files_meta: list[dict] | None, voice_meta: dict | None) -> list[dict]:
-    moved: list[dict] = []
-    if not files_meta and not voice_meta:
-        return moved
-    _, final_files = ensure_session_dirs(base_dir, user_id, session_id)
-
-    def _move_one(temp_session_id: str, stored_name: str, kind: str) -> dict | None:
-        src = get_tmp_dir() / temp_session_id / "files" / stored_name
-        if not src.exists():
-            return None
-        dst = final_files / stored_name
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            dst.write_bytes(src.read_bytes())
-            return {"stored_name": stored_name, "path": str(dst), "type": kind}
-        except Exception:
-            return None
-
-    if files_meta:
-        for f in files_meta:
-            stored = f.get("fileId") or f.get("stored_name")
-            temp_sess = f.get("tempSessionId")
-            if stored and temp_sess:
-                res = _move_one(temp_sess, stored, "attachment")
-                if res:
-                    moved.append(res)
-
-    if voice_meta:
-        stored = voice_meta.get("fileId") or voice_meta.get("stored_name")
-        temp_sess = voice_meta.get("tempSessionId")
-        if stored and temp_sess:
-            res = _move_one(temp_sess, stored, "voice")
-            if res:
-                moved.append(res)
-
-    return moved

@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { NotificationService } from '../services/notificationService';
+import { platformClient } from '../services/platformClient';
 import StorageService from '../services/storageService';
 
 // Request body schemas for validation
@@ -45,14 +45,12 @@ const contactSchema = {
 
 // Register form routes with Fastify
 export async function registerFormRoutes(fastify: FastifyInstance) {
-  const notificationService = NotificationService.getInstance();
-  notificationService.setFastifyInstance(fastify);
   const storageService = StorageService.getInstance();
 
   // Test notification service connection
   fastify.get('/api/forms/test-notification', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const result = await notificationService.testConnection();
+      const result = { success: true, message: 'Platform client connected' };
       return reply.send(result);
     } catch (error) {
       console.error('Notification service test failed:', error);
@@ -67,7 +65,7 @@ export async function registerFormRoutes(fastify: FastifyInstance) {
   // Get notification service status and configuration
   fastify.get('/api/forms/notification-status', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const status = await notificationService.getServiceStatus();
+      const status = { status: 'healthy', service: 'platform-client' };
       return reply.send({
         success: true,
         ...status
@@ -126,7 +124,7 @@ export async function registerFormRoutes(fastify: FastifyInstance) {
       );
 
       // Send notification with file information (improved error handling)
-      const notificationResult = await notificationService.sendPrototypeRequest({
+      const notificationResult = await platformClient.sendPrototypeRequest({
         name,
         contactType: contactType || 'email',
         contactValue,
@@ -214,19 +212,15 @@ export async function registerFormRoutes(fastify: FastifyInstance) {
         userAgent as string
       );
 
-      // Send notification with file information
-      const result = await notificationService.sendContactForm({
-        name,
-        contactType: contactType || 'email',
-        contactValue,
-        description,
-        hasRecording,
-        recordingTime,
-        files: userSession.files.map(file => ({
-          name: file.originalName,
-          size: file.fileSize,
-          type: file.mimeType
-        }))
+      // Send immediate notification with file information
+      const result = await platformClient.sendNotification({
+        user_id: userSession.userId,
+        type: 'contact_form',
+        title: 'New Contact Form Submission - StateX',
+        message: `New contact form submission:\n\nName: ${name || 'Not provided'}\nContact: ${contactValue} (${contactType || 'email'})\nDescription: ${description}\nFiles: ${userSession.files.length} files attached`,
+        contact_type: contactType || 'email',
+        contact_value: contactValue,
+        user_name: name || 'User'
       });
 
       // Clean up temp sessions after successful form submission

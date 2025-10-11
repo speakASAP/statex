@@ -65,7 +65,7 @@ docker compose -f "$COMPOSE_FILE" down
 # Remove existing images to force rebuild (for development)
 if [ "$ENVIRONMENT" = "development" ]; then
     echo -e "${YELLOW}🗑️  Removing existing images to force rebuild...${NC}"
-    docker compose -f "$COMPOSE_FILE" down --rmi all
+    docker compose -f "$COMPOSE_FILE" stop --rmi all
 fi
 
 # Build and start services

@@ -20,9 +20,7 @@ services:
     networks:
       - statex_network
     env_file:
-      - ./.env.development
-      - ./config/defaults.env
-      - ./docker.env
+      - ../.env
 
 networks:
   statex_network:

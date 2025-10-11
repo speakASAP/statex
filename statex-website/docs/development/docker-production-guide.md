@@ -129,7 +129,7 @@ services:
     ports:
       - "${BACKEND_PORT:-${DEFAULT_BACKEND_PORT}}:4000"
     volumes:
-      - ${UPLOAD_DIR:-${DEFAULT_UPLOAD_DIR}}:/app/uploads
+      - ${UPLOAD_DIR:-./uploads}:/app/uploads
     env_file:
       - ./config/defaults.env
     environment:

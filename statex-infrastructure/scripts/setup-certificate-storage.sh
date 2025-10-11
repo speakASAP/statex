@@ -38,7 +38,7 @@ chmod 755 "./webroot"
 # Set up proper permissions for the certificate management script
 echo "🔧 Setting up certificate management script permissions..."
 chmod +x "./scripts/manage-certificates.sh"
-chmod +x "./scripts/generate-self-signed.sh"
+# chmod +x "./scripts/generate-self-signed.sh"  # Self-signed cert generation disabled
 
 echo ""
 echo "✅ Certificate storage setup completed!"

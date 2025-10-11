@@ -8,9 +8,11 @@ import os
 import requests
 import json
 from dotenv import load_dotenv
+from pathlib import Path
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from unified root .env
+root_env_path = Path(__file__).resolve().parents[2] / '.env'
+load_dotenv(dotenv_path=str(root_env_path))
 
 # Telegram Configuration from environment variables
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")

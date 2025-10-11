@@ -70,7 +70,7 @@ app.add_middleware(
 )
 
 # AI Configuration
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 FREE_AI_SERVICE_URL = os.getenv("FREE_AI_SERVICE_URL", "http://free-ai-service:8000")
 ASR_MODE = os.getenv("ASR_MODE", "free")  # free, paid, hybrid
 
@@ -250,9 +250,9 @@ class WhisperASRService:
             self.provider_status["local_whisper"] = "unavailable"
         
         # Initialize OpenAI client
-        if OPENAI_AVAILABLE and OPENAI_API_KEY and ASR_MODE in ["paid", "hybrid"]:
+        if OPENAI_AVAILABLE and OPENROUTER_API_KEY and ASR_MODE in ["paid", "hybrid"]:
             try:
-                self.openai_client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+                self.openai_client = AsyncOpenAI(api_key=OPENROUTER_API_KEY)
                 self.provider_status["openai_whisper"] = "available"
                 logger.info("✅ OpenAI Whisper API client initialized")
             except Exception as e:

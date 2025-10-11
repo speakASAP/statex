@@ -8,9 +8,10 @@ services:
       - ./shared:/app/shared
       # Fallback dev data directory inside repo
       - ./services/submission-service/data:/app/data
+      - ./services/submission-service/storage:/app/storage
       - ~/.cache/pip:/root/.cache/pip  # Cache pip packages
     working_dir: /app
-    command: sh -c "apt-get update && apt-get install -y curl && pip install -r requirements.txt && uvicorn main:app --reload --host 0.0.0.0 --port ${SUBMISSION_SERVICE_INTERNAL_PORT:-8000}"
+    command: sh -c "apt-get update && apt-get install -y curl && pip install -r requirements.txt && python -c 'import storage.disk_storage' && uvicorn main:app --reload --host 0.0.0.0 --port ${SUBMISSION_SERVICE_INTERNAL_PORT:-8000}"
     ports:
       - "${SUBMISSION_SERVICE_EXTERNAL_PORT:-8002}:${SUBMISSION_SERVICE_INTERNAL_PORT:-8000}"
     environment:
@@ -24,7 +25,7 @@ services:
       - NOTIFICATION_SERVICE_URL=${NOTIFICATION_SERVICE_URL:-http://notification-service:8005}
       - AI_SERVICES_BASE_URL=${AI_SERVICES_BASE_URL:-http://ai-orchestrator:8000}
       # Write uploads inside repo by default
-      - SUBMISSION_UPLOAD_DIR=/app/data/uploads
+      - HOST_UPLOAD_DIR=${HOST_UPLOAD_DIR:-/app/data/uploads}
     networks:
       - statex_network
     healthcheck:

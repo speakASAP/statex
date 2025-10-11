@@ -17,6 +17,7 @@ from typing import Dict, Any, List, Optional
 import asyncio
 import aiohttp
 import json
+import ssl
 import time
 import logging
 from datetime import datetime
@@ -47,6 +48,9 @@ import os
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://ollama:11434")
 HUGGINGFACE_URL = "https://api-inference.huggingface.co/models"
 HUGGINGFACE_API_KEY = os.getenv("HUGGINGFACE_API_KEY", "")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+OPENROUTER_API_BASE = os.getenv("OPENROUTER_API_BASE", "https://openrouter.ai/api/v1")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "anthropic/claude-3.5-sonnet")
 
 # Prometheus metrics
 REQUEST_COUNT = Counter('ai_requests_total', 'Total AI requests', ['provider', 'status'])
@@ -57,6 +61,7 @@ AI_AGENT_STATUS = Gauge('ai_agent_status', 'AI agent status', ['agent_name'])
 class AIProvider(str, Enum):
     OLLAMA = "ollama"
     HUGGINGFACE = "huggingface"
+    OPENROUTER = "openrouter"
     MOCK = "mock"
 
 class AnalysisType(str, Enum):
@@ -94,18 +99,22 @@ class FreeAIService:
         self.provider_status = {}
         self.model_preferences = {
             AnalysisType.BUSINESS_ANALYSIS: {
+                "openrouter": ["google/gemini-2.0-flash-exp:free", "openai/gpt-oss-20b:free", "anthropic/claude-3.5-sonnet", "openai/gpt-4o", "meta-llama/llama-3.1-70b-instruct"],
                 "ollama": ["llama2:7b", "mistral:7b"],
                 "huggingface": ["microsoft/DialoGPT-medium", "gpt2", "facebook/blenderbot-400M-distill"]
             },
             AnalysisType.TECHNICAL_ANALYSIS: {
+                "openrouter": ["google/gemini-2.0-flash-exp:free", "openai/gpt-oss-20b:free", "anthropic/claude-3.5-sonnet", "openai/gpt-4o", "meta-llama/llama-3.1-70b-instruct"],
                 "ollama": ["codellama:7b", "mistral:7b", "llama2:7b"],
                 "huggingface": ["microsoft/CodeBERT-base", "gpt2", "microsoft/DialoGPT-medium"]
             },
             AnalysisType.CONTENT_GENERATION: {
+                "openrouter": ["google/gemini-2.0-flash-exp:free", "openai/gpt-oss-20b:free", "anthropic/claude-3.5-sonnet", "openai/gpt-4o", "meta-llama/llama-3.1-70b-instruct"],
                 "ollama": ["llama2:7b", "mistral:7b"],
                 "huggingface": ["gpt2", "microsoft/DialoGPT-medium"]
             },
             AnalysisType.SENTIMENT_ANALYSIS: {
+                "openrouter": ["google/gemini-2.0-flash-exp:free", "openai/gpt-oss-20b:free", "anthropic/claude-3.5-sonnet", "openai/gpt-4o"],
                 "ollama": ["llama2:7b"],
                 "huggingface": ["cardiffnlp/twitter-roberta-base-sentiment-latest", "distilbert-base-uncased"]
             }
@@ -198,6 +207,43 @@ class FreeAIService:
             logger.warning(f"❌ Hugging Face API not available: {e}")
             self.provider_status["huggingface"] = "unavailable"
         
+        # Check OpenRouter
+        try:
+            if OPENROUTER_API_KEY:
+                # Test with a simple request to check if API key is valid
+                headers = {"Authorization": f"Bearer {OPENROUTER_API_KEY}"}
+                # Create SSL context that doesn't verify certificates for testing
+                ssl_context = ssl.create_default_context()
+                ssl_context.check_hostname = False
+                ssl_context.verify_mode = ssl.CERT_NONE
+                
+                connector = aiohttp.TCPConnector(ssl=ssl_context)
+                async with aiohttp.ClientSession(connector=connector) as session:
+                    async with session.get(
+                        f"{OPENROUTER_API_BASE}/models",
+                        headers=headers,
+                        timeout=aiohttp.ClientTimeout(total=10)
+                    ) as response:
+                        if response.status == 200:
+                            self.provider_status["openrouter"] = "available"
+                            self.available_models["openrouter"] = [
+                                {"name": "google/gemini-2.0-flash-exp:free", "description": "Google: Gemini 2.0 Flash Experimental (free)"},
+                                {"name": "openai/gpt-oss-20b:free", "description": "OpenAI: gpt-oss-20b (free)"},   
+                                {"name": "anthropic/claude-3.5-sonnet", "description": "Claude 3.5 Sonnet - Advanced reasoning"},
+                                {"name": "openai/gpt-4o", "description": "GPT-4o - Multimodal AI model"},
+                                {"name": "meta-llama/llama-3.1-70b-instruct", "description": "Llama 3.1 70B - Large language model"}
+                            ]
+                            logger.info("✅ OpenRouter API is available")
+                        else:
+                            self.provider_status["openrouter"] = "unavailable"
+                            logger.warning(f"❌ OpenRouter API returned status {response.status}")
+            else:
+                self.provider_status["openrouter"] = "unavailable"
+                logger.warning("❌ OpenRouter API key not provided")
+        except Exception as e:
+            logger.warning(f"❌ OpenRouter API not available: {e}")
+            self.provider_status["openrouter"] = "unavailable"
+        
         # Mock AI is always available
         self.provider_status["mock"] = "available"
         self.available_models["mock"] = [
@@ -222,7 +268,7 @@ class FreeAIService:
                 return provider, available_models[0]
         
         # Auto-select best provider and model
-        provider_priority = ["ollama", "huggingface", "mock"]
+        provider_priority = ["openrouter", "ollama", "huggingface", "mock"]
         
         for prov in provider_priority:
             if self.provider_status.get(prov) == "available":
@@ -256,7 +302,10 @@ class FreeAIService:
         
         # Try primary provider
         try:
-            if provider == "ollama":
+            if provider == "openrouter":
+                request.model = model
+                return await self.analyze_with_openrouter(request)
+            elif provider == "ollama":
                 request.model = model
                 return await self.analyze_with_ollama(request)
             elif provider == "huggingface":
@@ -268,7 +317,7 @@ class FreeAIService:
             logger.warning(f"⚠️ Primary provider {provider} failed: {e}")
             
             # Try fallback providers
-            fallback_providers = ["ollama", "huggingface", "mock"]
+            fallback_providers = ["openrouter", "ollama", "huggingface", "mock"]
             fallback_providers = [p for p in fallback_providers if p != provider]
             
             for fallback_provider in fallback_providers:
@@ -277,7 +326,10 @@ class FreeAIService:
                         logger.info(f"🔄 Trying fallback provider: {fallback_provider}")
                         fallback_provider_name, fallback_model = self.get_best_model(request.analysis_type, fallback_provider)
                         
-                        if fallback_provider == "ollama":
+                        if fallback_provider == "openrouter":
+                            request.model = fallback_model
+                            return await self.analyze_with_openrouter(request)
+                        elif fallback_provider == "ollama":
                             request.model = fallback_model
                             return await self.analyze_with_ollama(request)
                         elif fallback_provider == "huggingface":
@@ -462,6 +514,116 @@ Please provide a JSON response with:
                         raise Exception(f"Hugging Face API error: {response.status} - {error_text}")
         except Exception as e:
             logger.error(f"Hugging Face analysis failed: {e}")
+            raise e
+    
+    async def analyze_with_openrouter(self, request: AIAnalysisRequest) -> Dict[str, Any]:
+        """Analyze using OpenRouter API"""
+        logger.info(f"🤖 Analyzing with OpenRouter: {request.model or OPENROUTER_MODEL}")
+        
+        model = request.model or OPENROUTER_MODEL
+        
+        # Create a comprehensive prompt based on analysis type
+        if request.analysis_type == AnalysisType.BUSINESS_ANALYSIS:
+            prompt = f"""Analyze this business request and provide a comprehensive business analysis:
+
+User: {request.user_name}
+Request: {request.text_content}
+
+Please provide a JSON response with these fields:
+- business_type: The type of business
+- pain_points: Array of current pain points
+- opportunities: Array of business opportunities with name, description, potential, timeline
+- technical_recommendations: Object with frontend, backend, integrations arrays
+- next_steps: Array of action items with action, priority, timeline
+- budget_estimate: Object with development, infrastructure, maintenance costs
+- confidence: Float between 0 and 1
+- summary: String summary of the analysis
+"""
+        elif request.analysis_type == AnalysisType.TECHNICAL_ANALYSIS:
+            prompt = f"""Provide a technical analysis for this request:
+
+User: {request.user_name}
+Request: {request.text_content}
+
+Please provide a JSON response with:
+- technical_requirements: Object with frontend, backend, database, infrastructure
+- architecture_recommendations: Object with patterns, technologies, scalability
+- implementation_phases: Array of phases with name, description, timeline
+- technology_stack: Object with recommended technologies
+- confidence: Float between 0 and 1
+- summary: String summary
+"""
+        else:
+            prompt = f"""Analyze this request and provide insights:
+
+User: {request.user_name}
+Request: {request.text_content}
+
+Please provide a JSON response with:
+- key_insights: Array of insights
+- recommendations: Array of recommendations
+- next_steps: Array of next steps
+- confidence: Float between 0 and 1
+- summary: String summary
+"""
+        
+        try:
+            headers = {
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://statex.cz",
+                "X-Title": "StateX AI Platform"
+            }
+            
+            # Create SSL context that doesn't verify certificates for testing
+            ssl_context = ssl.create_default_context()
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+            
+            connector = aiohttp.TCPConnector(ssl=ssl_context)
+            async with aiohttp.ClientSession(connector=connector) as session:
+                payload = {
+                    "model": model,
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    "temperature": 0.7,
+                    "max_tokens": 2000
+                }
+                
+                async with session.post(
+                    f"{OPENROUTER_API_BASE}/chat/completions",
+                    json=payload,
+                    headers=headers,
+                    timeout=aiohttp.ClientTimeout(total=60)
+                ) as response:
+                    if response.status == 200:
+                        result = await response.json()
+                        ai_response = result.get("choices", [{}])[0].get("message", {}).get("content", "")
+                        
+                        # Try to parse JSON response
+                        try:
+                            json_start = ai_response.find('{')
+                            json_end = ai_response.rfind('}') + 1
+                            if json_start != -1 and json_end != -1:
+                                json_str = ai_response[json_start:json_end]
+                                analysis = json.loads(json_str)
+                            else:
+                                analysis = self._parse_text_response(ai_response, request.user_name, request.analysis_type)
+                        except:
+                            analysis = self._parse_text_response(ai_response, request.user_name, request.analysis_type)
+                        
+                        analysis["ai_service"] = "OpenRouter"
+                        analysis["model_used"] = model
+                        return analysis
+                    else:
+                        error_text = await response.text()
+                        raise Exception(f"OpenRouter API error: {response.status} - {error_text}")
+        except Exception as e:
+            logger.error(f"OpenRouter analysis failed: {e}")
             raise e
     
     def analyze_with_mock(self, request: AIAnalysisRequest) -> Dict[str, Any]:
@@ -718,21 +880,30 @@ async def analyze_text(request: AIAnalysisRequest):
             error=str(e)
         )
 
+@app.post("/api/analyze-text")
+async def analyze_text_compatibility(request: AIAnalysisRequest):
+    """Compatibility endpoint for NLP Agent - proxies to /analyze with business analysis"""
+    # Override analysis type to business analysis for NLP compatibility
+    request.analysis_type = AnalysisType.BUSINESS_ANALYSIS
+    return await analyze_text(request)
+
 @app.get("/")
 async def root():
     """Root endpoint"""
     return {
         "service": "StateX Free AI Service",
         "version": "1.0.0",
-        "description": "Free AI models service using Ollama, Hugging Face, and Mock AI",
+        "description": "Free AI models service using Ollama, Hugging Face, OpenRouter, and Mock AI",
         "endpoints": {
             "health": "/health",
             "models": "/models",
             "analyze": "/analyze",
+            "analyze_text": "/api/analyze-text",
             "docs": "/docs"
         }
     }
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.getenv("FREE_AI_SERVICE_PORT", "8000"))
+    uvicorn.run(app, host="0.0.0.0", port=port)

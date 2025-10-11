@@ -24,6 +24,7 @@ from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTEN
 # Try to import document processing libraries
 try:
     import PyPDF2
+    import pypdf
     import pytesseract
     from PIL import Image
     import docx
@@ -168,7 +169,7 @@ class EnhancedDocumentProcessor:
         self.free_ai_url = FREE_AI_SERVICE_URL
     
     async def process_pdf(self, file_path: str, use_ocr: bool = True, language: str = "eng") -> Dict[str, Any]:
-        """Process PDF document with text extraction and OCR"""
+        """Process PDF document with text extraction and OCR using pypdf"""
         
         if not DOCUMENT_PROCESSING_AVAILABLE:
             return self._mock_pdf_processing(file_path)
@@ -180,13 +181,14 @@ class EnhancedDocumentProcessor:
                 "metadata": {},
                 "images": [],
                 "tables": [],
-                "structure": {}
+                "structure": {},
+                "extraction_warnings": []
             }
             
-            # Try text extraction first
+            # Try text extraction with pypdf first
             try:
                 with open(file_path, 'rb') as file:
-                    pdf_reader = PyPDF2.PdfReader(file)
+                    pdf_reader = pypdf.PdfReader(file)
                     
                     # Extract metadata
                     if pdf_reader.metadata:
@@ -202,18 +204,29 @@ class EnhancedDocumentProcessor:
                     
                     # Extract text from each page
                     for page_num, page in enumerate(pdf_reader.pages):
-                        page_text = page.extract_text()
-                        result["pages"].append({
-                            "page_number": page_num + 1,
-                            "text": page_text,
-                            "method": "direct_extraction"
-                        })
-                        result["extracted_text"] += page_text + "\n\n"
+                        try:
+                            page_text = page.extract_text()
+                            result["pages"].append({
+                                "page_number": page_num + 1,
+                                "text": page_text,
+                                "method": "pypdf_extraction"
+                            })
+                            result["extracted_text"] += page_text + "\n\n"
+                        except Exception as page_error:
+                            logger.warning(f"Failed to extract text from page {page_num + 1}: {page_error}")
+                            result["extraction_warnings"].append(f"Page {page_num + 1}: Could not extract text - {str(page_error)}")
+                            result["pages"].append({
+                                "page_number": page_num + 1,
+                                "text": "",
+                                "method": "failed_extraction",
+                                "error": str(page_error)
+                            })
                     
                     result["page_count"] = len(pdf_reader.pages)
                     
             except Exception as e:
-                logger.warning(f"Direct PDF text extraction failed: {e}")
+                logger.warning(f"pypdf text extraction failed: {e}")
+                result["extraction_warnings"].append(f"Primary extraction failed: {str(e)}")
             
             # Use Unstructured for better parsing if available
             try:
@@ -258,6 +271,15 @@ class EnhancedDocumentProcessor:
                         result["ocr_used"] = True
                 except Exception as e:
                     logger.warning(f"OCR processing failed: {e}")
+                    result["extraction_warnings"].append(f"OCR fallback failed: {str(e)}")
+            
+            # Add extraction warnings to the top of extracted text if any
+            if result["extraction_warnings"]:
+                warning_text = "⚠️ **PDF EXTRACTION WARNINGS:**\n"
+                for warning in result["extraction_warnings"]:
+                    warning_text += f"- {warning}\n"
+                warning_text += "\n**Note:** Some content may not have been recognized correctly. Additional tools may be needed for complete analysis.\n\n"
+                result["extracted_text"] = warning_text + result["extracted_text"]
             
             return result
             

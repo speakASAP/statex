@@ -139,7 +139,7 @@ This document is effective as of ${new Date().toISOString().split('T')[0]}.
 For questions regarding this document, please contact:
 
 **StateX s.r.o.**
-Email: legal@statex.eu
+Email: legal@statex.cz
 Address: Prague, Czech Republic
 
 ## Updates

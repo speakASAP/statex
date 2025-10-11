@@ -260,7 +260,7 @@ if [ -n "$COMPOSE_FILE" ]; then
         
         # Now remove containers
         echo -e "Removing containers..."
-        $DOCKER_COMPOSE_CMD $COMPOSE_FILE down --remove-orphans 2>/dev/null &
+        $DOCKER_COMPOSE_CMD $COMPOSE_FILE stop --remove-orphans 2>/dev/null &
         DOWN_PID=$!
         
         # Wait for up to 5 seconds for down

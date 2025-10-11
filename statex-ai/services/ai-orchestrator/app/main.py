@@ -19,6 +19,12 @@ import httpx
 from datetime import datetime
 import logging
 import time
+import sys
+import os
+# Add the shared directory to Python path for local development
+shared_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '..', 'shared')
+sys.path.append(shared_path)
+from http_clients import NotificationServiceClient
 
 # Import new multi-agent components
 from .multi_agent_orchestrator import (
@@ -44,6 +50,9 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc"
 )
+
+# Initialize notification service client
+notification_client = NotificationServiceClient()
 
 # CORS middleware
 app.add_middleware(
@@ -484,6 +493,7 @@ async def auto_recover_workflows():
 @app.post("/api/process-submission", response_model=SubmissionResponse)
 async def process_submission(submission: SubmissionRequest, background_tasks: BackgroundTasks):
     """Process a new user submission"""
+    logger.info(f"Received submission request: {submission.user_id}")
     try:
         # Use provided submission_id or generate new one if not provided
         submission_id = submission.submission_id or str(uuid.uuid4())
@@ -562,14 +572,11 @@ async def process_submission_workflow(submission_id: str):
         if submission["text_content"] or submission["voice_file_url"] or submission["file_urls"]:
             await process_nlp_analysis(submission_id)
         
-        # Step 4: Generate prototype (if applicable)
-        await generate_prototype(submission_id)
+        # Step 4: Generate prototype (if applicable) - DISABLED
+        # await generate_prototype(submission_id)
         
         # Step 5: Create results page
-        await create_results_page(submission_id)
-        
-        # Step 6: Send notification to user
-        await send_notification(submission_id)
+        # await create_results_page(submission_id) - DISABLED
         
         # Step 7: Mark as completed
         submission["status"] = SubmissionStatus.COMPLETED
@@ -616,15 +623,6 @@ async def process_voice_content(submission_id: str):
                 # Add transcribed text to submission
                 submission["text_content"] = (submission["text_content"] or "") + "\n" + result.get("transcript", "")
                 
-                # Send individual agent notification
-                await send_agent_notification(
-                    submission_id=submission_id,
-                    agent_name="ASR Service",
-                    service_name="asr-service",
-                    input_data={"voice_file_url": submission["voice_file_url"]},
-                    output_data=result,
-                    processing_time=result.get("processing_time", 0)
-                )
             else:
                 # Update the step in the workflow_steps list
                 for i, workflow_step in enumerate(submission["workflow_steps"]):
@@ -641,6 +639,21 @@ async def process_voice_content(submission_id: str):
                 submission["workflow_steps"][i]["error_message"] = str(e)
                 break
         logger.error(f"ASR processing error for {submission_id}: {e}")
+
+    # Send notification with ASR results
+    try:
+        async with notification_client as client:
+            await client.send_notification({
+                "user_id": submission["user_id"],
+                "type": "asr_completion",
+                "title": "🎤 Voice Transcription Completed",
+                "message": f"Voice file has been transcribed successfully. Transcript length: {len(submission.get('text_content', ''))} characters.",
+                "contact_type": submission["contact_type"],
+                "contact_value": submission["contact_value"],
+                "user_name": submission["user_name"]
+            })
+    except Exception as e:
+        logger.error(f"Failed to send ASR notification for {submission_id}: {e}")
 
 async def process_document_files(submission_id: str):
     """Process document files through Document AI service"""
@@ -675,16 +688,7 @@ async def process_document_files(submission_id: str):
                 # Add extracted text to submission
                 extracted_text = result.get("extracted_text", "")
                 submission["text_content"] = (submission["text_content"] or "") + "\n" + extracted_text
-                
-                # Send individual agent notification
-                await send_agent_notification(
-                    submission_id=submission_id,
-                    agent_name="Document AI",
-                    service_name="document-ai",
-                    input_data={"file_urls": submission["file_urls"]},
-                    output_data=result,
-                    processing_time=result.get("processing_time", 0)
-                )
+
             else:
                 step.status = "failed"
                 step.error_message = f"Document AI service error: {response.status_code}"
@@ -693,6 +697,29 @@ async def process_document_files(submission_id: str):
         step.status = "failed"
         step.error_message = str(e)
         logger.error(f"Document processing error for {submission_id}: {e}")
+
+    # Send notification with document processing results
+    try:
+        # Get the original file URLs for input
+        file_urls = submission.get("file_urls", [])
+        input_text = f"Files: {', '.join([url.split('/')[-1] for url in file_urls])}" if file_urls else "No files"
+        
+        # Get the extracted text for output
+        extracted_text = submission.get("text_content", "")
+        output_text = extracted_text[:200] + "..." if len(extracted_text) > 200 else extracted_text
+        
+        async with notification_client as client:
+            await client.send_notification({
+                "user_id": submission["user_id"],
+                "type": "document_completion",
+                "title": "📄 Document Analysis Completed",
+                "message": f"Document files have been processed successfully. Extracted text length: {len(extracted_text)} characters.\n\n📥 **Input:** {input_text}\n📤 **Output:** {output_text}",
+                "contact_type": submission["contact_type"],
+                "contact_value": submission["contact_value"],
+                "user_name": submission["user_name"]
+            })
+    except Exception as e:
+        logger.error(f"Failed to send document notification for {submission_id}: {e}")
 
 async def process_nlp_analysis(submission_id: str):
     """Process text content through NLP service"""
@@ -712,7 +739,7 @@ async def process_nlp_analysis(submission_id: str):
             response = await client.post(
                 f"{NLP_SERVICE_URL}/api/analyze",
                 json={
-                    "text_content": submission["text_content"],
+                    "text": submission["text_content"],
                     "requirements": submission["requirements"]
                 }
             )
@@ -729,16 +756,7 @@ async def process_nlp_analysis(submission_id: str):
                 
                 # Store NLP results
                 submission["results"]["nlp_analysis"] = result
-                
-                # Send individual agent notification
-                await send_agent_notification(
-                    submission_id=submission_id,
-                    agent_name="NLP Analysis",
-                    service_name="nlp-service",
-                    input_data={"text_content": submission["text_content"], "requirements": submission["requirements"]},
-                    output_data=result,
-                    processing_time=result.get("processing_time", 0)
-                )
+
             else:
                 step.status = "failed"
                 step.error_message = f"NLP service error: {response.status_code}"
@@ -747,6 +765,30 @@ async def process_nlp_analysis(submission_id: str):
         step.status = "failed"
         step.error_message = str(e)
         logger.error(f"NLP processing error for {submission_id}: {e}")
+
+    # Send notification with NLP analysis results
+    try:
+        # Get the input text
+        input_text = submission.get("text_content", "")
+        input_preview = input_text[:150] + "..." if len(input_text) > 150 else input_text
+        
+        # Get the analysis results
+        nlp_results = submission.get("results", {}).get("nlp_analysis", {})
+        analysis_summary = nlp_results.get("summary", "Analysis completed")
+        output_preview = analysis_summary[:150] + "..." if len(analysis_summary) > 150 else analysis_summary
+        
+        async with notification_client as client:
+            await client.send_notification({
+                "user_id": submission["user_id"],
+                "type": "nlp_completion",
+                "title": "🧠 Text Analysis Completed",
+                "message": f"Text content has been analyzed successfully. Analysis results are ready for review.\n\n📥 **Input:** {input_preview}\n📤 **Output:** {output_preview}",
+                "contact_type": submission["contact_type"],
+                "contact_value": submission["contact_value"],
+                "user_name": submission["user_name"]
+            })
+    except Exception as e:
+        logger.error(f"Failed to send NLP notification for {submission_id}: {e}")
 
 async def create_results_page(submission_id: str):
     """Create results page for prototype"""
@@ -800,16 +842,6 @@ async def create_results_page(submission_id: str):
                 }
                 submission["workflow_steps"][i]["processing_time"] = 0.1
                 break
-        
-        # Send individual agent notification
-        await send_agent_notification(
-            submission_id=submission_id,
-            agent_name="Results Page Creator",
-            service_name="results-storage",
-            input_data={"prototype_id": submission.get("prototype_id", f"proto_{submission_id}")},
-            output_data={"results_page_url": submission["results_page_url"]},
-            processing_time=0.1
-        )
         
     except Exception as e:
         # Update the step in the workflow_steps list
@@ -876,19 +908,6 @@ async def generate_prototype(submission_id: str):
                     logger.error(f"Error generating project URLs: {e}")
                     # Fallback to simple ID
                     submission["prototype_id"] = result.get("prototype_id", f"proto_{int(time.time())}")
-                
-                # Send individual agent notification
-                await send_agent_notification(
-                    submission_id=submission_id,
-                    agent_name="Prototype Generator",
-                    service_name="prototype-generator",
-                    input_data={
-                        "requirements": submission["requirements"],
-                        "nlp_analysis": submission["results"].get("nlp_analysis", {})
-                    },
-                    output_data=result,
-                    processing_time=result.get("processing_time", 0)
-                )
             else:
                 step.status = "failed"
                 step.error_message = f"Prototype generator error: {response.status_code}"
@@ -897,249 +916,6 @@ async def generate_prototype(submission_id: str):
         step.status = "failed"
         step.error_message = str(e)
         logger.error(f"Prototype generation error for {submission_id}: {e}")
-
-async def send_agent_notification(submission_id: str, agent_name: str, service_name: str, input_data: dict, output_data: dict, processing_time: float = 0, status: str = "completed"):
-    """Send individual Telegram notification for each AI agent"""
-    try:
-        submission = submissions_db[submission_id]
-        # Format the message for the specific agent
-        message_parts = []
-        message_parts.append(f"🤖 **{agent_name} Agent Report**")
-        message_parts.append(f"📋 Service: {service_name}")
-        message_parts.append(f"⏱️ Processing Time: {processing_time:.2f}s")
-        message_parts.append(f"✅ Status: {status.upper()}")
-        message_parts.append("")
-        
-        # Add input data
-        message_parts.append("📥 **Input Data:**")
-        for key, value in input_data.items():
-            if isinstance(value, str) and len(value) > 100:
-                message_parts.append(f"• {key}: {value[:100]}...")
-            else:
-                message_parts.append(f"• {key}: {value}")
-        message_parts.append("")
-        
-        # Add output data
-        message_parts.append("📤 **Output Data:**")
-        
-        # Special handling for Prototype Generator to show results page URL instead of deployment URL
-        if service_name == "prototype-generator" and "results" in output_data:
-            # Show prototype info but replace deployment URL with results page URL
-            for key, value in output_data.items():
-                if key == "results" and isinstance(value, dict):
-                    message_parts.append(f"• {key}: {len(value)} items")
-                    for sub_key, sub_value in value.items():
-                        if sub_key == "deployment" and isinstance(sub_value, dict):
-                            # Replace deployment URL with results page URL
-                            prototype_id = submission.get('prototype_id', f"proto_{submission_id}")
-                            results_page_url = submission.get("results_page_url", f"http://localhost:3000/prototype-results/{prototype_id}")
-                            message_parts.append(f"  - {sub_key}: {{'url': '[View Prototype Results]({results_page_url})', 'status': 'ready', 'deploymenttime': '2-3 minutes'}}")
-                        elif isinstance(sub_value, str) and len(sub_value) > 50:
-                            message_parts.append(f"  - {sub_key}: {sub_value[:50]}...")
-                        elif isinstance(sub_value, list):
-                            message_parts.append(f"  - {sub_key}: {len(sub_value)} items")
-                        else:
-                            message_parts.append(f"  - {sub_key}: {sub_value}")
-                else:
-                    if isinstance(value, str) and len(value) > 100:
-                        message_parts.append(f"• {key}: {value[:100]}...")
-                    else:
-                        message_parts.append(f"• {key}: {value}")
-        else:
-            # Default handling for other agents
-            for key, value in output_data.items():
-                if isinstance(value, str) and len(value) > 100:
-                    message_parts.append(f"• {key}: {value[:100]}...")
-                elif isinstance(value, dict):
-                    message_parts.append(f"• {key}: {len(value)} items")
-                    # Show key details for important fields
-                    if key == "results" and isinstance(value, dict):
-                        for sub_key, sub_value in value.items():
-                            if isinstance(sub_value, str) and len(sub_value) > 50:
-                                message_parts.append(f"  - {sub_key}: {sub_value[:50]}...")
-                            elif isinstance(sub_value, list):
-                                message_parts.append(f"  - {sub_key}: {len(sub_value)} items")
-                            else:
-                                message_parts.append(f"  - {sub_key}: {sub_value}")
-                elif isinstance(value, list):
-                    message_parts.append(f"• {key}: {len(value)} items")
-                    # Show first few items if it's a short list
-                    if len(value) <= 3 and value:
-                        for i, item in enumerate(value):
-                            if isinstance(item, dict):
-                                message_parts.append(f"  {i+1}. {item.get('name', 'Item')} (Score: {item.get('score', 'N/A')})")
-                            else:
-                                message_parts.append(f"  {i+1}. {item}")
-                else:
-                    message_parts.append(f"• {key}: {value}")
-        
-        agent_message = "\n".join(message_parts)
-        
-        # Send notification
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{NOTIFICATION_SERVICE_URL}/api/notifications",
-                json={
-                    "user_id": submission["user_id"],
-                    "type": "agent_completion",
-                    "title": f"🤖 {agent_name} Agent Completed",
-                    "message": agent_message,
-                    "contact_type": submission["contact_type"],
-                    "contact_value": submission["contact_value"],
-                    "user_name": submission["user_name"]
-                }
-            )
-            
-            if response.status_code == 200:
-                logger.info(f"Agent notification sent for {agent_name} in submission {submission_id}")
-            else:
-                logger.error(f"Failed to send agent notification for {agent_name}: {response.status_code}")
-                
-    except Exception as e:
-        logger.error(f"Error sending agent notification for {agent_name}: {e}")
-
-async def send_notification(submission_id: str):
-    """Send notification to user via notification service"""
-    submission = submissions_db[submission_id]
-    
-    step = WorkflowStep(
-        step_id="notification",
-        service="notification-service",
-        status="processing",
-        input_data={
-            "user_name": submission["user_name"],
-            "contact_type": submission["contact_type"],
-            "contact_value": submission["contact_value"]
-        }
-    )
-    
-    submission["workflow_steps"].append(step.dict())
-    
-    try:
-        # Prepare notification message with comprehensive results from all agents
-        results = submission["results"]
-        message_parts = []
-        
-        # Add comprehensive AI analysis results
-        message_parts.append("🤖 **COMPREHENSIVE AI ANALYSIS RESULTS**")
-        message_parts.append("=" * 50)
-        message_parts.append("")
-        
-        # Add Document AI results
-        if "document_analysis" in results:
-            doc_ai = results["document_analysis"]
-            message_parts.append("📄 **Document AI Analysis:**")
-            message_parts.append(f"• Status: {doc_ai.get('status', 'N/A')}")
-            message_parts.append(f"• Analysis ID: {doc_ai.get('analysis_id', 'N/A')}")
-            if doc_ai.get('results'):
-                message_parts.append(f"• Extracted Text: {str(doc_ai['results'])[:200]}...")
-            message_parts.append(f"• Processing Time: {doc_ai.get('processing_time', 0):.3f}s")
-            message_parts.append("")
-        
-        # Add NLP analysis results
-        if "nlp_analysis" in results:
-            nlp = results["nlp_analysis"]
-            message_parts.append("🧠 **NLP Analysis Results:**")
-            message_parts.append(f"• Status: {nlp.get('status', 'N/A')}")
-            if nlp.get('results'):
-                nlp_results = nlp['results']
-                message_parts.append(f"• Text Summary: {nlp_results.get('text_summary', 'N/A')[:200]}...")
-                message_parts.append(f"• Key Insights: {', '.join(nlp_results.get('key_insights', [])[:3])}")
-                message_parts.append(f"• Sentiment: {nlp_results.get('sentiment_analysis', {}).get('overall_sentiment', 'N/A')}")
-                message_parts.append(f"• Topics: {', '.join(nlp_results.get('topic_categorization', [])[:5])}")
-            message_parts.append(f"• Processing Time: {nlp.get('processing_time', 0):.3f}s")
-            message_parts.append("")
-        
-        # Add Results Page information
-        if "results_page_url" in submission:
-            message_parts.append("📄 **Results Page Created:**")
-            message_parts.append(f"• URL: {submission['results_page_url']}")
-            message_parts.append(f"• Status: Available")
-            message_parts.append("• View your comprehensive analysis results at the link above")
-            message_parts.append("")
-        
-        # Add Prototype Generator results
-        if "prototype" in results:
-            prototype = results["prototype"]
-            message_parts.append("🚀 **Prototype Generator Results:**")
-            message_parts.append(f"• Status: {prototype.get('status', 'N/A')}")
-            message_parts.append(f"• Generation ID: {prototype.get('generation_id', 'N/A')}")
-            if prototype.get('results'):
-                proto_results = prototype['results']
-                message_parts.append(f"• Type: {proto_results.get('type', 'N/A')}")
-                message_parts.append(f"• Complexity: {proto_results.get('complexity', 'N/A')}")
-                message_parts.append(f"• Estimated Time: {proto_results.get('estimated_time', 'N/A')}")
-                message_parts.append(f"• Tech Stack: {', '.join(proto_results.get('tech_stack', [])[:5])}")
-            message_parts.append(f"• Processing Time: {prototype.get('processing_time', 0):.3f}s")
-            message_parts.append("")
-        
-        # Add workflow summary
-        workflow_steps = submission.get("workflow_steps", [])
-        completed_steps = [step for step in workflow_steps if step.get("status") == "completed"]
-        message_parts.append("📊 **Workflow Summary:**")
-        message_parts.append(f"• Total Steps: {len(workflow_steps)}")
-        message_parts.append(f"• Completed: {len(completed_steps)}")
-        message_parts.append(f"• Success Rate: {len(completed_steps)/len(workflow_steps)*100:.1f}%")
-        message_parts.append("")
-        
-        # Add prototype results URL
-        if submission.get("results_page_url"):
-            results_page_url = submission["results_page_url"]
-            message_parts.append("🔗 **View Your Prototype Results:**")
-            message_parts.append(f"[Click here to view your prototype results]({results_page_url})")
-            message_parts.append("")
-        
-        message_parts.append("✅ **Your comprehensive analysis is complete! We'll contact you soon with next steps.**")
-        
-        notification_message = "\n".join(message_parts)
-        
-        # Send notification
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{NOTIFICATION_SERVICE_URL}/api/notifications",
-                json={
-                    "user_id": submission["user_id"],
-                    "type": "prototype_ready",
-                    "title": "🚀 Your StateX Prototype is Ready!",
-                    "message": notification_message,
-                    "contact_type": submission["contact_type"],
-                    "contact_value": submission["contact_value"],
-                    "user_name": submission["user_name"],
-                    "prototype_id": submission.get("prototype_id", f"proto_{submission_id}"),
-                    "results_page_url": submission.get("results_page_url", f"http://localhost:3000/prototype-results/proto_{submission_id}")
-                }
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                step.status = "completed"
-                step.output_data = result
-                step.processing_time = 0  # Notification is usually instant
-                
-                logger.info(f"Notification sent successfully for submission {submission_id}")
-                
-                # Send individual agent notification for notification service
-                await send_agent_notification(
-                    submission_id=submission_id,
-                    agent_name="Notification Service",
-                    service_name="notification-service",
-                    input_data={
-                        "user_name": submission["user_name"],
-                        "contact_type": submission["contact_type"],
-                        "contact_value": submission["contact_value"]
-                    },
-                    output_data=result,
-                    processing_time=0
-                )
-            else:
-                step.status = "failed"
-                step.error_message = f"Notification service error: {response.status_code}"
-                logger.error(f"Notification failed for submission {submission_id}: {response.status_code}")
-                
-    except Exception as e:
-        step.status = "failed"
-        step.error_message = str(e)
-        logger.error(f"Notification error for submission {submission_id}: {e}")
 
 @app.get("/api/status/{submission_id}", response_model=SubmissionStatusResponse)
 @app.head("/api/status/{submission_id}")
@@ -1317,4 +1093,5 @@ async def get_prototype_status(workflow_id: str):
         raise HTTPException(status_code=500, detail=f"Failed to get prototype status: {str(e)}")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.getenv("AI_ORCHESTRATOR_PORT", "8000"))
+    uvicorn.run(app, host="0.0.0.0", port=port)

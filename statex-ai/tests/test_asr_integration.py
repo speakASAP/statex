@@ -297,7 +297,7 @@ async def main():
     
     print("\n💡 Tips:")
     print("- Set ASR_MODE=free for development (uses local Whisper)")
-    print("- Set OPENAI_API_KEY for paid Whisper API access")
+    print("- Set OPENROUTER_API_KEY for paid Whisper API access")
     print("- Local Whisper model will be downloaded on first use")
 
 if __name__ == "__main__":

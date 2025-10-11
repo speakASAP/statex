@@ -391,7 +391,7 @@ All components have been successfully standardized and are ready for use with th
 - Stop services: `docker compose -f docker-compose.development.yml down`
 - Service status: `docker compose -f docker-compose.development.yml ps`
 - View logs: `docker compose -f docker-compose.development.yml logs`
-- Full rebuild: `docker compose -f docker-compose.development.yml down && docker compose -f docker-compose.development.yml up --build`
+- Full rebuild: `docker compose -f docker-compose.development.yml stop && docker compose -f docker-compose.development.yml up --build`
 
 ### 🎯 Next Steps - Environment Testing
 

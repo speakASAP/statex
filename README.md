@@ -483,6 +483,15 @@ make deploy-prod
 
 - [Complete Architecture Diagram](./ARCHITECTURE_DIAGRAM.md) - Visual representation of all services and their relationships
 
+### **AI & Workflow Documentation**
+
+- [AI Providers Configuration](./docs/development/ai-providers.md) - Complete guide to AI providers, model selection, and configuration
+- [Multi-Agent Workflow System](./docs/development/multi-agent-workflow.md) - Detailed documentation of the multi-agent workflow system
+- [Workflow Order and Dependencies](./docs/development/workflow-order.md) - Workflow execution order and dependency management
+- [Contact Types and User Identification](./docs/development/contact-types.md) - Support for email, LinkedIn, WhatsApp, and Telegram contacts
+- [OpenRouter Setup Guide](./docs/OPENROUTER_SETUP_GUIDE.md) - Step-by-step OpenRouter integration guide
+- [Quick Reference Guide](./docs/development/quick-reference.md) - Quick access to common tasks and configurations
+
 ### **API Documentation**
 
 - **API Gateway**: <http://localhost:8001> (unified access to all services)
