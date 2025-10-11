@@ -83,7 +83,7 @@ Máte projekt nebo nápad, který byste chtěli realizovat? Rádi vám pomůžem
 Začněte s naším bezplatným prototypem.
 
 ### Přímý kontakt
-**Email**: info@statex.eu
+**Email**: info@statex.cz
 **Telefon**: +420 XXX XXX XXX
 
 ### Kancelář

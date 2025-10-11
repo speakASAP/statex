@@ -167,7 +167,7 @@ Začněte s naším bezplatným prototypem a zjistěte, jak můžeme pomoci vaš
 ### Přímý kontakt
 Pro složitější projekty nebo specifické požadavky nás kontaktujte přímo.
 
-**Email**: info@statex.eu
+**Email**: info@statex.cz
 **Telefon**: +420 XXX XXX XXX
 
 ### Kancelář
@@ -635,7 +635,7 @@ export function generateMetadata(config: SEOConfig): Metadata {
 export function generateHreflangTags(
   currentPath: string,
   languages: string[],
-  baseUrl: string = process.env.NEXT_PUBLIC_SITE_URL || 'https://statex.eu'
+  baseUrl: string = process.env.NEXT_PUBLIC_SITE_URL || 'https://statex.cz'
 ): { [key: string]: string } {
   const hreflangUrls: { [key: string]: string } = {};
 

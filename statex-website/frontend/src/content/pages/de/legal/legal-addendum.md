@@ -24,7 +24,7 @@ This document is effective as of 2025-09-18.
 For questions regarding this document, please contact:
 
 **StateX s.r.o.**
-Email: legal@statex.eu
+Email: legal@statex.cz
 Address: Prague, Czech Republic
 
 ## Updates
