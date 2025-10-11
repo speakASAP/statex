@@ -611,6 +611,17 @@ export function FormSection({
     try {
       if (!isRecording) return;
 
+      // Check if the service actually has a recording in progress
+      if (!voiceRecordingService.getIsRecording()) {
+        console.warn('No recording in progress in service, but React state shows recording');
+        setIsRecording(false);
+        if (recordingInterval) {
+          clearInterval(recordingInterval);
+          setRecordingInterval(null);
+        }
+        return;
+      }
+
       const audioBlob = await voiceRecordingService.stopRecording();
       setIsRecording(false);
       
@@ -632,7 +643,17 @@ export function FormSection({
       setVoiceRecordingFile(voiceRecording);
     } catch (error) {
       console.error('Failed to stop recording:', error);
-      alert(error instanceof Error ? error.message : 'Failed to stop recording');
+      // Don't show alert for "No recording in progress" - just reset state
+      if (error instanceof Error && error.message.includes('No recording in progress')) {
+        console.warn('Recording was already stopped, resetting state');
+        setIsRecording(false);
+        if (recordingInterval) {
+          clearInterval(recordingInterval);
+          setRecordingInterval(null);
+        }
+      } else {
+        alert(error instanceof Error ? error.message : 'Failed to stop recording');
+      }
     }
   };
 

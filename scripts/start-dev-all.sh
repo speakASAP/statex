@@ -31,8 +31,8 @@ if [[ -f "$PROJECT_ROOT/statex-infrastructure/env.dev" ]]; then
     source "$PROJECT_ROOT/statex-infrastructure/env.dev"
     
     # Resolve relative paths to absolute paths
-    if [[ "$SUBMISSION_UPLOAD_DIR" == ./* ]]; then
-        SUBMISSION_UPLOAD_DIR="$PROJECT_ROOT/${SUBMISSION_UPLOAD_DIR#./}"
+    if [[ "$HOST_UPLOAD_DIR" == ./* ]]; then
+        HOST_UPLOAD_DIR="$PROJECT_ROOT/${HOST_UPLOAD_DIR#./}"
     fi
 fi
 
@@ -245,7 +245,7 @@ start_infrastructure() {
     
     # Start infrastructure services
     cd "$PROJECT_ROOT/statex-infrastructure"
-    docker compose -f docker-compose.dev.yml up -d
+    docker compose -f docker-compose.dev.yml up -d --remove-orphans
     cd "$PROJECT_ROOT"
     
     print_success "Infrastructure services started"
@@ -359,7 +359,7 @@ start_ai_services() {
         if [[ "$service_name" == "free-ai-service" ]]; then
             start_service "$service_name" "source venv/bin/activate && OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-} OPENROUTER_API_BASE=${OPENROUTER_API_BASE:-https://openrouter.ai/api/v1} OPENROUTER_MODEL=${OPENROUTER_MODEL:-google/gemini-2.0-flash-exp:free} $start_command" "$working_dir" "$port"
         elif [[ "$service_name" == "ai-orchestrator" ]]; then
-            start_service "$service_name" "source venv/bin/activate && USE_MULTI_AGENT_WORKFLOW=${USE_MULTI_AGENT_WORKFLOW:-true} SUBMISSION_UPLOAD_DIR=${SUBMISSION_UPLOAD_DIR:-./data/uploads} $start_command" "$working_dir" "$port"
+            start_service "$service_name" "source venv/bin/activate && USE_MULTI_AGENT_WORKFLOW=${USE_MULTI_AGENT_WORKFLOW:-true} HOST_UPLOAD_DIR=${HOST_UPLOAD_DIR:-./data/uploads} $start_command" "$working_dir" "$port"
         else
             start_service "$service_name" "source venv/bin/activate && $start_command" "$working_dir" "$port"
         fi
@@ -571,6 +571,7 @@ show_status() {
         "ai-workers:${AI_WORKERS_EXTERNAL_PORT:-8017}"
         "dns-service:${DNS_SERVICE_EXTERNAL_PORT:-8053}"
         "dashboard:${DASHBOARD_EXTERNAL_PORT:-8020}"
+        "postgres:${POSTGRES_EXTERNAL_PORT:-5432}"
     )
     
     for service_info in "${services[@]}"; do
@@ -761,7 +762,7 @@ main() {
                 cd "$PROJECT_ROOT"
             fi
             
-            start_service "$service_name" "source venv/bin/activate && USE_MULTI_AGENT_WORKFLOW=${USE_MULTI_AGENT_WORKFLOW:-true} SUBMISSION_UPLOAD_DIR=${SUBMISSION_UPLOAD_DIR:-./data/uploads} python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${AI_ORCHESTRATOR_INTERNAL_PORT:-8010}" "$working_dir" "$port"
+            start_service "$service_name" "source venv/bin/activate && USE_MULTI_AGENT_WORKFLOW=${USE_MULTI_AGENT_WORKFLOW:-true} HOST_UPLOAD_DIR=${HOST_UPLOAD_DIR:-./data/uploads} python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${AI_ORCHESTRATOR_INTERNAL_PORT:-8010}" "$working_dir" "$port"
             
             # Frontend (User Interface)
             print_status "Starting frontend..."

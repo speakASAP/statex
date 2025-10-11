@@ -1,23 +1,22 @@
 services:
   # PostgreSQL Database
   postgres:
-    image: postgres:15
+    image: postgres:18-alpine
     container_name: ${POSTGRES_CONTAINER_NAME:-statex_postgres_dev}
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=statex
-      - POSTGRES_USER=statex
-      - POSTGRES_PASSWORD=statex_password
-      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+      - POSTGRES_DB=${POSTGRES_DB:-statex_submissions}
+      - POSTGRES_USER=${POSTGRES_USER:-statex}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-statex_password}
     ports:
       - "${POSTGRES_EXTERNAL_PORT:-5432}:${POSTGRES_INTERNAL_PORT:-5432}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - statex_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U statex -d statex"]
+      test: ["CMD-SHELL", "pg_isready -U statex -d statex_submissions"]
       interval: 10s
       timeout: 5s
       retries: 5

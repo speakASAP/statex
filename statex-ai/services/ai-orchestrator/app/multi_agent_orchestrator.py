@@ -12,7 +12,9 @@ from typing import Dict, List, Optional, Any, Union
 import httpx
 import os
 import sys
-sys.path.append('/app/shared')
+# Add the shared directory to Python path for local development
+shared_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '..', 'shared')
+sys.path.append(shared_path)
 from http_clients import NotificationServiceClient
 from pydantic import BaseModel
 
@@ -37,7 +39,7 @@ def get_session_directory(submission_id: str, user_id: str) -> str:
     # This should match the path structure used by submission service
     # Format: data/uploads/{user_id}/sess_{timestamp}_{random}
     # Use the same environment variable as submission service
-    base_dir = os.getenv("SUBMISSION_UPLOAD_DIR", "./data/uploads")
+    base_dir = os.getenv("HOST_UPLOAD_DIR", "./data/uploads")
     user_dir = os.path.join(base_dir, user_id)
     
     if not os.path.exists(user_dir):
@@ -221,8 +223,8 @@ class NLPAgent(AgentInterface):
                         agent_name=self.agent_name,
                         status=TaskStatus.COMPLETED,
                         result_data=transformed_result,
-                        confidence_score=result_data.get("confidence", 0.8),
-                        processing_time=result_data.get("processing_time", 0)
+                        confidence_score=response_data.get("confidence", 0),
+                        processing_time=response_data.get("processing_time", 0)
                     )
                 else:
                     raise httpx.HTTPStatusError(
@@ -947,20 +949,20 @@ class MultiAgentOrchestrator:
         )
         tasks.append(summarizer_task)
         
-        # Task 5: Prototype generation (depends on Summarizer)
-        prototype_task = AgentTask(
-            agent_type="prototype",
-            agent_name="Prototype Generator Agent",
-            input_data={
-                "requirements": input_data.get("requirements", ""),
-                "analysis": {},  # Will be filled from NLP results
-                "summary": {}  # Will be filled from Summarizer results
-            },
-            priority=1,
-            timeout=180,
-            dependencies=[summarizer_task.task_id]
-        )
-        tasks.append(prototype_task)
+        # Task 5: Prototype generation (depends on Summarizer) - DISABLED UNTIL SUMMARIZER IS TESTED
+        # prototype_task = AgentTask(
+        #     agent_type="prototype",
+        #     agent_name="Prototype Generator Agent",
+        #     input_data={
+        #         "requirements": input_data.get("requirements", ""),
+        #         "analysis": {},  # Will be filled from NLP results
+        #         "summary": {}  # Will be filled from Summarizer results
+        #     },
+        #     priority=1,
+        #     timeout=180,
+        #     dependencies=[summarizer_task.task_id]
+        # )
+        # tasks.append(prototype_task)
         
         return tasks
     
@@ -1180,12 +1182,47 @@ class MultiAgentOrchestrator:
             message_parts.append(f"🎯 Confidence: {result.confidence_score:.1%}")
             message_parts.append("")
             
-            # Add input data information
+            # Add input data information with agent-specific filtering
             message_parts.append("📥 **Input Data:**")
             if task_input_data:
+                # Define allowed keys per agent type
+                allowed_keys = {
+                    "document": ["file_urls"],  # Only files
+                    "nlp": ["text_content", "requirements"],  # Only text
+                    "asr": ["voice_file_url"],  # Only voice
+                    "summarizer": [],  # Shows nothing (reads from disk)
+                    "prototype": []  # Shows nothing (reads from disk)
+                }
+                
+                # Filter input data based on agent type
+                agent_allowed_keys = allowed_keys.get(result.agent_type, task_input_data.keys())
+                
                 for key, value in task_input_data.items():
                     if key in ["submission_id", "user_id", "read_from_disk"]:
                         continue  # Skip internal fields
+                    elif agent_allowed_keys and key not in agent_allowed_keys:
+                        continue  # Skip non-relevant fields for this agent
+                    elif key == "file_urls" and result.agent_type == "document":
+                        # For document agent, show original filenames from submission service
+                        if isinstance(value, list):
+                            # Try to get original filenames from submission service
+                            original_filenames = await self._get_original_filenames(task_input_data.get("session_id"))
+                            if original_filenames:
+                                message_parts.append(f"• files: {', '.join(original_filenames)}")
+                            else:
+                                # Fallback to extracting from file URLs
+                                filenames = []
+                                for file_url in value:
+                                    if isinstance(file_url, str):
+                                        filename = file_url.split("/")[-1]
+                                        if filename:
+                                            filenames.append(filename)
+                                if filenames:
+                                    message_parts.append(f"• files: {', '.join(filenames)}")
+                                else:
+                                    message_parts.append(f"• {key}: {len(value)} files")
+                        else:
+                            message_parts.append(f"• {key}: {value}")
                     elif isinstance(value, str) and len(value) > 200:
                         message_parts.append(f"• {key}: {value[:200]}...")
                     elif isinstance(value, list) and len(value) > 0:
@@ -1239,7 +1276,8 @@ class MultiAgentOrchestrator:
                     "message": notification_message,
                     "contact_type": "telegram",
                     "contact_value": request.contact_info.get("email", "694579866"),
-                    "user_name": request.contact_info.get("name", "User")
+                    "user_name": request.contact_info.get("name", "User"),
+                    "parse_mode": "Markdown"
                 })
                 
         except Exception as e:
@@ -1249,19 +1287,52 @@ class MultiAgentOrchestrator:
         """Format NLP agent results for notification"""
         for key, value in result_data.items():
             if key == "analysis" and isinstance(value, dict):
-                message_parts.append(f"• {key}: {len(value)} fields")
-                for sub_key, sub_value in value.items():
-                    if sub_key in ["summary", "key_insights", "sentiment_analysis"]:
-                        if isinstance(sub_value, str) and len(sub_value) > 100:
-                            message_parts.append(f"  - {sub_key}: {sub_value[:100]}...")
-                        elif isinstance(sub_value, list):
-                            message_parts.append(f"  - {sub_key}: {len(sub_value)} items")
-                        else:
-                            message_parts.append(f"  - {sub_key}: {sub_value}")
-                    elif sub_key == "topic_categorization":
-                        message_parts.append(f"  - {sub_key}: {', '.join(sub_value[:5]) if isinstance(sub_value, list) else sub_value}")
+                # Show summary prominently
+                if "summary" in value and value["summary"]:
+                    summary = value["summary"]
+                    if len(summary) > 200:
+                        message_parts.append(f"• **Summary:** {summary[:200]}...")
                     else:
-                        message_parts.append(f"  - {sub_key}: {str(sub_value)[:50]}...")
+                        message_parts.append(f"• **Summary:** {summary}")
+                
+                # Show key insights
+                if "key_insights" in value and value["key_insights"]:
+                    insights = value["key_insights"]
+                    if isinstance(insights, list) and insights:
+                        message_parts.append(f"• **Key Insights:** {len(insights)} items")
+                        for i, insight in enumerate(insights[:3]):  # Show first 3 insights
+                            if isinstance(insight, str) and len(insight) > 80:
+                                message_parts.append(f"  - {insight[:80]}...")
+                            else:
+                                message_parts.append(f"  - {insight}")
+                    elif isinstance(insights, str):
+                        message_parts.append(f"• **Key Insights:** {insights[:100]}...")
+                
+                # Show recommendations
+                if "recommendations" in value and value["recommendations"]:
+                    recommendations = value["recommendations"]
+                    if isinstance(recommendations, list) and recommendations:
+                        message_parts.append(f"• **Recommendations:** {len(recommendations)} items")
+                        for i, rec in enumerate(recommendations[:2]):  # Show first 2 recommendations
+                            if isinstance(rec, str) and len(rec) > 80:
+                                message_parts.append(f"  - {rec[:80]}...")
+                            else:
+                                message_parts.append(f"  - {rec}")
+                    elif isinstance(recommendations, str):
+                        message_parts.append(f"• **Recommendations:** {recommendations[:100]}...")
+                
+                # Show business type
+                if "business_type" in value and value["business_type"]:
+                    message_parts.append(f"• **Business Type:** {value['business_type']}")
+                
+                # Show other important fields
+                for sub_key in ["pain_points", "opportunities", "next_steps"]:
+                    if sub_key in value and value[sub_key]:
+                        sub_value = value[sub_key]
+                        if isinstance(sub_value, list) and sub_value:
+                            message_parts.append(f"• **{sub_key.replace('_', ' ').title()}:** {len(sub_value)} items")
+                        elif isinstance(sub_value, str):
+                            message_parts.append(f"• **{sub_key.replace('_', ' ').title()}:** {sub_value[:50]}...")
             elif key in ["tokens_used", "model_used", "ai_service", "confidence", "processing_time"]:
                 message_parts.append(f"• {key}: {value}")
             else:
@@ -1300,6 +1371,26 @@ class MultiAgentOrchestrator:
                         message_parts.append(f"  - {sub_key}: {sub_value[:150]}...")
                     elif sub_key in ["document_type", "page_count", "word_count"]:
                         message_parts.append(f"  - {sub_key}: {sub_value}")
+                    elif sub_key == "documents" and isinstance(sub_value, list):
+                        # Show original filenames from submission service
+                        # Note: This would need submission_id context to work properly
+                        # For now, show stored filenames as fallback
+                        filenames = []
+                        for doc in sub_value:
+                            if isinstance(doc, dict):
+                                file_url = doc.get("file_url", "")
+                                # Extract filename from URL or use file_path
+                                if file_url:
+                                    filename = file_url.split("/")[-1].split("?")[0]  # Remove query params
+                                    if filename:
+                                        filenames.append(filename)
+                                elif doc.get("file_path"):
+                                    filename = doc["file_path"].split("/")[-1]
+                                    filenames.append(filename)
+                        if filenames:
+                            message_parts.append(f"  - processed_files: {', '.join(filenames)}")
+                        else:
+                            message_parts.append(f"  - {sub_key}: {len(sub_value)} documents")
                     else:
                         message_parts.append(f"  - {sub_key}: {str(sub_value)[:50]}...")
             elif key in ["tokens_used", "model_used", "ai_service", "confidence", "processing_time"]:
@@ -1358,6 +1449,26 @@ class MultiAgentOrchestrator:
         """Cancel a running workflow"""
         return await self.workflow_engine.cancel_workflow(workflow_id)
     
+    async def _get_original_filenames(self, session_id: str) -> List[str]:
+        """Get original filenames from submission service for a given session_id"""
+        try:
+            if not session_id:
+                return []
+            
+            submission_service_url = os.getenv("SUBMISSION_SERVICE_URL", "http://submission-service:8002")
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(f"{submission_service_url}/api/sessions/{session_id}/filename-mappings")
+                if response.status_code == 200:
+                    data = response.json()
+                    mappings = data.get("mappings", [])
+                    return [mapping.get("original_name", "") for mapping in mappings if mapping.get("original_name")]
+                else:
+                    logger.warning(f"Failed to get filename mappings for session {session_id}: {response.status_code}")
+                    return []
+        except Exception as e:
+            logger.warning(f"Error getting original filenames for session {session_id}: {e}")
+            return []
+
     async def _persist_summary_if_available(self, request: MultiAgentRequest, workflow_state: WorkflowState):
         """Persist summary to submission service if summarizer agent completed successfully"""
         # Find summarizer agent result

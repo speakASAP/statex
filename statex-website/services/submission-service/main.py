@@ -18,6 +18,10 @@ import hashlib
 import re
 import json
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Add platform shared directory to path dynamically
 current_dir = Path(__file__).parent.resolve()
@@ -70,6 +74,14 @@ class AgentResultRequest(BaseModel):
     tokens_used: Optional[int] = None
     processing_time: Optional[float] = None
 
+
+class FilenameMapping(BaseModel):
+    original_name: str
+    stored_name: str
+    file_type: str
+    file_size: int
+    content_type: str
+
 # Initialize FastAPI app
 app = FastAPI(
     title="StateX Submission Service",
@@ -78,6 +90,12 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc"
 )
+
+# Import database manager
+from database import db_manager, create_tables
+
+# Initialize database tables
+create_tables()
 
 # CORS middleware
 app.add_middleware(
@@ -316,14 +334,53 @@ async def create_submission(
             },
         )
 
-        # Store submission
+        # Store submission in database
+        submission_data = {
+            "user_id": user_id,
+            "session_id": session_id,
+            "submission_type": "text",
+            "text_content": description,
+            "voice_file_url": submission.get("voice_file_url"),
+            "file_urls": submission.get("file_urls", []),
+            "requirements": f"Type: {request_type}, Priority: {priority}",
+            "contact_info": {
+                "email": user_email,
+                "name": user_name or "Unknown"
+            }
+        }
+        db_submission_id = db_manager.create_submission(submission_data)
+        
+        # Also store in memory for backward compatibility
         submissions_db[submission_id] = submission
+        
+        # Save filename mappings for AI agents to use (using database)
+        # No files to map in this endpoint, but we still create an empty mapping record
+        mappings_data = []  # No files in this endpoint
+        db_manager.save_filename_mappings(session_id, db_submission_id, mappings_data)
+        
+        # Original code commented out since saved_files is not defined in this function
+        # if saved_files:
+        #     mappings_data = []
+        #     for file_info in saved_files:
+        #         if file_info.get("type") == "attachment":  # Only process attachment files
+        #             mapping_data = {
+        #                 "original_name": file_info.get("original_name", ""),
+        #                 "stored_name": file_info.get("stored_name", ""),
+        #                 "file_type": file_info.get("type", "attachment"),
+        #                 "file_size": file_info.get("size", 0),
+        #                 "content_type": file_info.get("content_type", "application/octet-stream")
+        #             }
+        #             mappings_data.append(mapping_data)
+        #     
+        #     if mappings_data:
+        #         db_manager.save_filename_mappings(session_id, db_submission_id, mappings_data)
         
         # Process submission through external services
         orchestrator = ServiceOrchestrator()
         ai_submission_data = {
             "user_id": user_id,  # Use actual user_id, not submission_id
             "submission_id": submission_id,  # Add submission_id separately
+            "session_id": session_id,  # Add session_id for filename mapping
             "submission_type": "text",
             "text_content": description,
             "voice_file_url": submission.get("voice_file_url"),  # Add voice file URL
@@ -357,7 +414,7 @@ async def create_submission(
                 "disk_path": str(session_path),
                 "user_id": user_id,
                 "session_id": session_id,
-                "saved_files": saved_files,
+                "saved_files": []  # No file uploads in this endpoint,
             }
         )
         
@@ -413,19 +470,58 @@ async def create_submission_json(request: FormSubmissionRequest):
                 "description": request.description,
                 "has_voice": bool(request.voiceRecording),
                 "recording_time": request.voiceRecording.recordingTime if request.voiceRecording else 0,
-                "saved_files": saved_files,
+                "saved_files": [],  # No file uploads in this endpoint
                 "form_url": None,
             },
         )
         
-        # Store submission
+        # Store submission in database
+        submission_data = {
+            "user_id": user_id,
+            "session_id": session_id,
+            "submission_type": "text",
+            "text_content": request.description,
+            "voice_file_url": submission.get("voice_file_url"),
+            "file_urls": submission.get("file_urls", []),
+            "requirements": f"Type: contact, Priority: normal",
+            "contact_info": {
+                "email": request.contactValue,
+                "name": request.name or "Unknown"
+            }
+        }
+        db_submission_id = db_manager.create_submission(submission_data)
+        
+        # Also store in memory for backward compatibility
         submissions_db[submission_id] = submission
+        
+        # Save filename mappings for AI agents to use (using database)
+        # No files to map in this endpoint, but we still create an empty mapping record
+        mappings_data = []  # No files in this endpoint
+        db_manager.save_filename_mappings(session_id, db_submission_id, mappings_data)
+        
+        # Original code commented out since saved_files is not defined in this function
+        # if saved_files:
+        #     mappings_data = []
+        #     for file_info in saved_files:
+        #         if file_info.get("type") == "attachment":  # Only process attachment files
+        #             mapping_data = {
+        #                 "original_name": file_info.get("original_name", ""),
+        #                 "stored_name": file_info.get("stored_name", ""),
+        #                 "file_type": file_info.get("type", "attachment"),
+        #                 "file_size": file_info.get("size", 0),
+        #                 "content_type": file_info.get("content_type", "application/octet-stream")
+        #             }
+        #             mappings_data.append(mapping_data)
+        #     
+        #     if mappings_data:
+        #         db_manager.save_filename_mappings(session_id, db_submission_id, mappings_data)
         
         # Process submission through external services
         orchestrator = ServiceOrchestrator()
         ai_submission_data = {
             "user_id": user_id,  # Use actual user_id, not submission_id
             "submission_id": submission_id,  # Add submission_id separately
+            "session_id": session_id,  # Add session_id for filename mapping
             "submission_type": "text",
             "text_content": request.description,
             "voice_file_url": f"/files/{request.voiceRecording.fileId}" if request.voiceRecording else None,
@@ -460,7 +556,7 @@ async def create_submission_json(request: FormSubmissionRequest):
                 "disk_path": str(session_path),
                 "user_id": user_id,
                 "session_id": session_id,
-                "saved_files": saved_files
+                "saved_files": []  # No file uploads in this endpoint
             }
         )
         
@@ -875,6 +971,64 @@ async def get_user_sessions(user_id: str):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get user sessions: {str(e)}")
+
+@app.post("/api/sessions/{session_id}/filename-mappings")
+async def save_filename_mappings(session_id: str, mappings: List[FilenameMapping]):
+    """
+    Save filename mappings for a session
+    Maps original filenames to stored filenames on disk
+    """
+    try:
+        # Convert Pydantic models to dictionaries
+        mappings_data = [mapping.model_dump() for mapping in mappings]
+        
+        # Get submission_id for this session from the database
+        submission = db_manager.get_submission_by_session(session_id)
+        if not submission:
+            raise HTTPException(status_code=404, detail=f"No submission found for session {session_id}")
+        
+        submission_id = submission["id"]
+        
+        success = db_manager.save_filename_mappings(session_id, submission_id, mappings_data)
+        
+        if success:
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "success": True,
+                    "message": f"Filename mappings saved for session {session_id}",
+                    "mappings_count": len(mappings_data)
+                }
+            )
+        else:
+            raise HTTPException(status_code=500, detail="Failed to save filename mappings")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save filename mappings: {str(e)}")
+
+@app.get("/api/sessions/{session_id}/filename-mappings")
+async def get_filename_mappings(session_id: str):
+    """
+    Get filename mappings for a session
+    Returns mapping between original and stored filenames
+    """
+    try:
+        mappings = db_manager.get_filename_mappings(session_id)
+        
+        if not mappings:
+            raise HTTPException(status_code=404, detail=f"No filename mappings found for session {session_id}")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "session_id": session_id,
+                "mappings": mappings,
+                "count": len(mappings)
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get filename mappings: {str(e)}")
 
 @app.post("/api/forms/cleanup-sessions")
 async def cleanup_sessions():

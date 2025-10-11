@@ -215,7 +215,7 @@ start_infrastructure() {
     fi
     
     cd statex-infrastructure
-    docker compose -f docker-compose.essential.yml up -d
+    docker compose -f docker-compose.essential.yml up -d --remove-orphans
     cd ..
     
     print_success "Essential infrastructure services started"
@@ -223,6 +223,7 @@ start_infrastructure() {
     # Wait for essential services to be ready
     wait_for_service "Redis" 6379
     wait_for_service "RabbitMQ" 5672
+    wait_for_service "PostgreSQL" 5432
 }
 
 # Start StateX Website Frontend
@@ -444,6 +445,7 @@ show_status() {
         "asr-service:8012"
         "document-ai:8013"
         "free-ai-service:8016"
+        "postgres:5432"
     )
     
     for service_info in "${services[@]}"; do
@@ -531,6 +533,7 @@ stop_all_services() {
     kill_port 8010
     
     print_status "Stopping AI services..."
+    kill_port 8016  # Free AI
     kill_port 8013  # Document AI
     kill_port 8012  # ASR
     kill_port 8011  # NLP

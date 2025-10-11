@@ -38,10 +38,34 @@ services:
       timeout: 5s
       retries: 5
 
+  # PostgreSQL Database - REQUIRED for submission service and filename mappings
+  postgres:
+    image: postgres:18-alpine
+    container_name: ${POSTGRES_CONTAINER_NAME:-statex_postgres_essential}
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-statex_submissions}
+      - POSTGRES_USER=${POSTGRES_USER:-statex}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-statex_password}
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT:-5432}:${POSTGRES_INTERNAL_PORT:-5432}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - statex_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U statex -d statex_submissions"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   redis_data:
     driver: local
   rabbitmq_data:
+    driver: local
+  postgres_data:
     driver: local
 
 networks:

@@ -25,7 +25,7 @@ services:
       - NOTIFICATION_SERVICE_URL=http://notification-service:8005
       - SUBMISSION_SERVICE_URL=http://submission-service:8002
       - USE_MULTI_AGENT_WORKFLOW=true
-      - SUBMISSION_UPLOAD_DIR=${SUBMISSION_UPLOAD_DIR}
+      - HOST_UPLOAD_DIR=${HOST_UPLOAD_DIR}
     networks:
       - statex_network
     healthcheck:
