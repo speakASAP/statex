@@ -5,6 +5,7 @@ services:
     container_name: statex_ai_orchestrator_dev
     volumes:
       - ./services/ai-orchestrator:/app
+      - ./shared:/app/shared:ro
       - ~/.cache/pip:/root/.cache/pip
     working_dir: /app
     command: sh -c "apt-get update && apt-get install -y curl && pip install -r requirements.txt && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
@@ -24,6 +25,7 @@ services:
       - NOTIFICATION_SERVICE_URL=http://notification-service:8005
       - SUBMISSION_SERVICE_URL=http://submission-service:8002
       - USE_MULTI_AGENT_WORKFLOW=true
+      - SUBMISSION_UPLOAD_DIR=${SUBMISSION_UPLOAD_DIR}
     networks:
       - statex_network
     healthcheck:
@@ -45,7 +47,7 @@ services:
     ports:
       - "8011:8000"
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - DATABASE_URL=postgresql://statex:statex_password@host.docker.internal:5432/statex
       - REDIS_URL=redis://host.docker.internal:6379
@@ -71,7 +73,7 @@ services:
     ports:
       - "8012:8000"
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - DATABASE_URL=postgresql://statex:statex_password@host.docker.internal:5432/statex
       - REDIS_URL=redis://host.docker.internal:6379
       - AI_ORCHESTRATOR_URL=${AI_ORCHESTRATOR_URL:-http://ai-orchestrator:8000}

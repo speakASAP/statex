@@ -25,7 +25,7 @@ services:
       - NOTIFICATION_SERVICE_URL=${NOTIFICATION_SERVICE_URL:-http://notification-service:8005}
       - AI_SERVICES_BASE_URL=${AI_SERVICES_BASE_URL:-http://ai-orchestrator:8000}
       # Write uploads inside repo by default
-      - SUBMISSION_UPLOAD_DIR=/app/data/uploads
+      - SUBMISSION_UPLOAD_DIR=${SUBMISSION_UPLOAD_DIR:-/app/data/uploads}
     networks:
       - statex_network
     healthcheck:

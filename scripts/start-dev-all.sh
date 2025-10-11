@@ -29,6 +29,11 @@ PID_DIR="$PROJECT_ROOT/pids"
 # Load environment variables
 if [[ -f "$PROJECT_ROOT/statex-infrastructure/env.dev" ]]; then
     source "$PROJECT_ROOT/statex-infrastructure/env.dev"
+    
+    # Resolve relative paths to absolute paths
+    if [[ "$SUBMISSION_UPLOAD_DIR" == ./* ]]; then
+        SUBMISSION_UPLOAD_DIR="$PROJECT_ROOT/${SUBMISSION_UPLOAD_DIR#./}"
+    fi
 fi
 
 # Create necessary directories
@@ -86,7 +91,6 @@ start_service() {
     echo $pid > "$pid_file"
     
     # Wait a moment and check if process is still running
-    sleep 2
     if kill -0 $pid 2>/dev/null; then
         print_success "$service_name started (PID: $pid)"
         echo "  Log: $log_file"
@@ -117,12 +121,10 @@ kill_port() {
     if [[ -n "$pids" ]]; then
         print_warning "Port $port is in use. Killing processes: $pids"
         echo "$pids" | xargs kill -9 2>/dev/null || true
-        sleep 2
         # Double-check and force kill if still running
         local remaining_pids=$(lsof -ti :$port 2>/dev/null)
         if [[ -n "$remaining_pids" ]]; then
             echo "$remaining_pids" | xargs kill -9 2>/dev/null || true
-            sleep 1
         fi
     fi
 }
@@ -156,7 +158,6 @@ wait_for_docker() {
         fi
         
         echo -n "."
-        sleep 2
         attempt=$((attempt + 1))
     done
     
@@ -224,7 +225,6 @@ wait_for_service() {
         fi
         
         echo -n "."
-        sleep 2
         attempt=$((attempt + 1))
     done
     
@@ -355,7 +355,14 @@ start_ai_services() {
             cd "$PROJECT_ROOT"
         fi
         
-        start_service "$service_name" "source venv/bin/activate && $start_command" "$working_dir" "$port"
+        # Set environment variables for AI services
+        if [[ "$service_name" == "free-ai-service" ]]; then
+            start_service "$service_name" "source venv/bin/activate && OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-} OPENROUTER_API_BASE=${OPENROUTER_API_BASE:-https://openrouter.ai/api/v1} OPENROUTER_MODEL=${OPENROUTER_MODEL:-google/gemini-2.0-flash-exp:free} $start_command" "$working_dir" "$port"
+        elif [[ "$service_name" == "ai-orchestrator" ]]; then
+            start_service "$service_name" "source venv/bin/activate && USE_MULTI_AGENT_WORKFLOW=${USE_MULTI_AGENT_WORKFLOW:-true} SUBMISSION_UPLOAD_DIR=${SUBMISSION_UPLOAD_DIR:-./data/uploads} $start_command" "$working_dir" "$port"
+        else
+            start_service "$service_name" "source venv/bin/activate && $start_command" "$working_dir" "$port"
+        fi
     done
 }
 
@@ -620,7 +627,6 @@ stop_all() {
     done
     
     # Clean up any remaining processes
-    sleep 2
     for port in "${ports[@]}"; do
         local pids=$(lsof -ti :$port 2>/dev/null)
         if [[ -n "$pids" ]]; then
@@ -643,40 +649,33 @@ main() {
             
             # Start infrastructure first
             start_infrastructure
-            sleep 5
             
             # Start services in dependency order
             
             # Phase 1: Core Platform Services (depend on infrastructure)
             print_status "Phase 1: Starting core platform services..."
             start_platform_services
-            sleep 3
             
             # Phase 2: AI Services (depend on platform services)
             print_status "Phase 2: Starting AI services..."
             start_ai_services
-            sleep 3
             
             # Phase 3: Website Services (depend on platform and AI services)
             print_status "Phase 3: Starting website services..."
             start_website_services
-            sleep 3
             
             # Phase 4: Communication Services (independent)
             print_status "Phase 4: Starting communication services..."
             start_notification_service
             start_dns_service
-            sleep 3
             
             # Phase 5: Monitoring Services (independent) - TEMPORARILY DISABLED
             # print_status "Phase 5: Starting monitoring services..."
             # start_monitoring_services
-            # sleep 3
             
             # Phase 6: Frontend (depends on all backend services)
             print_status "Phase 6: Starting frontend..."
             start_website_frontend
-            sleep 3
             
             # Phase 7: Dashboard (depends on all services)
             print_status "Phase 7: Starting dashboard..."
@@ -710,7 +709,6 @@ main() {
             
             # Start infrastructure first
             start_infrastructure
-            sleep 5
             
             # Start only essential services
             print_status "Starting essential services..."
@@ -739,7 +737,6 @@ main() {
             fi
             
             start_service "$service_name" "source venv/bin/activate && python -m uvicorn services.platform-management.main:app --reload --host 0.0.0.0 --port ${PLATFORM_MANAGEMENT_INTERNAL_PORT:-8000}" "$working_dir" "$port"
-            sleep 3
             
             # AI Orchestrator (Core AI)
             print_status "Starting AI orchestrator..."
@@ -764,8 +761,7 @@ main() {
                 cd "$PROJECT_ROOT"
             fi
             
-            start_service "$service_name" "source venv/bin/activate && python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${AI_ORCHESTRATOR_INTERNAL_PORT:-8010}" "$working_dir" "$port"
-            sleep 3
+            start_service "$service_name" "source venv/bin/activate && USE_MULTI_AGENT_WORKFLOW=${USE_MULTI_AGENT_WORKFLOW:-true} SUBMISSION_UPLOAD_DIR=${SUBMISSION_UPLOAD_DIR:-./data/uploads} python -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${AI_ORCHESTRATOR_INTERNAL_PORT:-8010}" "$working_dir" "$port"
             
             # Frontend (User Interface)
             print_status "Starting frontend..."
@@ -781,7 +777,6 @@ main() {
             fi
             
             start_service "$service_name" "npm run dev" "$working_dir" "$port"
-            sleep 3
             
             # Dashboard (for service management)
             print_status "Starting dashboard..."
@@ -809,7 +804,6 @@ main() {
             ;;
         restart)
             stop_all
-            sleep 2
             main start
             ;;
         *)

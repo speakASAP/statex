@@ -38,6 +38,7 @@ class PrototypeRequest(BaseModel):
     voiceRecording: Optional[Dict[str, Any]] = None
     userId: Optional[str] = None
     submissionId: Optional[str] = None
+    diskResult: Optional[Dict[str, Any]] = None
 
 class NotificationResponse(BaseModel):
     success: bool
@@ -161,13 +162,21 @@ async def send_prototype_request(request: PrototypeRequest):
             voice_details = f"\n🎤 *Voice Recording:*\nDuration: {request.recordingTime}s, Size: {voice_size_kb}KB, Type: {request.voiceRecording.get('type', 'undefined')}\n"
 
         disk_info = ""
-        if request.submissionId:
+        if request.diskResult:
+            # Extract session ID and path from diskResult
+            session_id = request.diskResult.get('session_id', request.submissionId or 'unknown')
+            disk_path = request.diskResult.get('disk_path', f'data/uploads/{session_id}')
+            disk_info = f"\n💾 *Saved to Disk:*\nSession: {session_id}\nPath: {disk_path}\n"
+        elif request.submissionId:
+            # Fallback to submissionId if diskResult is not available
             disk_info = f"\n💾 *Saved to Disk:*\nSession: {request.submissionId}\nPath: data/uploads/{request.submissionId}\n"
 
         message = f"""🚀 *New Prototype Request Received*
 
 👤 *Customer:* {request.name or 'Not provided'}
+
 📞 *Contact:* {request.contactValue} ({request.contactType})
+
 📝 *Description:* {request.description}
 {file_details}{voice_details}{disk_info}
 

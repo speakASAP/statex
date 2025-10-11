@@ -17,6 +17,7 @@ from typing import Dict, Any, List, Optional
 import asyncio
 import aiohttp
 import json
+import ssl
 import time
 import logging
 from datetime import datetime
@@ -211,7 +212,13 @@ class FreeAIService:
             if OPENROUTER_API_KEY:
                 # Test with a simple request to check if API key is valid
                 headers = {"Authorization": f"Bearer {OPENROUTER_API_KEY}"}
-                async with aiohttp.ClientSession() as session:
+                # Create SSL context that doesn't verify certificates for testing
+                ssl_context = ssl.create_default_context()
+                ssl_context.check_hostname = False
+                ssl_context.verify_mode = ssl.CERT_NONE
+                
+                connector = aiohttp.TCPConnector(ssl=ssl_context)
+                async with aiohttp.ClientSession(connector=connector) as session:
                     async with session.get(
                         f"{OPENROUTER_API_BASE}/models",
                         headers=headers,
@@ -568,7 +575,13 @@ Please provide a JSON response with:
                 "X-Title": "StateX AI Platform"
             }
             
-            async with aiohttp.ClientSession() as session:
+            # Create SSL context that doesn't verify certificates for testing
+            ssl_context = ssl.create_default_context()
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+            
+            connector = aiohttp.TCPConnector(ssl=ssl_context)
+            async with aiohttp.ClientSession(connector=connector) as session:
                 payload = {
                     "model": model,
                     "messages": [

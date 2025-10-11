@@ -13,7 +13,7 @@ services:
     ports:
       - "${FRONTEND_PORT:-${DEFAULT_FRONTEND_PORT}}:3000"
     env_file:
-      - ./config/defaults.env
+      - ../.env
     environment:
       NODE_ENV: ${NODE_ENV}
       NEXT_PUBLIC_BASE_URL: ${BASE_URL}
@@ -43,7 +43,7 @@ services:
       # Mount uploads directory to host filesystem for external storage
       - ${UPLOAD_DIR:-${DEFAULT_UPLOAD_DIR}}:/app/uploads
     env_file:
-      - ./config/defaults.env
+      - ../.env
     environment:
       NODE_ENV: ${NODE_ENV}
       DATABASE_URL: ${DATABASE_URL}
@@ -94,3 +94,85 @@ volumes:
 networks:
   statex_network:
     external: true
+
+# ... existing code ...
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: ${VIRTUAL_HOST}_nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_HTTP_PORT:-${DEFAULT_NGINX_HTTP_PORT}}:80"
+      - "${NGINX_HTTPS_PORT:-${DEFAULT_NGINX_HTTPS_PORT}}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/statex-reverse-proxy.conf.template:/etc/nginx/templates/statex.conf.template
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+      - ./webroot:/var/www/html
+    environment:
+      - virtual_host=${VIRTUAL_HOST}
+      - DEFAULT_HOST=${DEFAULT_HOST}
+      - ALLOW_SELF_SIGNED=${ALLOW_SELF_SIGNED:-${DEFAULT_ALLOW_SELF_SIGNED}}
+    env_file:
+      - ../.env
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - statex_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Let's Encrypt Certificate Management
+  letsencrypt:
+    image: certbot/certbot:latest
+    container_name: ${VIRTUAL_HOST}_letsencrypt
+    restart: unless-stopped
+    volumes:
+      - ssl_data:/etc/letsencrypt
+      - ./logs/certbot:/var/log/letsencrypt
+      - ./ssl:/ssl
+      - ./webroot:/var/www/html
+    environment:
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
+    entrypoint: []
+    command:
+      - sh
+      - -c
+      - |
+        mkdir -p /var/www/html/.well-known/acme-challenge &&
+        echo 'Obtaining/updating SSL certificates with all domains...' &&
+        certbot certonly --webroot -w /var/www/html 
+          -d ${VIRTUAL_HOST} 
+          -d www.${VIRTUAL_HOST} 
+          -d api.${VIRTUAL_HOST} 
+          --email ${LETSENCRYPT_EMAIL} 
+          --agree-tos --non-interactive --expand --force-renewal &&
+        cp /etc/letsencrypt/live/${VIRTUAL_HOST}/*.pem /ssl/ 2>/dev/null || echo 'Certificate operation completed' &&
+        while true; do 
+          sleep 12h && 
+          certbot renew --webroot -w /var/www/html --non-interactive && 
+          cp /etc/letsencrypt/live/${VIRTUAL_HOST}/*.pem /ssl/ 2>/dev/null || echo 'Renewal check completed'; 
+        done
+    depends_on:
+      - nginx
+    networks:
+      - statex_network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  ssl_data:
+    external: true
+    name: ${VIRTUAL_HOST}_ssl_data
+
+networks:
+  statex_network:
+    driver: bridge

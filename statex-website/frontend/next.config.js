@@ -1,9 +1,8 @@
 const path = require('path');
 
-// Load environment files in order of precedence
+// Load unified root .env as single source of truth
 const envFiles = [
-  path.resolve(__dirname, '../.env.development'),
-  path.resolve(__dirname, '../.env'),
+  path.resolve(__dirname, '../../.env'),
 ];
 
 envFiles.forEach(envFile => {
@@ -213,7 +212,7 @@ const nextConfig = {
     CUSTOM_ENV: actualEnv,
     CUSTOM_ENV_DISPLAY: actualEnv.toUpperCase(),
     NEXT_PUBLIC_BUILD_ENV: actualEnv.toUpperCase(),
-    NEXT_PUBLIC_ENV_FILE: actualEnv === 'development' ? '.env.development' : '.env.production',
+    NEXT_PUBLIC_ENV_FILE: '.env',
   },
 };
 

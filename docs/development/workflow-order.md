@@ -130,6 +130,64 @@ prototype_input = {
 }
 ```
 
+### File structure expected
+
+```text
+data/uploads/{user_id}/sess_{timestamp}_{random}/
+├── form_data.md                  # ← NLP Agent reads this
+├── nlp.md                        # ← NLP Agent saves this ← Summarizer Agent reads this
+├── voicerecording.md             # ← ASR Agent saves this ← Summarizer Agent reads this
+├── attachments.md                # ← Document Agent saves this ← Summarizer Agent reads this
+├── prototype.md                  # ← Prototype Agent saves this ← Summarizer Agent reads this
+├── summary.md                    # ← Summarizer Agent saves final summary here
+└── files/                        # ← Subdirectory for actual files
+    ├── {file_id}.webm            # ← ASR Agent processes this (voice files)
+    ├── {file_id}.wav             # ← ASR Agent processes this (voice files)
+    ├── {file_id}.pdf             # ← Document Agent processes this (attachments)
+    ├── {file_id}.docx            # ← Document Agent processes this (attachments)
+    └── {file_id}.txt             # ← Document Agent processes this (attachments)
+```
+
+### Agent File Reading Logic
+
+#### **NLP Agent**
+
+- **Reads from**: `form_data.md` (session root directory)
+- **Purpose**: Analyzes the form description and requirements
+- **Input**: Text content from form submission
+- **Saves to**: `nlp.md`
+
+#### **ASR Agent**
+
+- **Reads from**: `files/` subdirectory
+- **File types**: `.webm`, `.mp3`, `.wav`, `.m4a`, `.ogg`
+- **Purpose**: Transcribes voice recordings to text
+- **Input**: Audio files from voice recording
+- **Saves to**: `voicerecording.md`
+
+#### **Document Agent**
+
+- **Reads from**: `files/` subdirectory  
+- **File types**: `.pdf`, `.doc`, `.docx`, `.txt`, `.rtf`, `.odt`
+- **Purpose**: Extracts and analyzes document content
+- **Input**: Attachment files from form submission
+- **Saves to**: `attachments.md`
+
+#### **Summarizer Agent**
+
+- **Reads from**: Session root directory
+- **Files**: `nlp.md`, `voicerecording.md`, `attachments.md`
+- **Purpose**: Aggregates all agent results into comprehensive summary
+- **Input**: Results from all other agents
+- **Saves to**: `summary.md`
+
+#### **Prototype Agent**
+
+- **Reads from**: Summarizer results `form_data.md` (session root directory) and analysis data
+- **Purpose**: Generates prototype based on analysis
+- **Input**: Summary and analysis data
+- **Saves to**: `prototype.md`
+
 ## Benefits of New Order
 
 ### 1. Comprehensive Analysis First

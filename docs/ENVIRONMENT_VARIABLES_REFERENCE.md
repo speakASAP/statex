@@ -73,6 +73,7 @@ All hardcoded values have been replaced with environment variables to ensure con
 | `NOTIFICATION_SERVICE_CONTAINER_NAME` | `statex_notification_dev` | Notification Service container name |
 | `NOTIFICATION_SERVICE_EXTERNAL_PORT` | `8005` | External port for Notification Service |
 | `NOTIFICATION_SERVICE_INTERNAL_PORT` | `8005` | Internal port for Notification Service |
+| `NOTIFICATION_SERVICE_URL` | `http://localhost:8005` | Notification Service URL for inter-service communication |
 
 ### **📊 Monitoring & Observability**
 

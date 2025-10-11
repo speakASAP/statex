@@ -37,6 +37,10 @@ print_success() {
     echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
 print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
@@ -58,7 +62,6 @@ kill_port() {
     if [[ -n "$pid" ]]; then
         print_status "Port $port is in use (PID: $pid). Killing process..."
         kill -9 $pid 2>/dev/null || true
-        sleep 1
     fi
 }
 
@@ -84,7 +87,6 @@ start_service() {
     echo $pid > "$pid_file"
     
     # Wait a moment and check if process is still running
-    sleep 2
     if kill -0 $pid 2>/dev/null; then
         print_success "$service_name started (PID: $pid)"
         echo "  Log: $log_file"
@@ -127,7 +129,6 @@ wait_for_docker() {
         fi
         
         echo -n "."
-        sleep 2
         attempt=$((attempt + 1))
     done
     
@@ -195,7 +196,6 @@ wait_for_service() {
         fi
         
         echo -n "."
-        sleep 2
         attempt=$((attempt + 1))
     done
     
@@ -215,13 +215,12 @@ start_infrastructure() {
     fi
     
     cd statex-infrastructure
-    docker compose -f docker-compose.dev.yml up -d
+    docker compose -f docker-compose.essential.yml up -d
     cd ..
     
-    print_success "Infrastructure services started"
+    print_success "Essential infrastructure services started"
     
-    # Wait for key infrastructure services to be ready
-    wait_for_service "PostgreSQL" 5432
+    # Wait for essential services to be ready
     wait_for_service "Redis" 6379
     wait_for_service "RabbitMQ" 5672
 }
@@ -293,15 +292,158 @@ start_platform_management() {
     start_service "$service_name" "source venv/bin/activate && python -m uvicorn services.platform-management.main:app --reload --host 0.0.0.0 --port $port" "$working_dir" "$port"
 }
 
+# Start NLP Service
+start_nlp_service() {
+    local service_name="nlp-service"
+    local working_dir="$SCRIPT_DIR/../statex-ai/services/nlp-service"
+    local port="8011"
+    
+    if check_port $port; then
+        kill_port $port
+    fi
+    
+    # Check if virtual environment exists
+    if [[ ! -d "$working_dir/venv" ]]; then
+        print_status "Creating virtual environment for NLP Service..."
+        cd "$working_dir"
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+        cd "$SCRIPT_DIR"
+    fi
+    
+    start_service "$service_name" "source venv/bin/activate && python -m uvicorn app.main:app --reload --host 0.0.0.0 --port $port" "$working_dir" "$port"
+}
+
+# Start ASR Service
+start_asr_service() {
+    local service_name="asr-service"
+    local working_dir="$SCRIPT_DIR/../statex-ai/services/asr-service"
+    local port="8012"
+    
+    if check_port $port; then
+        kill_port $port
+    fi
+    
+    # Check if virtual environment exists
+    if [[ ! -d "$working_dir/venv" ]]; then
+        print_status "Creating virtual environment for ASR Service..."
+        cd "$working_dir"
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+        cd "$SCRIPT_DIR"
+    fi
+    
+    start_service "$service_name" "source venv/bin/activate && python -m uvicorn app.main:app --reload --host 0.0.0.0 --port $port" "$working_dir" "$port"
+}
+
+# Start Document AI Service
+start_document_ai_service() {
+    local service_name="document-ai"
+    local working_dir="$SCRIPT_DIR/../statex-ai/services/document-ai"
+    local port="8013"
+    
+    if check_port $port; then
+        kill_port $port
+    fi
+    
+    # Check if virtual environment exists
+    if [[ ! -d "$working_dir/venv" ]]; then
+        print_status "Creating virtual environment for Document AI Service..."
+        cd "$working_dir"
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+        cd "$SCRIPT_DIR"
+    fi
+    
+    start_service "$service_name" "source venv/bin/activate && python -m uvicorn app.main:app --reload --host 0.0.0.0 --port $port" "$working_dir" "$port"
+}
+
+# Start Free AI Service
+start_free_ai_service() {
+    local service_name="free-ai-service"
+    local working_dir="$SCRIPT_DIR/../statex-ai/services/free-ai-service"
+    local port="8016"
+    
+    if check_port $port; then
+        kill_port $port
+    fi
+    
+    # Check if virtual environment exists
+    if [[ ! -d "$working_dir/venv" ]]; then
+        print_status "Creating virtual environment for Free AI Service..."
+        cd "$working_dir"
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+        cd "$SCRIPT_DIR"
+    fi
+    
+    start_service "$service_name" "source venv/bin/activate && python -m uvicorn app.main:app --reload --host 0.0.0.0 --port $port" "$working_dir" "$port"
+}
+
+# Start Submission Service
+start_submission_service() {
+    local service_name="submission-service"
+    local working_dir="$SCRIPT_DIR/../statex-website/services/submission-service"
+    local port="8002"
+    
+    if check_port $port; then
+        kill_port $port
+    fi
+    
+    # Check if virtual environment exists
+    if [[ ! -d "$working_dir/venv" ]]; then
+        print_status "Creating virtual environment for Submission Service..."
+        cd "$working_dir"
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+        cd "$SCRIPT_DIR"
+    fi
+    
+    start_service "$service_name" "source venv/bin/activate && python -m uvicorn main:app --reload --host 0.0.0.0 --port $port" "$working_dir" "$port"
+}
+
+# Start Notification Service
+start_notification_service() {
+    local service_name="notification-service"
+    local working_dir="$SCRIPT_DIR/../statex-notification-service"
+    local port="8005"
+    
+    if check_port $port; then
+        kill_port $port
+    fi
+    
+    # Check if virtual environment exists
+    if [[ ! -d "$working_dir/venv" ]]; then
+        print_status "Creating virtual environment for Notification Service..."
+        cd "$working_dir"
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+        cd "$SCRIPT_DIR"
+    fi
+    
+    start_service "$service_name" "source venv/bin/activate && python -m uvicorn app.main:app --reload --host 0.0.0.0 --port $port" "$working_dir" "$port"
+}
+
 # Function to show service status
 show_status() {
     print_status "Service Status:"
     echo ""
-    
     local services=(
         "statex-website-frontend:3000"
         "platform-management:8000"
+        "notification-service:8005"
+        "submission-service:8002"
         "ai-orchestrator:8010"
+        "nlp-service:8011"
+        "asr-service:8012"
+        "document-ai:8013"
+        "free-ai-service:8016"
     )
     
     for service_info in "${services[@]}"; do
@@ -315,13 +457,119 @@ show_status() {
     done
 }
 
+# Start all services
+start_all_services() {
+    print_header
+    print_status "Starting all essential services with AI analysis..."
+    
+    # Start infrastructure services first (Docker)
+    start_infrastructure
+    
+    # Start platform management first (dependency for other services)
+    print_status "Starting platform management (dependency)..."
+    start_platform_management
+    wait_for_service "Platform Management" 8000
+    
+    # Start notification service
+    print_status "Starting notification service..."
+    start_notification_service
+    wait_for_service "Notification Service" 8005
+    
+    # Start submission service
+    print_status "Starting submission service..."
+    start_submission_service
+    wait_for_service "Submission Service" 8002
+    
+    # Start frontend
+    print_status "Starting frontend..."
+    start_frontend
+    
+    # Start AI services
+    print_status "Starting AI services..."
+    start_nlp_service
+    wait_for_service "NLP Service" 8011
+    
+    start_asr_service
+    wait_for_service "ASR Service" 8012
+    
+    start_document_ai_service
+    wait_for_service "Document AI Service" 8013
+    
+    start_free_ai_service
+    wait_for_service "Free AI Service" 8016
+    
+    # Start AI orchestrator (depends on AI services)
+    print_status "Starting AI orchestrator..."
+    start_ai_orchestrator
+    wait_for_service "AI Orchestrator" 8010
+    
+    echo ""
+    show_status
+    echo ""
+    print_success "All essential services with AI analysis started successfully!"
+    print_status "Services available at:"
+    print_status "  Frontend: http://localhost:3000"
+    print_status "  Platform Management: http://localhost:8000"
+    print_status "  Notification Service: http://localhost:8005"
+    print_status "  AI Orchestrator: http://localhost:8010"
+    print_status "  NLP Service: http://localhost:8011"
+    print_status "  ASR Service: http://localhost:8012"
+    print_status "  Document AI Service: http://localhost:8013"
+    print_status "Logs are available in: $LOG_DIR"
+}
+
+# Stop all services
+stop_all_services() {
+    print_header
+    print_status "Stopping all essential services..."
+    
+    # Stop services in reverse order
+    print_status "Stopping frontend (port 3000)..."
+    kill_port 3000
+    
+    print_status "Stopping AI orchestrator (port 8010)..."
+    kill_port 8010
+    
+    print_status "Stopping AI services..."
+    kill_port 8013  # Document AI
+    kill_port 8012  # ASR
+    kill_port 8011  # NLP
+    
+    print_status "Stopping submission service (port 8002)..."
+    kill_port 8002
+    
+    print_status "Stopping notification service (port 8005)..."
+    kill_port 8005
+    
+    print_status "Stopping platform management (port 8000)..."
+    kill_port 8000
+    
+    # Stop infrastructure services
+    print_status "Stopping infrastructure services (Docker)..."
+    cd statex-infrastructure
+    docker compose -f docker-compose.essential.yml stop
+    cd ..
+    
+    echo ""
+    print_success "All essential services stopped successfully!"
+    
+    # Show final status
+    echo ""
+    show_status
+}
+
 # Main function
 main() {
     case "$1" in
+        start)
+            start_all_services
+            ;;
+        stop)
+            stop_all_services
+            ;;
         frontend)
             print_header
             start_infrastructure
-            sleep 5
             
             # Start platform management first (dependency)
             print_status "Starting platform management (dependency)..."
@@ -346,7 +594,6 @@ main() {
         ai)
             print_header
             start_infrastructure
-            sleep 5
             
             # Start platform management first (dependency)
             print_status "Starting platform management (dependency)..."
@@ -367,7 +614,6 @@ main() {
         platform)
             print_header
             start_infrastructure
-            sleep 5
             
             # Start platform management
             print_status "Starting platform management..."
@@ -382,6 +628,46 @@ main() {
         status)
             show_status
             ;;
+        "")
+            # No parameters provided - show help
+            echo "StateX Essential Development Mode Manager"
+            echo "========================================="
+            echo ""
+            echo "Usage: $0 [COMMAND]"
+            echo ""
+            echo "Commands:"
+            echo "  start       Start all essential services with AI analysis"
+            echo "  stop        Stop all essential services"
+            echo "  frontend    Start StateX Website Frontend (Next.js)"
+            echo "  ai          Start AI Orchestrator (Python/FastAPI)"
+            echo "  platform    Start Platform Management (Python/FastAPI)"
+            echo "  status      Show service status"
+            echo ""
+            echo "Services included:"
+            echo "  • Frontend (Next.js) - Port 3000"
+            echo "  • Platform Management - Port 8000"
+            echo "  • Notification Service - Port 8005"
+            echo "  • Submission Service - Port 8002"
+            echo "  • AI Orchestrator - Port 8010"
+            echo "  • NLP Service - Port 8011"
+            echo "  • ASR Service - Port 8012"
+            echo "  • Document AI Service - Port 8013"
+            echo "  • Redis (Docker) - Port 6379"
+            echo "  • RabbitMQ (Docker) - Port 5672"
+            echo ""
+            echo "Note: Prototype Generator is disabled for essential services"
+            echo ""
+            echo "Examples:"
+            echo "  $0 start     # Start all services with AI analysis"
+            echo "  $0 stop      # Stop all services"
+            echo "  $0 frontend  # Start only the frontend"
+            echo "  $0 ai        # Start only the AI orchestrator"
+            echo "  $0 platform  # Start only the platform management"
+            echo "  $0 status    # Show current service status"
+            echo ""
+            echo "This script manages essential development services"
+            echo "with full AI analysis capabilities enabled."
+            ;;
         *)
             echo "StateX Essential Development Mode Manager"
             echo "========================================="
@@ -389,19 +675,37 @@ main() {
             echo "Usage: $0 [COMMAND]"
             echo ""
             echo "Commands:"
+            echo "  start       Start all essential services with AI analysis"
+            echo "  stop        Stop all essential services"
             echo "  frontend    Start StateX Website Frontend (Next.js)"
             echo "  ai          Start AI Orchestrator (Python/FastAPI)"
             echo "  platform    Start Platform Management (Python/FastAPI)"
             echo "  status      Show service status"
             echo ""
-            echo "Examples:"
-            echo "  $0 frontend    # Start only the frontend"
-            echo "  $0 ai          # Start only the AI orchestrator"
-            echo "  $0 platform    # Start only the platform management"
-            echo "  $0 status      # Show current service status"
+            echo "Services included:"
+            echo "  • Frontend (Next.js) - Port 3000"
+            echo "  • Platform Management - Port 8000"
+            echo "  • Notification Service - Port 8005"
+            echo "  • Submission Service - Port 8002"
+            echo "  • AI Orchestrator - Port 8010"
+            echo "  • NLP Service - Port 8011"
+            echo "  • ASR Service - Port 8012"
+            echo "  • Document AI Service - Port 8013"
+            echo "  • Redis (Docker) - Port 6379"
+            echo "  • RabbitMQ (Docker) - Port 5672"
             echo ""
-            echo "This script starts individual services in development mode"
-            echo "with hot reload enabled for faster development."
+            echo "Note: Prototype Generator is disabled for essential services"
+            echo ""
+            echo "Examples:"
+            echo "  $0 start     # Start all services with AI analysis"
+            echo "  $0 stop      # Stop all services"
+            echo "  $0 frontend  # Start only the frontend"
+            echo "  $0 ai        # Start only the AI orchestrator"
+            echo "  $0 platform  # Start only the platform management"
+            echo "  $0 status    # Show current service status"
+            echo ""
+            echo "This script manages essential development services"
+            echo "with full AI analysis capabilities enabled."
             ;;
     esac
 }

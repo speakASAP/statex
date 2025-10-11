@@ -147,6 +147,42 @@ curl -X POST http://localhost:8016/analyze \
   }'
 ```
 
+## Multi-Agent Workflow Integration
+
+### File Structure
+
+OpenRouter is used by agents in the following file structure:
+
+```text
+data/uploads/{user_id}/sess_{timestamp}_{random}/
+├── form_data.md                  # ← NLP Agent reads this
+├── nlp.md                        # ← NLP Agent saves this
+├── voicerecording.md             # ← ASR Agent saves this
+├── attachments.md                # ← Document Agent saves this
+├── prototype.md                  # ← Prototype Agent saves this
+├── summary.md                    # ← Summarizer Agent saves this
+└── files/                        # ← Subdirectory for actual files
+    ├── {file_id}.webm            # ← Voice files
+    ├── {file_id}.pdf             # ← Document files
+    └── {file_id}.docx            # ← Document files
+```
+
+### Agent Usage
+
+- **NLP Agent**: Uses OpenRouter for text analysis via `free-ai-service:8016`
+- **Summarizer Agent**: Uses OpenRouter for creating comprehensive summaries
+- **Prototype Agent**: Uses OpenRouter for generating prototype code and documentation
+
+### Enhanced Notifications
+
+The system now provides comprehensive Telegram notifications including:
+
+- **Input Data**: What each agent received as input
+- **Output Data**: Results from each agent's processing
+- **Execution Time**: Processing time for each agent
+- **Confidence Scores**: AI confidence levels from OpenRouter
+- **Error Messages**: Detailed error information for failed agents
+
 ## Troubleshooting
 
 ### Common Issues

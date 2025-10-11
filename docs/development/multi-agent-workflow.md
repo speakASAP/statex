@@ -21,41 +21,83 @@ The multi-agent workflow system processes customer requests through specialized 
 
 - **Purpose**: Converts voice files to text
 - **Dependencies**: None
-- **Input**: Voice file URL
-- **Output**: Transcript text
+- **Input**: Voice files from `files/` subdirectory (`.webm`, `.mp3`, `.wav`, etc.)
+- **Output**: Transcript text saved to `voicerecording.md`
 - **Service**: `asr-service:8012`
+- **File Reading**: Reads audio files from `files/` subdirectory
 
 #### 2. Document Agent
 
 - **Purpose**: Analyzes uploaded documents
 - **Dependencies**: None
-- **Input**: Document file URLs
-- **Output**: Extracted text and analysis
+- **Input**: Document files from `files/` subdirectory (`.pdf`, `.doc`, `.docx`, etc.)
+- **Output**: Extracted text and analysis saved to `attachments.md`
 - **Service**: `document-ai:8013`
+- **File Reading**: Reads document files from `files/` subdirectory
 
 #### 3. NLP Agent (Natural Language Processing)
 
 - **Purpose**: Analyzes text content for business insights
 - **Dependencies**: None
-- **Input**: Text content
-- **Output**: Business analysis, recommendations, technical specs
+- **Input**: Text content from `form_data.md`
+- **Output**: Business analysis, recommendations, technical specs saved to `nlp.md`
 - **Service**: `free-ai-service:8016` (via `/api/analyze-text`)
+- **File Reading**: Reads `form_data.md` from session root directory
 
 #### 4. Summarizer Agent
 
 - **Purpose**: Aggregates all analysis results into comprehensive summary
-- **Dependencies**: ASR + Document + NLP agents
-- **Input**: Collected data from all previous agents
-- **Output**: Summary text and insights
+- **Dependencies**: ASR + Document + NLP
+- **Input**: Collected data from all previous agents (reads `nlp.md`, `voicerecording.md`, `attachments.md`)
+- **Output**: Summary text and insights saved to `summary.md`
 - **Service**: `free-ai-service:8016` (via NLP service)
+- **File Reading**: Reads all agent result files from session root directory
 
 #### 5. Prototype Agent
 
-- **Purpose**: Generates prototype based on analysis and summary
+- **Purpose**: Generates prototype based on analysis
 - **Dependencies**: Summarizer Agent
-- **Input**: Requirements + Summary + Analysis
-- **Output**: Prototype code and documentation
+- **Input**: Summary and analysis data
+- **Output**: Prototype information saved to `prototype.md`
 - **Service**: `prototype-generator:8014`
+- **File Reading**: Uses analysis data from other agents
+
+## File Structure and Data Flow
+
+### Session Directory Structure
+
+```text
+data/uploads/{user_id}/sess_{timestamp}_{random}/
+├── form_data.md                    # ← NLP Agent reads this
+├── nlp.md                         # ← NLP Agent saves this ← Summarizer Agent reads this
+├── voicerecording.md              # ← ASR Agent saves this ← Summarizer Agent reads this
+├── attachments.md                 # ← Document Agent saves this ← Summarizer Agent reads this
+├── prototype.md                   # ← Prototype Agent saves this
+├── summary.md                     # ← Summarizer Agent saves final summary here
+└── files/                         # ← Subdirectory for actual files
+    ├── {file_id}.webm            # ← ASR Agent processes this (voice files)
+    ├── {file_id}.pdf             # ← Document Agent processes this (attachments)
+    ├── {file_id}.docx            # ← Document Agent processes this (attachments)
+    └── {file_id}.txt             # ← Document Agent processes this (attachments)
+```
+
+### Data Flow Process
+
+1. **Form Submission** → Files saved to `files/` subdirectory
+2. **NLP Agent** → Reads `form_data.md` → Saves results to `nlp.md`
+3. **ASR Agent** → Reads audio files from `files/` → Saves results to `voicerecording.md`
+4. **Document Agent** → Reads document files from `files/` → Saves results to `attachments.md`
+5. **Summarizer Agent** → Reads all result files → Saves summary to `summary.md`
+6. **Prototype Agent** → Uses summary data → Saves results to `prototype.md`
+7. **Telegram Notifications** → Sent for each agent with comprehensive data
+
+### Key Implementation Details
+
+- **Disk Reading**: All agents now read from actual disk files instead of API data
+- **File Discovery**: Agents automatically discover files in the `files/` subdirectory
+- **Session Management**: Each submission gets a unique session directory
+- **Error Handling**: Comprehensive error handling and logging throughout
+- **Notifications**: Enhanced Telegram notifications with detailed agent data (uses centralized NotificationServiceClient)
 
 ## Workflow Execution
 

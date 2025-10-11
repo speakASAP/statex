@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ClassComposer } from '@/lib/classComposition';
 import { Container, Section } from '@/components/atoms';
 import { platformNotificationService } from '@/services/platformNotificationService';
-import { fileUploadService, voiceRecordingService, validateFile, formatFileSize } from '@/services/fileUploadService';
+import { voiceRecordingService, validateFile, formatFileSize } from '@/services/fileUploadService';
 import { userService, ContactData } from '@/services/userService';
 import { ContactCollectionModal } from '@/components/modals/ContactCollectionModal';
 import { ProcessingFeedback } from '@/components/forms/ProcessingFeedback';
@@ -308,13 +308,6 @@ export function FormSection({
         console.log('✅ Submission created for user:', currentUserId);
       }
 
-      // Generate submission ID for tracking
-      const submissionId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      setCurrentSubmissionId(submissionId);
-      
-      // Show processing feedback
-      setShowProcessingFeedback(true);
-
       // First persist to disk via submission-service
       let diskResult = null;
       try {
@@ -371,6 +364,21 @@ export function FormSection({
         throw new Error('Failed to save form data to disk');
       }
 
+      // Use the AI submission ID from the disk result for status polling
+      const aiSubmissionId = diskResult?.ai_submission_id;
+      if (aiSubmissionId) {
+        setCurrentSubmissionId(aiSubmissionId);
+        console.log('✅ Using AI submission ID for status polling:', aiSubmissionId);
+      } else {
+        // Fallback to generated submission ID if AI submission ID not available
+        const submissionId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        setCurrentSubmissionId(submissionId);
+        console.log('⚠️ AI submission ID not available, using fallback:', submissionId);
+      }
+      
+      // Show processing feedback
+      setShowProcessingFeedback(true);
+
       // Only send notification after successful disk persistence
       let response;
       try {
@@ -379,7 +387,7 @@ export function FormSection({
           ...formData,
           voiceRecording: finalVoiceRecordingFile,
           userId: currentUserId,
-          submissionId: submissionId,
+          submissionId: currentSubmissionId,
           diskResult: diskResult,
           recordingTime: (voiceRecordingFile && voiceRecordingFile.recordingTime) ? voiceRecordingFile.recordingTime : (recordingTime || 0),
           filesInfo: actualFiles.map(file => ({
@@ -414,14 +422,9 @@ export function FormSection({
         // Don't set success immediately - let the processing feedback complete first
         console.log('✅ Form submitted successfully, processing in progress...');
         
-        // Get prototype ID and submission ID from AI orchestrator response
-        const aiResponse = response.aiResponse;
-        const generatedPrototypeId = aiResponse?.prototype_id || `proto_${Date.now()}`;
-        const actualSubmissionId = response.ai_submission_id || aiResponse?.submission_id || submissionId;
+        // Generate prototype ID
+        const generatedPrototypeId = `proto_${Date.now()}`;
         setPrototypeId(generatedPrototypeId);
-        
-        // Update the submission ID to the one actually used by the AI service
-        setCurrentSubmissionId(actualSubmissionId);
         
         // User ID is already stored from registration process
         console.log('✅ Using existing user ID:', currentUserId);

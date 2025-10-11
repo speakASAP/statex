@@ -4,6 +4,8 @@ services:
     build: ./services/ai-orchestrator
     ports:
       - "8010:8000"
+    volumes:
+      - ./shared:/app/shared:ro
     environment:
       - DATABASE_URL=postgresql://statex:statex_password@postgres:5432/statex
       - REDIS_URL=redis://redis:6379
@@ -13,6 +15,7 @@ services:
       - PROTOTYPE_GENERATOR_URL=http://prototype-generator:8000
       - TEMPLATE_REPOSITORY_URL=http://template-repository:8000
       - FREE_AI_SERVICE_URL=http://free-ai-service:8000
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8005
     # No dependencies - all services are independent
     restart: unless-stopped
     networks:
@@ -24,7 +27,7 @@ services:
     ports:
       - "8011:8000"
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - DATABASE_URL=postgresql://statex:statex_password@postgres:5432/statex
       - REDIS_URL=redis://redis:6379
@@ -39,7 +42,7 @@ services:
     ports:
       - "8012:8000"
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - DATABASE_URL=postgresql://statex:statex_password@postgres:5432/statex
       - REDIS_URL=redis://redis:6379
       - FREE_AI_SERVICE_URL=http://free-ai-service:8000

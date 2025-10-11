@@ -6,7 +6,7 @@ const { createServer } = require('dns2');
 const { Database } = require('./database');
 const { SubdomainManager } = require('./subdomain-manager');
 const { logger } = require('./logger');
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 
 class DNSMicroservice {
   constructor() {

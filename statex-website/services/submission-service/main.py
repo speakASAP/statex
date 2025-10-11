@@ -322,9 +322,12 @@ async def create_submission(
         # Process submission through external services
         orchestrator = ServiceOrchestrator()
         ai_submission_data = {
-            "user_id": submission_id,
+            "user_id": user_id,  # Use actual user_id, not submission_id
+            "submission_id": submission_id,  # Add submission_id separately
             "submission_type": "text",
             "text_content": description,
+            "voice_file_url": submission.get("voice_file_url"),  # Add voice file URL
+            "file_urls": submission.get("file_urls", []),  # Add file URLs
             "requirements": f"Type: {request_type}, Priority: {priority}",
             "contact_info": {
                 "email": user_email,
@@ -336,7 +339,9 @@ async def create_submission(
         }
         
         # Process through AI services and send notifications
+        print(f"DEBUG: Calling AI orchestrator with data: {ai_submission_data}")
         ai_result = await orchestrator.process_user_submission(ai_submission_data)
+        print(f"DEBUG: AI orchestrator response: {ai_result}")
         
         return JSONResponse(
             status_code=200,
@@ -396,12 +401,6 @@ async def create_submission_json(request: FormSubmissionRequest):
         user_id, session_id = generate_user_and_session(request.contactValue, None)
         session_path, files_path = ensure_session_dirs(base_dir, user_id, session_id)
         
-        # Move temp files to final location
-        saved_files = move_temp_files_from_metadata(
-            base_dir, user_id, session_id, 
-            request.files, request.voiceRecording
-        )
-        
         # Write form markdown to disk including file metadata
         write_form_markdown(
             session_path,
@@ -425,7 +424,8 @@ async def create_submission_json(request: FormSubmissionRequest):
         # Process submission through external services
         orchestrator = ServiceOrchestrator()
         ai_submission_data = {
-            "user_id": submission_id,
+            "user_id": user_id,  # Use actual user_id, not submission_id
+            "submission_id": submission_id,  # Add submission_id separately
             "submission_type": "text",
             "text_content": request.description,
             "voice_file_url": f"/files/{request.voiceRecording.fileId}" if request.voiceRecording else None,
@@ -442,7 +442,9 @@ async def create_submission_json(request: FormSubmissionRequest):
         }
         
         # Process through AI services and send notifications
+        print(f"DEBUG: Calling AI orchestrator with data: {ai_submission_data}")
         ai_result = await orchestrator.process_user_submission(ai_submission_data)
+        print(f"DEBUG: AI orchestrator response: {ai_result}")
         
         return JSONResponse(
             status_code=200,
@@ -455,7 +457,7 @@ async def create_submission_json(request: FormSubmissionRequest):
                 "created_at": submission["created_at"],
                 "ai_submission_id": ai_result.get("submission_id"),
                 "estimated_completion_time": ai_result.get("estimated_completion_time"),
-                "disk_path": f"/app/data/uploads/{user_id}/{session_id}",
+                "disk_path": str(session_path),
                 "user_id": user_id,
                 "session_id": session_id,
                 "saved_files": saved_files
@@ -897,6 +899,6 @@ if __name__ == "__main__":
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8000,
+        port=8002,
         reload=True if os.getenv("ENVIRONMENT") == "development" else False
     )

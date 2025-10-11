@@ -11,6 +11,9 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Union
 import httpx
 import os
+import sys
+sys.path.append('/app/shared')
+from http_clients import NotificationServiceClient
 from pydantic import BaseModel
 
 from .workflow_engine import (
@@ -28,6 +31,61 @@ from .project_url_generator import project_url_generator, ProjectURLs
 from .offer_formatter import offer_formatter, FormattedOffer
 
 logger = logging.getLogger(__name__)
+
+def get_session_directory(submission_id: str, user_id: str) -> str:
+    """Get the session directory path for a submission"""
+    # This should match the path structure used by submission service
+    # Format: data/uploads/{user_id}/sess_{timestamp}_{random}
+    # Use the same environment variable as submission service
+    base_dir = os.getenv("SUBMISSION_UPLOAD_DIR", "./data/uploads")
+    user_dir = os.path.join(base_dir, user_id)
+    
+    if not os.path.exists(user_dir):
+        logger.warning(f"User directory not found: {user_dir}")
+        return None
+    
+    # Find the most recent session directory
+    session_dirs = [d for d in os.listdir(user_dir) if d.startswith("sess_")]
+    if not session_dirs:
+        logger.warning(f"No session directories found in {user_dir}")
+        return None
+    
+    # Sort by modification time and get the most recent
+    session_dirs_with_paths = [(d, os.path.join(user_dir, d)) for d in session_dirs]
+    latest_session = max(session_dirs_with_paths, key=lambda x: os.path.getmtime(x[1]))
+    
+    return latest_session[1]
+
+def read_file_from_session(session_path: str, filename: str, subdirectory: str = None) -> str:
+    """Read a file from the session directory"""
+    if subdirectory:
+        file_path = os.path.join(session_path, subdirectory, filename)
+    else:
+        file_path = os.path.join(session_path, filename)
+    
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception as e:
+            logger.error(f"Error reading file {file_path}: {e}")
+            return ""
+    else:
+        logger.warning(f"File not found: {file_path}")
+        return ""
+
+def list_files_in_subdirectory(session_path: str, subdirectory: str) -> List[str]:
+    """List files in a subdirectory of the session directory"""
+    subdir_path = os.path.join(session_path, subdirectory)
+    if os.path.exists(subdir_path):
+        try:
+            return [f for f in os.listdir(subdir_path) if os.path.isfile(os.path.join(subdir_path, f))]
+        except Exception as e:
+            logger.error(f"Error listing files in {subdir_path}: {e}")
+            return []
+    else:
+        logger.warning(f"Subdirectory not found: {subdir_path}")
+        return []
 
 class MultiAgentRequest(BaseModel):
     """Request for multi-agent processing"""
@@ -79,7 +137,7 @@ class NLPAgent(AgentInterface):
     
     def __init__(self):
         super().__init__("NLP Analysis Agent", "nlp")
-        self.service_url = os.getenv("NLP_SERVICE_URL", "http://localhost:8011")
+        self.service_url = os.getenv("FREE_AI_SERVICE_URL", "http://localhost:8016")
     
     async def execute_task(self, task: AgentTask) -> AgentResult:
         """Execute NLP analysis task with error handling and recovery"""
@@ -93,24 +151,76 @@ class NLPAgent(AgentInterface):
         )
         
         async def nlp_operation():
+            # Read from disk if requested
+            if task.input_data.get("read_from_disk"):
+                submission_id = task.input_data.get("submission_id")
+                user_id = task.input_data.get("user_id")
+                session_path = get_session_directory(submission_id, user_id)
+                
+                if session_path:
+                    # Read form_data.md from session directory
+                    form_data_content = read_file_from_session(session_path, "form_data.md")
+                    logger.info(f"Read form_data.md from {session_path}: {len(form_data_content)} characters")
+                    
+                    # Use the form data content for analysis
+                    nlp_request = {
+                        "text_content": form_data_content,
+                        "analysis_type": "business_analysis",
+                        "user_name": "NLP Agent"
+                    }
+                else:
+                    # Fallback to input data
+                    nlp_request = {
+                        "text_content": task.input_data.get("text_content", ""),
+                        "analysis_type": "business_analysis",
+                        "user_name": "NLP Agent"
+                    }
+            else:
+                # Use input data directly
+                nlp_request = {
+                    "text_content": task.input_data.get("text_content", ""),
+                    "analysis_type": "business_analysis",
+                    "user_name": "NLP Agent"
+                }
+            
             async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(
-                    f"{self.service_url}/api/analyze-text",
-                    json=task.input_data
+                    f"{self.service_url}/analyze",
+                    json=nlp_request
                 )
                 
                 if response.status_code == 200:
-                    result_data = response.json()
+                    response_data = response.json()
+                    analysis_data = response_data.get("analysis", {})
+                    
+                    # Transform free-ai-service response to expected format
+                    transformed_result = {
+                        "analysis": {
+                            "summary": analysis_data.get("summary", "Business analysis completed"),
+                            "key_insights": analysis_data.get("key_insights", []),
+                            "recommendations": analysis_data.get("recommendations", []),
+                            "business_type": analysis_data.get("business_type", "general"),
+                            "pain_points": analysis_data.get("pain_points", []),
+                            "opportunities": analysis_data.get("opportunities", []),
+                            "technical_recommendations": analysis_data.get("technical_recommendations", {}),
+                            "next_steps": analysis_data.get("next_steps", []),
+                            "budget_estimate": analysis_data.get("budget_estimate", {})
+                        },
+                        "confidence": response_data.get("confidence", 0.8),
+                        "processing_time": response_data.get("processing_time", 0.0),
+                        "model_used": response_data.get("model_used", "unknown"),
+                        "ai_service": response_data.get("provider_used", "free-ai-service")
+                    }
                     
                     # Save agent result to file
-                    await self._save_agent_result(task, result_data)
+                    await self._save_agent_result(task, transformed_result)
                     
                     return AgentResult(
                         task_id=task.task_id,
                         agent_type=self.agent_type,
                         agent_name=self.agent_name,
                         status=TaskStatus.COMPLETED,
-                        result_data=result_data,
+                        result_data=transformed_result,
                         confidence_score=result_data.get("confidence", 0.8),
                         processing_time=result_data.get("processing_time", 0)
                     )
@@ -162,10 +272,42 @@ class ASRAgent(AgentInterface):
         )
         
         async def asr_operation():
+            # Read from disk if requested
+            if task.input_data.get("read_from_disk"):
+                submission_id = task.input_data.get("submission_id")
+                user_id = task.input_data.get("user_id")
+                session_path = get_session_directory(submission_id, user_id)
+                
+                if session_path:
+                    # List voice files in the files/ subdirectory
+                    voice_files = list_files_in_subdirectory(session_path, "files")
+                    # Filter for audio files (webm, mp3, wav, etc.)
+                    audio_files = [f for f in voice_files if f.lower().endswith(('.webm', '.mp3', '.wav', '.m4a', '.ogg'))]
+                    
+                    if audio_files:
+                        # Use the first audio file found
+                        voice_file_path = os.path.join(session_path, "files", audio_files[0])
+                        logger.info(f"Found voice file: {voice_file_path}")
+                        
+                        # Create a file URL for the ASR service
+                        asr_request = {
+                            "voice_file_url": f"file://{voice_file_path}",
+                            "submission_id": submission_id,
+                            "user_id": user_id
+                        }
+                    else:
+                        logger.warning("No voice files found in files/ subdirectory")
+                        asr_request = task.input_data
+                else:
+                    logger.warning("Session directory not found, using input data")
+                    asr_request = task.input_data
+            else:
+                asr_request = task.input_data
+            
             async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.post(
                     f"{self.service_url}/api/transcribe",
-                    json=task.input_data
+                    json=asr_request
                 )
                 
                 if response.status_code == 200:
@@ -222,10 +364,41 @@ class DocumentAgent(AgentInterface):
     async def execute_task(self, task: AgentTask) -> AgentResult:
         """Execute document analysis task"""
         try:
+            # Read from disk if requested
+            if task.input_data.get("read_from_disk"):
+                submission_id = task.input_data.get("submission_id")
+                user_id = task.input_data.get("user_id")
+                session_path = get_session_directory(submission_id, user_id)
+                
+                if session_path:
+                    # List attachment files in the files/ subdirectory
+                    all_files = list_files_in_subdirectory(session_path, "files")
+                    # Filter for document files (pdf, doc, docx, txt, etc.)
+                    doc_files = [f for f in all_files if f.lower().endswith(('.pdf', '.doc', '.docx', '.txt', '.rtf', '.odt'))]
+                    
+                    if doc_files:
+                        # Create file URLs for the document service
+                        file_urls = [f"file://{os.path.join(session_path, 'files', f)}" for f in doc_files]
+                        logger.info(f"Found document files: {doc_files}")
+                        
+                        doc_request = {
+                            "file_urls": file_urls,
+                            "submission_id": submission_id,
+                            "user_id": user_id
+                        }
+                    else:
+                        logger.warning("No document files found in files/ subdirectory")
+                        doc_request = task.input_data
+                else:
+                    logger.warning("Session directory not found, using input data")
+                    doc_request = task.input_data
+            else:
+                doc_request = task.input_data
+            
             async with httpx.AsyncClient(timeout=120.0) as client:
                 response = await client.post(
                     f"{self.service_url}/api/analyze-documents",
-                    json=task.input_data
+                    json=doc_request
                 )
                 
                 if response.status_code == 200:
@@ -333,7 +506,7 @@ class SummarizerAgent(AgentInterface):
     
     def __init__(self):
         super().__init__("Summarizer Agent", "summarizer")
-        self.service_url = os.getenv("NLP_SERVICE_URL", "http://localhost:8011")
+        self.service_url = os.getenv("FREE_AI_SERVICE_URL", "http://localhost:8016")
     
     async def execute_task(self, task: AgentTask) -> AgentResult:
         """Execute summarization task"""
@@ -344,10 +517,10 @@ class SummarizerAgent(AgentInterface):
             # Create a comprehensive summary prompt
             summary_prompt = self._create_summary_prompt(collected_data)
             
-            # Use the NLP service (which now points to free-ai-service) for summarization
+            # Use the free-ai-service for summarization
             async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.post(
-                    f"{self.service_url}/api/analyze-text",
+                    f"{self.service_url}/analyze",
                     json={
                         "text_content": summary_prompt,
                         "analysis_type": "business_analysis",
@@ -412,14 +585,19 @@ class SummarizerAgent(AgentInterface):
         collected_data = {}
         
         try:
-            # Get submission ID from task context
+            # Get submission ID and user ID from task context
             submission_id = task.input_data.get("submission_id")
-            if not submission_id:
-                logger.warning("No submission_id found in task input_data")
+            user_id = task.input_data.get("user_id")
+            
+            if not submission_id or not user_id:
+                logger.warning("No submission_id or user_id found in task input_data")
                 return collected_data
             
-            # Get submission service URL
-            submission_service_url = os.getenv("SUBMISSION_SERVICE_URL", "http://submission-service:8002")
+            # Get session directory
+            session_path = get_session_directory(submission_id, user_id)
+            if not session_path:
+                logger.warning(f"Session directory not found for submission {submission_id}")
+                return collected_data
             
             # Read each agent result file
             agent_files = {
@@ -431,18 +609,19 @@ class SummarizerAgent(AgentInterface):
             
             for agent_type, filename in agent_files.items():
                 try:
-                    # Make a request to get the agent result file content
-                    async with httpx.AsyncClient(timeout=30.0) as client:
-                        # For now, we'll use a simple approach - in production, you'd want a proper file API
-                        # This is a placeholder - the actual implementation would depend on your file storage system
-                        logger.info(f"Reading {agent_type} result file for submission {submission_id}")
-                        
-                        # For now, return empty data - in production, implement proper file reading
-                        collected_data[f"{agent_type}_analysis"] = {}
+                    logger.info(f"Reading {agent_type} result file from {session_path}/{filename}")
+                    file_content = read_file_from_session(session_path, filename)
+                    
+                    if file_content:
+                        collected_data[f"{agent_type}_analysis"] = file_content
+                        logger.info(f"Successfully read {agent_type} result file: {len(file_content)} characters")
+                    else:
+                        collected_data[f"{agent_type}_analysis"] = ""
+                        logger.warning(f"No content found in {agent_type} result file")
                         
                 except Exception as e:
                     logger.warning(f"Failed to read {agent_type} result file: {e}")
-                    collected_data[f"{agent_type}_analysis"] = {}
+                    collected_data[f"{agent_type}_analysis"] = ""
             
             return collected_data
             
@@ -505,6 +684,7 @@ class MultiAgentOrchestrator:
         self.workflow_engine = workflow_engine
         self.persistence = workflow_persistence
         self.notification_service_url = os.getenv("NOTIFICATION_SERVICE_URL", "http://localhost:8005")
+        self.notification_client = NotificationServiceClient()
         
         # Register agents
         self._register_agents()
@@ -636,6 +816,13 @@ class MultiAgentOrchestrator:
                 logger.error(f"Failed to persist summary: {summary_error}")
                 # Don't fail the entire workflow for summary persistence errors
             
+            # Send individual agent notifications
+            try:
+                await self._send_agent_notifications(request, completed_workflow)
+            except Exception as notification_error:
+                logger.error(f"Failed to send agent notifications: {notification_error}")
+                # Don't fail the entire workflow for notification errors
+            
             return result
             
         except Exception as e:
@@ -660,23 +847,54 @@ class MultiAgentOrchestrator:
         """Define the business analysis workflow tasks"""
         tasks = []
         
+        # Extract session information for disk access
+        submission_id = input_data.get("submission_id", "unknown")
+        user_id = input_data.get("user_id", "unknown")
+        
+        # Check if files exist in session directory
+        session_path = get_session_directory(submission_id, user_id)
+        has_voice_files = False
+        has_document_files = False
+        
+        if session_path:
+            # Check for voice files
+            voice_files = list_files_in_subdirectory(session_path, "files")
+            audio_files = [f for f in voice_files if f.lower().endswith(('.webm', '.mp3', '.wav', '.m4a', '.ogg'))]
+            has_voice_files = len(audio_files) > 0
+            
+            # Check for document files
+            doc_files = [f for f in voice_files if f.lower().endswith(('.pdf', '.doc', '.docx', '.txt', '.rtf', '.odt'))]
+            has_document_files = len(doc_files) > 0
+            
+            logger.info(f"Session {session_path}: voice_files={len(audio_files)}, doc_files={len(doc_files)}")
+        
         # Task 1: Process voice if available
-        if input_data.get("voice_file_url"):
+        if has_voice_files or input_data.get("voice_file_url"):
             asr_task = AgentTask(
                 agent_type="asr",
                 agent_name="ASR Agent",
-                input_data={"voice_file_url": input_data["voice_file_url"]},
+                input_data={
+                    "voice_file_url": input_data.get("voice_file_url", ""),
+                    "submission_id": submission_id,
+                    "user_id": user_id,
+                    "read_from_disk": True
+                },
                 priority=2,
                 timeout=60
             )
             tasks.append(asr_task)
         
         # Task 2: Process documents if available
-        if input_data.get("file_urls"):
+        if has_document_files or input_data.get("file_urls"):
             doc_task = AgentTask(
                 agent_type="document",
                 agent_name="Document AI Agent",
-                input_data={"file_urls": input_data["file_urls"]},
+                input_data={
+                    "file_urls": input_data.get("file_urls", []),
+                    "submission_id": submission_id,
+                    "user_id": user_id,
+                    "read_from_disk": True
+                },
                 priority=2,
                 timeout=120
             )
@@ -684,7 +902,7 @@ class MultiAgentOrchestrator:
         
         # Task 3: NLP analysis (depends on ASR if voice is present)
         nlp_dependencies = []
-        if input_data.get("voice_file_url") and tasks:
+        if has_voice_files and tasks:
             nlp_dependencies.append(tasks[0].task_id)  # ASR task
         
         nlp_task = AgentTask(
@@ -692,7 +910,10 @@ class MultiAgentOrchestrator:
             agent_name="NLP Analysis Agent",
             input_data={
                 "text_content": input_data.get("text_content", ""),
-                "requirements": input_data.get("requirements", "")
+                "requirements": input_data.get("requirements", ""),
+                "submission_id": submission_id,
+                "user_id": user_id,
+                "read_from_disk": True
             },
             priority=1,
             timeout=45,
@@ -702,9 +923,9 @@ class MultiAgentOrchestrator:
         
         # Task 4: Summarizer (depends on all analysis tasks)
         summarizer_dependencies = [nlp_task.task_id]
-        if input_data.get("voice_file_url") and tasks:
+        if has_voice_files and tasks:
             summarizer_dependencies.append(tasks[0].task_id)  # ASR task
-        if input_data.get("file_urls") and len(tasks) > 1:
+        if has_document_files and len(tasks) > 1:
             summarizer_dependencies.append(tasks[1].task_id)  # Document task
         
         summarizer_task = AgentTask(
@@ -715,7 +936,10 @@ class MultiAgentOrchestrator:
                     "nlp_analysis": {},  # Will be filled from NLP results
                     "asr_transcript": "",  # Will be filled from ASR results
                     "document_analysis": {},  # Will be filled from Document results
-                }
+                },
+                "submission_id": submission_id,
+                "user_id": user_id,
+                "read_from_disk": True
             },
             priority=1,
             timeout=120,
@@ -932,12 +1156,21 @@ class MultiAgentOrchestrator:
         """Send individual notifications for each agent result"""
         try:
             for task_id, result in workflow_state.agent_results.items():
-                await self._send_single_agent_notification(request, result)
+                # Create basic input data from request
+                task_input_data = {
+                    "submission_id": request.submission_id,
+                    "user_id": request.user_id,
+                    "text_content": request.text_content,
+                    "voice_file_url": request.voice_file_url,
+                    "file_urls": request.file_urls,
+                    "read_from_disk": True
+                }
+                await self._send_single_agent_notification(request, result, task_input_data)
         except Exception as e:
             logger.error(f"Failed to send agent notifications: {e}")
     
-    async def _send_single_agent_notification(self, request: MultiAgentRequest, result: AgentResult):
-        """Send notification for a single agent result"""
+    async def _send_single_agent_notification(self, request: MultiAgentRequest, result: AgentResult, task_input_data: Dict[str, Any] = None):
+        """Send comprehensive notification for a single agent result"""
         try:
             message_parts = []
             message_parts.append(f"🤖 **{result.agent_name} Report**")
@@ -947,39 +1180,175 @@ class MultiAgentOrchestrator:
             message_parts.append(f"🎯 Confidence: {result.confidence_score:.1%}")
             message_parts.append("")
             
-            if result.status == TaskStatus.COMPLETED and result.result_data:
-                message_parts.append("📤 **Results:**")
-                for key, value in result.result_data.items():
-                    if isinstance(value, str) and len(value) > 100:
-                        message_parts.append(f"• {key}: {value[:100]}...")
+            # Add input data information
+            message_parts.append("📥 **Input Data:**")
+            if task_input_data:
+                for key, value in task_input_data.items():
+                    if key in ["submission_id", "user_id", "read_from_disk"]:
+                        continue  # Skip internal fields
+                    elif isinstance(value, str) and len(value) > 200:
+                        message_parts.append(f"• {key}: {value[:200]}...")
+                    elif isinstance(value, list) and len(value) > 0:
+                        message_parts.append(f"• {key}: {len(value)} items")
                     elif isinstance(value, dict):
-                        message_parts.append(f"• {key}: {len(value)} items")
-                    elif isinstance(value, list):
-                        message_parts.append(f"• {key}: {len(value)} items")
+                        message_parts.append(f"• {key}: {len(value)} fields")
                     else:
                         message_parts.append(f"• {key}: {value}")
+            else:
+                message_parts.append("• No input data available")
+            message_parts.append("")
+            
+            # Add comprehensive output data
+            if result.status == TaskStatus.COMPLETED and result.result_data:
+                message_parts.append("📤 **Results:**")
+                
+                # Special handling for different agent types
+                if result.agent_type == "nlp":
+                    self._format_nlp_results(message_parts, result.result_data)
+                elif result.agent_type == "asr":
+                    self._format_asr_results(message_parts, result.result_data)
+                elif result.agent_type == "document":
+                    self._format_document_results(message_parts, result.result_data)
+                elif result.agent_type == "summarizer":
+                    self._format_summarizer_results(message_parts, result.result_data)
+                elif result.agent_type == "prototype":
+                    self._format_prototype_results(message_parts, result.result_data)
+                else:
+                    # Default formatting
+                    for key, value in result.result_data.items():
+                        if isinstance(value, str) and len(value) > 100:
+                            message_parts.append(f"• {key}: {value[:100]}...")
+                        elif isinstance(value, dict):
+                            message_parts.append(f"• {key}: {len(value)} items")
+                        elif isinstance(value, list):
+                            message_parts.append(f"• {key}: {len(value)} items")
+                        else:
+                            message_parts.append(f"• {key}: {value}")
             
             if result.error_message:
                 message_parts.append(f"❌ **Error:** {result.error_message}")
             
             notification_message = "\n".join(message_parts)
             
-            async with httpx.AsyncClient() as client:
-                await client.post(
-                    f"{self.notification_service_url}/api/notifications",
-                    json={
-                        "user_id": request.user_id,
-                        "type": "agent_completion",
-                        "title": f"🤖 {result.agent_name} Completed",
-                        "message": notification_message,
-                        "contact_type": "telegram",
-                        "contact_value": request.contact_info.get("email", "694579866"),
-                        "user_name": request.contact_info.get("name", "User")
-                    }
-                )
+            # Send notification via notification service
+            async with self.notification_client as client:
+                await client.send_notification({
+                    "user_id": request.user_id,
+                    "type": "agent_completion",
+                    "title": f"🤖 {result.agent_name} Completed",
+                    "message": notification_message,
+                    "contact_type": "telegram",
+                    "contact_value": request.contact_info.get("email", "694579866"),
+                    "user_name": request.contact_info.get("name", "User")
+                })
                 
         except Exception as e:
             logger.error(f"Failed to send notification for {result.agent_name}: {e}")
+    
+    def _format_nlp_results(self, message_parts: List[str], result_data: Dict[str, Any]):
+        """Format NLP agent results for notification"""
+        for key, value in result_data.items():
+            if key == "analysis" and isinstance(value, dict):
+                message_parts.append(f"• {key}: {len(value)} fields")
+                for sub_key, sub_value in value.items():
+                    if sub_key in ["summary", "key_insights", "sentiment_analysis"]:
+                        if isinstance(sub_value, str) and len(sub_value) > 100:
+                            message_parts.append(f"  - {sub_key}: {sub_value[:100]}...")
+                        elif isinstance(sub_value, list):
+                            message_parts.append(f"  - {sub_key}: {len(sub_value)} items")
+                        else:
+                            message_parts.append(f"  - {sub_key}: {sub_value}")
+                    elif sub_key == "topic_categorization":
+                        message_parts.append(f"  - {sub_key}: {', '.join(sub_value[:5]) if isinstance(sub_value, list) else sub_value}")
+                    else:
+                        message_parts.append(f"  - {sub_key}: {str(sub_value)[:50]}...")
+            elif key in ["tokens_used", "model_used", "ai_service", "confidence", "processing_time"]:
+                message_parts.append(f"• {key}: {value}")
+            else:
+                if isinstance(value, str) and len(value) > 100:
+                    message_parts.append(f"• {key}: {value[:100]}...")
+                else:
+                    message_parts.append(f"• {key}: {value}")
+    
+    def _format_asr_results(self, message_parts: List[str], result_data: Dict[str, Any]):
+        """Format ASR agent results for notification"""
+        for key, value in result_data.items():
+            if key == "results" and isinstance(value, dict):
+                message_parts.append(f"• {key}: {len(value)} fields")
+                for sub_key, sub_value in value.items():
+                    if sub_key == "transcript" and isinstance(sub_value, str):
+                        message_parts.append(f"  - {sub_key}: {sub_value[:150]}...")
+                    elif sub_key in ["confidence", "language", "duration"]:
+                        message_parts.append(f"  - {sub_key}: {sub_value}")
+                    else:
+                        message_parts.append(f"  - {sub_key}: {str(sub_value)[:50]}...")
+            elif key in ["tokens_used", "model_used", "ai_service", "confidence", "processing_time"]:
+                message_parts.append(f"• {key}: {value}")
+            else:
+                if isinstance(value, str) and len(value) > 100:
+                    message_parts.append(f"• {key}: {value[:100]}...")
+                else:
+                    message_parts.append(f"• {key}: {value}")
+    
+    def _format_document_results(self, message_parts: List[str], result_data: Dict[str, Any]):
+        """Format Document agent results for notification"""
+        for key, value in result_data.items():
+            if key == "results" and isinstance(value, dict):
+                message_parts.append(f"• {key}: {len(value)} fields")
+                for sub_key, sub_value in value.items():
+                    if sub_key == "extracted_text" and isinstance(sub_value, str):
+                        message_parts.append(f"  - {sub_key}: {sub_value[:150]}...")
+                    elif sub_key in ["document_type", "page_count", "word_count"]:
+                        message_parts.append(f"  - {sub_key}: {sub_value}")
+                    else:
+                        message_parts.append(f"  - {sub_key}: {str(sub_value)[:50]}...")
+            elif key in ["tokens_used", "model_used", "ai_service", "confidence", "processing_time"]:
+                message_parts.append(f"• {key}: {value}")
+            else:
+                if isinstance(value, str) and len(value) > 100:
+                    message_parts.append(f"• {key}: {value[:100]}...")
+                else:
+                    message_parts.append(f"• {key}: {value}")
+    
+    def _format_summarizer_results(self, message_parts: List[str], result_data: Dict[str, Any]):
+        """Format Summarizer agent results for notification"""
+        for key, value in result_data.items():
+            if key == "summary_text" and isinstance(value, str):
+                message_parts.append(f"• {key}: {value[:200]}...")
+            elif key == "collected_insights" and isinstance(value, dict):
+                message_parts.append(f"• {key}: {len(value)} sources")
+                for sub_key, sub_value in value.items():
+                    if sub_value:
+                        message_parts.append(f"  - {sub_key}: {len(str(sub_value))} chars")
+            elif key in ["tokens_used", "model_used", "ai_service", "confidence", "processing_time"]:
+                message_parts.append(f"• {key}: {value}")
+            else:
+                if isinstance(value, str) and len(value) > 100:
+                    message_parts.append(f"• {key}: {value[:100]}...")
+                else:
+                    message_parts.append(f"• {key}: {value}")
+    
+    def _format_prototype_results(self, message_parts: List[str], result_data: Dict[str, Any]):
+        """Format Prototype agent results for notification"""
+        for key, value in result_data.items():
+            if key == "results" and isinstance(value, dict):
+                message_parts.append(f"• {key}: {len(value)} fields")
+                for sub_key, sub_value in value.items():
+                    if sub_key == "deployment" and isinstance(sub_value, dict):
+                        message_parts.append(f"  - {sub_key}: {{'url': '[View Prototype]', 'status': 'ready', 'deploymenttime': '2-3 minutes'}}")
+                    elif isinstance(sub_value, str) and len(sub_value) > 50:
+                        message_parts.append(f"  - {sub_key}: {sub_value[:50]}...")
+                    elif isinstance(sub_value, list):
+                        message_parts.append(f"  - {sub_key}: {len(sub_value)} items")
+                    else:
+                        message_parts.append(f"  - {sub_key}: {sub_value}")
+            elif key in ["tokens_used", "model_used", "ai_service", "confidence", "processing_time"]:
+                message_parts.append(f"• {key}: {value}")
+            else:
+                if isinstance(value, str) and len(value) > 100:
+                    message_parts.append(f"• {key}: {value[:100]}...")
+                else:
+                    message_parts.append(f"• {key}: {value}")
     
     async def get_workflow_status(self, workflow_id: str) -> Optional[WorkflowState]:
         """Get workflow status"""

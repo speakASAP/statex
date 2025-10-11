@@ -36,11 +36,11 @@ spec:
             configMapKeyRef:
               name: statex-config
               key: REDIS_HOST
-        - name: OPENAI_API_KEY
+        - name: OPENROUTER_API_KEY
           valueFrom:
             secretKeyRef:
               name: statex-secrets
-              key: OPENAI_API_KEY
+              key: OPENROUTER_API_KEY
         - name: PLATFORM_URL
           valueFrom:
             configMapKeyRef:

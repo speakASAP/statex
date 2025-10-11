@@ -1,0 +1,50 @@
+services:
+  # Redis Cache - REQUIRED for AI Orchestrator workflow persistence
+  redis:
+    image: redis:7-alpine
+    container_name: ${REDIS_CONTAINER_NAME:-statex_redis_essential}
+    restart: unless-stopped
+    ports:
+      - "${REDIS_EXTERNAL_PORT:-6379}:${REDIS_INTERNAL_PORT:-6379}"
+    volumes:
+      - redis_data:/data
+    networks:
+      - statex_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # RabbitMQ Message Queue - REQUIRED for AI services communication
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: ${RABBITMQ_CONTAINER_NAME:-statex_rabbitmq_essential}
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=statex
+      - RABBITMQ_DEFAULT_PASS=statex_password
+      - RABBITMQ_DEFAULT_VHOST=/
+    ports:
+      - "${RABBITMQ_EXTERNAL_PORT:-5672}:${RABBITMQ_INTERNAL_PORT:-5672}"   # AMQP port
+      - "${RABBITMQ_MANAGEMENT_EXTERNAL_PORT:-15672}:${RABBITMQ_MANAGEMENT_INTERNAL_PORT:-15672}" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - statex_network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+
+networks:
+  statex_network:
+    external: true
+    name: statex_network

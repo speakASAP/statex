@@ -140,6 +140,42 @@ The AI orchestrator uses the free-ai-service for all AI operations in the multi-
 4. **Summarizer Agent** (depends on ASR + Document + NLP)
 5. **Prototype Agent** (depends on Summarizer Agent)
 
+### File Structure Integration
+
+The AI providers work with the following file structure for multi-agent workflows:
+
+```text
+data/uploads/{user_id}/sess_{timestamp}_{random}/
+├── form_data.md                  # ← NLP Agent reads this
+├── nlp.md                        # ← NLP Agent saves this
+├── voicerecording.md             # ← ASR Agent saves this
+├── attachments.md                # ← Document Agent saves this
+├── prototype.md                  # ← Prototype Agent saves this
+├── summary.md                    # ← Summarizer Agent saves this
+└── files/                        # ← Subdirectory for actual files
+    ├── {file_id}.webm            # ← Voice files
+    ├── {file_id}.pdf             # ← Document files
+    └── {file_id}.docx            # ← Document files
+```
+
+### Agent-Specific File Processing
+
+- **NLP Agent**: Reads `form_data.md` and uses AI providers for text analysis
+- **ASR Agent**: Processes audio files from `files/` subdirectory
+- **Document Agent**: Processes document files from `files/` subdirectory
+- **Summarizer Agent**: Reads all agent result files and creates comprehensive summary
+- **Prototype Agent**: Uses analysis data to generate prototypes
+
+### Enhanced Notifications
+
+The system now includes comprehensive Telegram notifications with:
+
+- **Input Data**: What each agent received as input
+- **Output Data**: Results from each agent's processing
+- **Execution Time**: Processing time for each agent
+- **Confidence Scores**: AI confidence levels when available
+- **Error Messages**: Detailed error information for failed agents
+
 ## Usage Examples
 
 ### Testing AI Providers
